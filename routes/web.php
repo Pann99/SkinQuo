@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSkinGuideController;
 use App\Http\Controllers\AdminFeedbackController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // A. ROUTE PUBLIC - Accessible untuk Guest dan User
@@ -22,6 +23,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // ── Public Skin Guide / Artikel ────────────────────
 Route::get('/skin-guide', [ArticleController::class, 'index'])->name('skin-guide.index');
 Route::get('/skin-guide/{slug}', [ArticleController::class, 'show'])->name('articles.show');
+
+
+Route::get('/products', function () {
+    return DB::table('products')->get();
+});
 
 // ── Public Catalog / Produk ────────────────────────
 Route::get('/catalog', [ProductController::class, 'index'])->name('catalog.index');
