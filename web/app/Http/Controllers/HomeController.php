@@ -20,11 +20,12 @@ class HomeController extends Controller
                             ->get();
 
         // Ambil 3 produk best seller
-        $bestSellers = Product::where('is_best_seller', true)
-                              ->orderByDesc('sold_count')
-                              ->take(3)
-                              ->get();
+        // $bestSellers = Product::where('is_best_seller', true)
+        //                       ->orderByDesc('sold_count')
+        
+        //                       ->take(3)
+        //                       ->get();
 
-        return view('pages.home', compact('articles', 'bestSellers'));
+        return view('pages.home', compact('articles'));
     }
 }
