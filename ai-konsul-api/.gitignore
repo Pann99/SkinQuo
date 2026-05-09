@@ -1,0 +1,6 @@
+venv/
+ml_models/
+**/__pycache__/
+*.pyc
+.env
+data/Sociolla.csv
