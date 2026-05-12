@@ -3,3 +3,5 @@ Sastrawi
 fastapi
 uvicorn
 pydantic
+rapidfuzz
+pandas 

@@ -6,31 +6,43 @@ from app.services.Quality_querycontrol import validate_query
 class QueryPipelineService:
 
     def run(self, query: str):
-        # Step 1: Simpan original sebelum diproses
+        # Step 1: Preprocessing
         original_query = query
         cleaned_text   = preprocess_text(query)
 
-        # Step 2: Validate query quality (4 poin wajib)
+        # Step 2: Validasi — gerbang pertama, cek query asli
         query_check = validate_query(cleaned_text)
+        status      = query_check["status"]
 
-        # Step 2a: Kirim ke fix_query jika tidak lolos validasi
-        if not query_check["is_valid"]:
-            query_fixing = fix_query(cleaned_text, original_query)
+        # Step 3: Routing berdasarkan status
+        if status == "invalid":
+            # Kategori wajib tidak lengkap — tolak, minta input ulang
             return {
-                "original_query": original_query,
                 "cleaned_text":   cleaned_text,
-                "is_valid":       False,
+                "status":         "invalid",
                 "missing_points": query_check["missing"],
-                "query_fixing":   query_fixing,
+                "matched_points": query_check["matched"],
+                "query_fixing":   None,
             }
 
-        # Step 3: Matching data (lanjut jika valid)
-        # ... matching logic here
+        if status == "fixable":
+            fix_result = fix_query(cleaned_text, original_query)
+            final_text = fix_result["fixed_query"] or cleaned_text  # fallback jika fixing gagal
 
+            query_check = validate_query(final_text)
+
+            return {
+                "cleaned_text":   final_text,
+                "status":         "fixable",
+                "matched_points": query_check["matched"],
+                "query_fixing":   fix_result,   # kirim dict lengkap, bukan hanya string
+    }
+        # status == "valid" — bersih, langsung ke matching
+        # Step 4: Matching logic
+        # ... matching logic here
         return {
-            "original_query": original_query,
             "cleaned_text":   cleaned_text,
-            "is_valid":       True,
+            "status":         "valid",
             "matched_points": query_check["matched"],
             "query_fixing":   None,
         }

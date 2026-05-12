@@ -1,10 +1,14 @@
 import re
+from rapidfuzz import fuzz, process
 from sentence_transformers import SentenceTransformer, util
-from app.services.Quality_querycontrol import validate_query, VALIDATION_KEYWORDS
+from app.services.Quality_querycontrol import validate_query
 
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 
-SIMILARITY_THRESHOLD = 0.85
+# Threshold string distance — cari kata typo di query
+FUZZY_TYPO_THRESHOLD  = 72   # rapidfuzz ratio: cocok untuk typo karakter
+# Threshold semantic — fallback jika string distance gagal
+SEMANTIC_THRESHOLD    = 0.80
 
 LABEL_TO_KEY = {
     "[Product] Jenis produk":       "product",
@@ -14,93 +18,97 @@ LABEL_TO_KEY = {
 }
 
 
-def _print_fix_result(fix_result: dict, still_missing: list, fixed_query: str | None) -> None:
+def _find_typo_word(query_words: list[str], kw_baku: str) -> tuple[str, float, str] | None:
+    # Lapis 1: String distance — prioritas utama untuk typo
+    best = process.extractOne(
+        kw_baku,
+        query_words,
+        scorer=fuzz.ratio,
+        score_cutoff=FUZZY_TYPO_THRESHOLD,
+    )
+    if best:
+        kata_asli, score, _ = best
+        if kata_asli != kw_baku:
+            return kata_asli, round(score / 100, 4), "string_distance"
+
+    # Lapis 2: Semantic similarity — fallback
+    kw_embedding   = model.encode([kw_baku],    convert_to_tensor=True)
+    word_embedding = model.encode(query_words,  convert_to_tensor=True)
+    scores         = util.cos_sim(kw_embedding, word_embedding)[0]
+
+    best_idx   = scores.argmax().item()
+    best_score = scores[best_idx].item()
+
+    if best_score >= SEMANTIC_THRESHOLD:
+        kata_asli = query_words[best_idx]
+        if kata_asli != kw_baku:
+            return kata_asli, round(best_score, 4), "semantic"
+
+    return None
+
+
+def _print_fix_result(fix_result: dict, fixed_query: str | None) -> None:
     print("\n── After Query Fixing ──────────────────────────────")
 
     if fix_result:
         print("✔ Kata dinormalisasi:")
         for label, info in fix_result.items():
             print(f"   {label}")
-            print(f"   '{info['kata_asli']}' → '{info['kata_baku']}'  (score: {info['score']})")
+            print(f"   '{info['kata_asli']}' → '{info['kata_baku']}'  "
+                  f"(score: {info['score']}, metode: {info['metode']})")
 
-    if still_missing:
-        print("✘ Tidak ditemukan (harus dilengkapi user):")
-        for label in still_missing:
-            print(f"   · {label}")
-
-    # Fixed query hanya tampil kalau benar-benar selesai
     if fixed_query:
         print(f"\n   Fixed query : \"{fixed_query}\"")
 
-    status = "FIXED ✔" if not still_missing else "INCOMPLETE ✘"
+    status = "FIXED ✔" if fixed_query else "INCOMPLETE ✘"
     print(f"   Status      : {status}")
     print("────────────────────────────────────────────────────\n")
 
 
 def fix_query(cleaned_text: str, original_query: str) -> dict:
-    validated = validate_query(cleaned_text)
+    validated   = validate_query(cleaned_text)
+    query_words = cleaned_text.split()
+    fix_result  = {}
 
-    if validated["is_valid"]:
-        print("\n── After Query Fixing ──────────────────────────────")
-        print("   Query sudah valid, tidak perlu fixing.")
-        print("────────────────────────────────────────────────────\n")
+    for key, match_data in validated["matched"].items():
+        fuzzy_hits = match_data.get("fuzzy", [])
+        if not fuzzy_hits:
+            continue
+
+        label = next((k for k, v in LABEL_TO_KEY.items() if v == key), None)
+        if not label:
+            continue
+
+        for kw_baku in fuzzy_hits:
+            result = _find_typo_word(query_words, kw_baku)
+            if result:
+                kata_asli, score, metode = result
+                fix_result[f"{label}::{kw_baku}"] = {
+                    "kata_asli": kata_asli,
+                    "kata_baku": kw_baku,
+                    "score":     score,
+                    "metode":    metode,
+                }
+
+    if not fix_result:
+        _print_fix_result(fix_result, fixed_query=None)
         return {
-            "is_fixable":    True,
-            "fix_result":    {},
-            "still_missing": [],
-            "fixed_query":   original_query,
+            "is_fixable":  False,
+            "fix_result":  {},
+            "fixed_query": None,
         }
 
-    query_words   = cleaned_text.split()
-    fix_result    = {}
-    still_missing = []
-
-    for label in validated["missing"]:
-        category     = LABEL_TO_KEY.get(label)
-        keyword_pool = VALIDATION_KEYWORDS.get(category, [])
-
-        word_embeddings    = model.encode(query_words,   convert_to_tensor=True)
-        keyword_embeddings = model.encode(keyword_pool,  convert_to_tensor=True)
-
-        scores    = util.cos_sim(word_embeddings, keyword_embeddings)
-        max_score = scores.max().item()
-        max_idx   = scores.argmax()
-        word_idx  = max_idx // len(keyword_pool)
-        kw_idx    = max_idx %  len(keyword_pool)
-
-        if max_score >= SIMILARITY_THRESHOLD:
-            fix_result[label] = {
-                "kata_asli": query_words[word_idx],
-                "kata_baku": keyword_pool[kw_idx],
-                "score":     round(max_score, 4)
-            }
-        else:
-            still_missing.append(label)
-
-    # ── Gerbang utama: fixed_query hanya dibangun jika SEMUA kategori berhasil ──
-    if still_missing:
-        # Ada yang tidak bisa di-fix → tolak, fixed_query tidak dibangun
-        _print_fix_result(fix_result, still_missing, fixed_query=None)
-        return {
-            "is_fixable":    False,
-            "fix_result":    fix_result,
-            "still_missing": still_missing,
-            "fixed_query":   None,          # ← eksplisit null
-        }
-
-    # Semua berhasil → bangun fixed_query dari original
     fixed_query = original_query.lower()
     for info in fix_result.values():
         fixed_query = re.sub(
             rf'\b{re.escape(info["kata_asli"])}\b',
             info["kata_baku"],
-            fixed_query
+            fixed_query,
         )
 
-    _print_fix_result(fix_result, still_missing, fixed_query)
+    _print_fix_result(fix_result, fixed_query)
     return {
-        "is_fixable":    True,
-        "fix_result":    fix_result,
-        "still_missing": [],
-        "fixed_query":   fixed_query,       # ← hanya ada di sini
+        "is_fixable":  True,
+        "fix_result":  fix_result,
+        "fixed_query": fixed_query,
     }

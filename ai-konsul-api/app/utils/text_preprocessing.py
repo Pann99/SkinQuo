@@ -94,3 +94,19 @@ def preprocess_text(text: str) -> str:
     text = _unmask_protected(text, mask_mapping)
 
     return text
+
+def preprocess_ingredients(text: str) -> str:
+    """Pipeline khusus untuk komposisi/ingredients. TANPA Sastrawi."""
+    text = text.lower().strip()
+    
+    # Hapus karakter spesial (koma dll)
+    text = re.sub(r'[^a-z0-9\s_]', ' ', text)
+    
+    # Tetap lindungi keyword penting (seperti "centella asiatica" atau "pha")
+    text, mask_mapping = _mask_protected(text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # LANGSUNG UNMASK, lewati tahap Sastrawi stopword & stemming
+    text = _unmask_protected(text, mask_mapping)
+    
+    return text
