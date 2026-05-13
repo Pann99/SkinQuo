@@ -37,37 +37,31 @@ class RecommenderService:
         if not cleaned_query.strip():
             return []
 
-        # 1. HARD FILTERING: Filter dataframe jika user menyebutkan tipe produk
-        if extracted_category:
-            # Cari produk yang kategorinya mengandung kata yang diminta (misal: "Toner")
-            mask = self.df['kategori_clean'].str.contains(extracted_category, case=False, na=False)
-            filtered_indices = self.df.index[mask].tolist()
-            
-            # Jika ternyata tidak ada produk dengan kategori tersebut di database, batalkan filter (fallback ke semua data)
-            if not filtered_indices:
-                filtered_indices = self.df.index.tolist()
-        else:
-            filtered_indices = self.df.index.tolist()
-
-        # 2. Ambil hanya baris matriks TF-IDF yang lolos filter
-        filtered_matrix = self.tfidf_matrix[filtered_indices]
-
-        # 3. Hitung Cosine Similarity HANYA pada produk yang lolos filter
+        # 1. Hitung Cosine Similarity terhadap SELURUH dataset (bukan filtered_matrix)
         query_vector = self.vectorizer.transform([cleaned_query])
-        similarity_scores = cosine_similarity(query_vector, filtered_matrix).flatten()
+        similarity_scores = cosine_similarity(query_vector, self.tfidf_matrix).flatten()
 
-        # 4. Ambil Top N
-        top_local_indices = similarity_scores.argsort()[::-1][:top_n]
+        # 2. SOFT SCORING (BOOSTING): Memberikan penekanan pada kategori
+        if extracted_category:
+            # Buat mask untuk produk yang kategorinya mengandung kata kunci tersebut
+            category_mask = self.df['kategori_clean'].str.contains(extracted_category, case=False, na=False).values
+            
+            # Berikan bonus skor (Boosting)
+            # produk ke atas tanpa merusak distribusi skor similarity asli.
+            similarity_scores[category_mask] += 0.25
+
+        # 3. Ambil Top N berdasarkan skor yang sudah di-boost
+        top_indices = similarity_scores.argsort()[::-1][:top_n]
 
         results = []
-        for rank, local_idx in enumerate(top_local_indices, start=1):
-            score = float(similarity_scores[local_idx])
+        for rank, idx in enumerate(top_indices, start=1):
+            score = float(similarity_scores[idx])
+            
+            # Tetap gunakan threshold agar tidak menampilkan hasil yang sama sekali tidak relevan
             if score <= 0:
                 continue
 
-            # Petakan kembali indeks lokal ke indeks dataframe asli
-            original_idx = filtered_indices[local_idx]
-            row = self.df.iloc[original_idx]
+            row = self.df.iloc[idx]
 
             results.append({
                 "rank": rank,

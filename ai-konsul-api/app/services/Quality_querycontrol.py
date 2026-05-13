@@ -48,12 +48,7 @@ def _get_ngrams(text: str, n: int) -> list[str]:
 
 
 def _fuzzy_match_keyword(query_lower: str, keyword: str) -> bool:
-    """
-    Deteksi apakah keyword (dengan toleransi typo) ada di dalam query.
-    - 1 kata  → fuzz.ratio, threshold 75  (sensitif terhadap typo karakter)
-    - frasa   → fuzz.token_set_ratio, threshold 92  (toleran urutan kata)
-    Keyword di FUZZY_SKIP_KEYWORDS tidak masuk ke sini sama sekali.
-    """
+  
     kw_words  = keyword.split()
     kw_length = len(kw_words)
 

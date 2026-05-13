@@ -3,23 +3,22 @@ from fastapi import APIRouter
 from app.schemas.query_schema import QueryRequest
 
 from app.services.query_pipeline_service import QueryPipelineService
-from app.services.Database_pipeline import run_pipeline
+from app.services.Database_pipeline import run_pipeline_supabase
 from app.services.Recommender import RecommenderService
 
 
 router = APIRouter()
 
 # =====================================================
-# INIT SERVICES (RUN SEKALI SAAT STARTUP)
+# INIT SERVICES 
 # =====================================================
 
-print("[API] Loading database pipeline...")
-
-df_clean = run_pipeline("data/Sociolla.csv")
+# Ganti inisialisasi awal
+print("[API] Loading database from Supabase...")
+df_clean = run_pipeline_supabase() # Fungsi baru dari Database_pipeline.py
 
 print("[API] Initializing recommender engine...")
-
-recommender = RecommenderService(df_clean)
+recommender = RecommenderService(df_clean) # Engine tetap menggunakan DataFrame bersih
 
 query_pipeline = QueryPipelineService()
 
@@ -54,12 +53,10 @@ def recommend_products(request: QueryRequest):
 
     cleaned_query = query_result["cleaned_text"]
 
-    # Ambil kategori produk dari hasil Quality_querycontrol (misal: "toner")
     extracted_category = None
     matched_points = query_result.get("matched_points", {})
     
     if "product" in matched_points:
-        # Utamakan exact match, fallback ke fuzzy match jika ada typo yang lolos
         if matched_points["product"].get("exact"):
             extracted_category = matched_points["product"]["exact"][0]
         elif matched_points["product"].get("fuzzy"):
@@ -69,7 +66,6 @@ def recommend_products(request: QueryRequest):
     # RECOMMENDATION
     # ==========================================
 
-    # Kirim extracted_category ke Recommender untuk di-filter secara mutlak
     recommendations = recommender.recommend(
         cleaned_query=cleaned_query,
         extracted_category=extracted_category,
