@@ -484,8 +484,8 @@
                             </div>
 
                             <div class="cat-product-body">
-                                <div class="cat-product-cat">{{ $product['category'] ?? 'Product' }}</div>
-                                <h3 class="cat-product-name">{{ $product['name'] }}</h3>
+                                <div class="cat-product-cat">{{ $product['kategori_produk'] ?? 'Product' }}</div>
+                                <h3 class="cat-product-name">{{ $product['nama_produk'] }}</h3>
 
                                 {{-- Stars ── --}}
                                 <div class="cat-stars">
@@ -497,7 +497,7 @@
                                 </div>
 
                                 <div class="cat-product-footer">
-                                    <div class="cat-product-price">Rp {{ number_format($product['price'] ?? 0, 0, ',', '.') }}</div>
+                                    <div class="cat-product-price">Rp {{ number_format($product['harga_min'] ?? 0, 0, ',', '.') }}</div>
                                     <button class="cat-add-btn" onclick="event.preventDefault(); event.stopPropagation();" title="Tambah ke keranjang">
                                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>

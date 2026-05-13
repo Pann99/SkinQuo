@@ -14,14 +14,16 @@ class Product extends Model
         'slug',
         'description',
         'category',
-        'price',
+        'harga_min',
+        'harga_max',
         'image',
         'is_best_seller',
         'sold_count',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'harga_min' => 'decimal:2',
+        'harga_max' => 'decimal:2',
         'is_best_seller' => 'boolean',
         'sold_count' => 'integer',
     ];
