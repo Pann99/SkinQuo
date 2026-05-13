@@ -500,7 +500,7 @@
 <section class="consult-hero" id="consult-hero">
 
     <h1 class="consult-heading">
-        LETS FIND YOUR <span class="accent">RATIONAL</span><br>SKIN ROUTINE.
+        LETS FIND YOUR <span class="accent">BEST</span><br>PRODUCT MATCHES
     </h1>
     <p class="consult-sub">
         Forget rigid quizzes. Tell us your skin story. Where is it oily? Does it sting? Do you have specific concerns?
