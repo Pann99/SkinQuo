@@ -45,7 +45,6 @@ def _unmask_protected(text: str, mapping: dict) -> str:
 def _safe_remove_stopwords(text: str) -> str:
     """Hapus stopword per kata untuk melindungi placeholder agar tidak rusak oleh Sastrawi."""
     words = text.split()
-    # Hanya hapus jika kata tersebut BUKAN placeholder dan memang dianggap stopword
     filtered_words = [
         word for word in words 
         if "__KW_" in word or stopword_remover.remove(word) != ""
@@ -58,7 +57,7 @@ def _safe_stemming(text: str) -> str:
     words = text.split()
     stemmed_words = []
     for word in words:
-        # Jika kata mengandung placeholder (misal: __KW_12__an), jangan di-stem
+        # Jika kata mengandung placeholder (misal: __KW_12__an), tidak di-stem
         if "__KW_" in word:
             stemmed_words.append(word)
         else:
@@ -69,13 +68,11 @@ def _safe_stemming(text: str) -> str:
 # ── Public API ───────────────────────────────────────────────────
 
 def preprocess_text(text: str) -> str:
-    """Pipeline pembersihan teks utama."""
  
-    # 1. Lowercase dan bersihkan whitespace
+    # 1. Lowercase dan  whitespace
     text = text.lower().strip()
 
-    # 2. Hapus karakter spesial di awal agar masking lebih akurat
-    # Namun biarkan underscore (_) tetap ada agar tidak merusak placeholder nantinya
+    # 2. Hapus karakter spesial 
     text = re.sub(r'[^a-z0-9\s_]', ' ', text)
 
     # 3. Lindungi keyword teknis sebelum diproses lebih lanjut

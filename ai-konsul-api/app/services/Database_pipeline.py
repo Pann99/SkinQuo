@@ -1,35 +1,115 @@
 import pandas as pd
+
+from app.core.supabase_client import supabase
+
 from app.utils.Database_processing import (
-    load_data,
     extract_description,
     extract_ingredients,
     extract_category,
     print_summary,
 )
- 
- 
-# ─────────────────────────────────────────────
-# MAIN PIPELINE
-# ─────────────────────────────────────────────
- 
-def run_pipeline(input_path: str) -> pd.DataFrame:
-    
-    df = load_data(input_path)
+
+
+def run_pipeline_supabase() -> pd.DataFrame:
+
+    print("[API] Menarik data produk dari Supabase...")
+
+    # =====================================================
+    # FETCH DATA
+    # =====================================================
+
+    response = (
+        supabase
+        .table("products")
+        .select("*")
+        .execute()
+    )
+
+    if not response.data:
+
+        print("Error: Tidak ada data ditemukan di Supabase.")
+
+        return pd.DataFrame()
+
+    # =====================================================
+    # RAW DATAFRAME
+    # =====================================================
+
+    df = pd.DataFrame(response.data)
+
+    # NORMALISASI NAMA KOLOM
+    df.columns = (
+        df.columns
+        .str.strip()
+        .str.lower()
+    )
+
+    print("\n========== RAW DF ==========")
+    print(df.head(2))
+    print("\nCOLUMNS:")
+    print(df.columns.tolist())
+    print("============================")
+
+    # =====================================================
+    # DESCRIPTION CLEANING
+    # =====================================================
+
     df = extract_description(df)
+
+    print("\n========== AFTER DESCRIPTION ==========")
+    print(df.columns.tolist())
+    print("=======================================")
+
+    # =====================================================
+    # INGREDIENT CLEANING
+    # =====================================================
+
     df = extract_ingredients(df)
+
+    print("\n========== AFTER INGREDIENT ==========")
+    print(df.columns.tolist())
+    print("======================================")
+
+    # =====================================================
+    # CATEGORY CLEANING
+    # =====================================================
+
     df = extract_category(df)
-    print_summary(df)
-    return df
- 
- 
-if __name__ == "__main__":
-    INPUT_PATH = "data/Sociolla.csv"
- 
-    df_clean = run_pipeline(INPUT_PATH)
- 
-    # Preview 
-    print("\nPreview 3 baris pertama (kolom utama):")
-    preview_cols = [
-        "nama_produk", "kategori_clean", "deskripsi_clean", "kandungan_clean"
+
+    print("\n========== AFTER CATEGORY ==========")
+    print(df.columns.tolist())
+    print("====================================")
+
+    # =====================================================
+    # VALIDASI FINAL
+    # =====================================================
+
+    required_columns = [
+        "nama_produk",
+        "nama_brand",
+        "deskripsi_clean",
+        "kandungan_clean",
+        "kategori_clean"
     ]
-    print(df_clean[preview_cols].head(3).to_string(max_colwidth=80))
+
+    missing_columns = [
+        col
+        for col in required_columns
+        if col not in df.columns
+    ]
+
+    if missing_columns:
+
+        raise ValueError(
+            f"Missing columns after pipeline: "
+            f"{missing_columns}"
+        )
+
+    print_summary(df)
+
+    print("\n========== FINAL DF ==========")
+    print(df.head(2))
+    print(df.columns.tolist())
+    print("==============================")
+
+    return df

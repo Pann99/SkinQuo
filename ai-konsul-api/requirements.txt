@@ -5,3 +5,5 @@ uvicorn
 pydantic
 rapidfuzz
 pandas 
+supabase
+python-dotenv
