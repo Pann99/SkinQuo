@@ -24,7 +24,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/skin-guide', [ArticleController::class, 'index'])->name('skin-guide.index');
 Route::get('/skin-guide/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
-
 Route::get('/products', function () {
     return DB::table('products')->get();
 });
@@ -64,6 +63,12 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
 
+// ── Preview routes for admin UI development (no login required)
+Route::view('/admin/profile-preview', 'admin.profile.profile')->name('admin.profile.preview');
+Route::view('/admin/profile-preview/change-password', 'admin.profile.change-password')
+     ->name('admin.profile.preview.change-password');
+// TODO [DEV]: Remove preview routes after admin auth is implemented.
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // C. ROUTE USER (Protected by auth middleware)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -89,6 +94,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // ── Admin Dashboard ────────────────────────────
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // ── Admin Profile (Frontend preview only) ──────
+    Route::view('/profile', 'admin.profile.profile')->name('profile');
+    Route::view('/profile/change-password', 'admin.profile.change-password')
+         ->name('profile.change-password');
+    Route::patch('/profile/update-password', function () {
+        return redirect()->route('admin.profile');
+    })->name('profile.update-password');
+    // TODO [BACKEND]: Replace these view routes with real controller actions later.
+
+    // ── Admin placeholder pages for navigation links ──
+    Route::view('/inventory', 'admin.inventory.index')->name('inventory');
+    Route::view('/journal', 'admin.journal.index')->name('journal');
+    Route::get('/feedback', [AdminFeedbackController::class, 'monitor'])->name('feedback');
 
     // ── Products Management (Full CRUD) ────────────
     Route::resource('products', AdminProductController::class, [

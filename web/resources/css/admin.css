@@ -1,0 +1,200 @@
+:root {
+  --bg-main:    #FAE8CE;
+  --bg-sidebar: #EDD9B8;
+  --bg-card:    #EDBE96;
+  --bg-footer:  #3C2010;
+  --brown-dark: #3C2010;
+  --brown-mid:  #7A5030;
+  --brown-light:#C4A07A;
+  --cream-input:#F5DFC0;
+  --white:      #FFFFFF;
+}
+
+/* ===== GLOBAL ===== */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg-main); font-family: 'Jost', sans-serif; color: var(--brown-dark); }
+
+/* ===== LAYOUT ===== */
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar full height berdiri sendiri */
+.admin-sidebar {
+  width: 230px;
+  min-height: 100vh;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  padding: 36px 22px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+/* Main content area */
+.admin-main {
+  flex: 1;
+  overflow-y: auto;
+  background: linear-gradient(180deg, var(--bg-main) 0%, #F6D9B7 100%);
+  padding: 0;
+}
+
+/* Footer HANYA di bawah konten, bukan di bawah sidebar */
+.admin-footer {
+  background: var(--bg-footer);
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+/* ===== SIDEBAR NAV ITEMS ===== */
+.nav-item-admin {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  color: var(--brown-dark);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+.nav-item-admin:hover {
+  background: rgba(61, 35, 20, 0.08);
+  color: var(--brown-dark);
+}
+.nav-item-admin.active {
+  background: var(--brown-dark);
+  color: var(--white);
+}
+
+/* ===== INPUTS ===== */
+
+/* Profile page inputs — pill shape, white bg */
+.admin-input {
+  width: 100%;
+  background: var(--white);
+  border: none;
+  border-radius: 999px;
+  padding: 16px 28px;
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
+  color: var(--brown-dark);
+  outline: none;
+  display: block;
+  box-shadow: inset 0 8px 18px rgba(0, 0, 0, 0.04);
+}
+.admin-input:focus {
+  box-shadow: 0 0 0 2px rgba(196, 166, 128, 0.35);
+}
+
+/* Change password inputs — rounded rect, cream bg */
+.admin-input-cream {
+  width: 100%;
+  background: var(--cream-input);
+  border: none;
+  border-radius: 14px;
+  padding: 18px 22px;
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
+  color: var(--brown-dark);
+  outline: none;
+  display: block;
+  box-shadow: inset 0 8px 18px rgba(0, 0, 0, 0.03);
+}
+.admin-input-cream:focus {
+  box-shadow: 0 0 0 2px rgba(196, 160, 122, 0.35);
+}
+.admin-input-cream:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ===== BUTTONS ===== */
+
+/* Ubah Password — outline pill */
+.btn-ubah-password {
+  background: transparent;
+  border: 2px solid var(--brown-dark);
+  color: var(--brown-dark);
+  border-radius: 999px;
+  padding: 12px 26px;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+.btn-ubah-password:hover {
+  background: var(--brown-dark);
+  color: var(--white);
+}
+
+/* Save New Password — full width solid */
+.btn-save-password {
+  width: 100%;
+  background: var(--brown-dark);
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  padding: 20px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: block;
+}
+.btn-save-password:hover {
+  background: var(--brown-mid);
+}
+
+/* ===== LABELS ===== */
+.field-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--brown-mid);
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* ===== CARDS ===== */
+.admin-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  padding: 44px;
+  box-shadow: 0 40px 80px rgba(61, 35, 20, 0.08);
+}
+
+/* ===== BACK LINK ===== */
+.back-link {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  color: var(--brown-mid);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.back-link:hover {
+  color: var(--brown-dark);
+}
