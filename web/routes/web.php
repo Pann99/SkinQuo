@@ -67,6 +67,12 @@ Route::post('/logout', [AuthController::class, 'logout'])
 Route::view('/admin/profile-preview', 'admin.profile.profile')->name('admin.profile.preview');
 Route::view('/admin/profile-preview/change-password', 'admin.profile.change-password')
      ->name('admin.profile.preview.change-password');
+
+// ── Journal Preview routes (for development - remove later)
+Route::view('/admin/journal-preview', 'admin.journal.index')->name('admin.journal.preview');
+Route::view('/admin/journal-preview/create', 'admin.journal.create')->name('admin.journal.preview.create');
+Route::view('/admin/journal-preview/edit', 'admin.journal.edit')->name('admin.journal.preview.edit');
+Route::view('/admin/feedback-preview', 'admin.feedback.monitor')->name('admin.feedback.preview');
 // TODO [DEV]: Remove preview routes after admin auth is implemented.
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -106,8 +112,40 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // ── Admin placeholder pages for navigation links ──
     Route::view('/inventory', 'admin.inventory.index')->name('inventory');
-    Route::view('/journal', 'admin.journal.index')->name('journal');
     Route::get('/feedback', [AdminFeedbackController::class, 'monitor'])->name('feedback');
+
+    // ── Editorial Journal / Articles Management ────────
+    // TODO [BACKEND]: Create ArticleController with CRUD methods
+    // Controllers needed: create, store, edit, update, delete methods
+    // Database table: articles with fields documented in create.blade.php
+    Route::get('/journal', function() {
+        // TODO [BACKEND]: Fetch articles from database with pagination
+        return view('admin.journal.index');
+    })->name('journal');
+    
+    Route::get('/journal/create', function() {
+        return view('admin.journal.create');
+    })->name('journal.create');
+    
+    Route::post('/journal', function() {
+        // TODO [BACKEND]: Implement store logic in controller
+        return redirect()->route('admin.journal')->with('success', 'Article created successfully!');
+    })->name('journal.store');
+    
+    Route::get('/journal/{id}/edit', function($id) {
+        // TODO [BACKEND]: Fetch article by ID and pass to edit view
+        return view('admin.journal.edit');
+    })->name('journal.edit');
+    
+    Route::put('/journal/{id}', function($id) {
+        // TODO [BACKEND]: Implement update logic in controller
+        return redirect()->route('admin.journal')->with('success', 'Article updated successfully!');
+    })->name('journal.update');
+    
+    Route::delete('/journal/{id}', function($id) {
+        // TODO [BACKEND]: Implement delete logic in controller
+        return redirect()->route('admin.journal')->with('success', 'Article deleted successfully!');
+    })->name('journal.destroy');
 
     // ── Products Management (Full CRUD) ────────────
     Route::resource('products', AdminProductController::class, [
