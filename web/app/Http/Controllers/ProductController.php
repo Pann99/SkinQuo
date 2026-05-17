@@ -105,7 +105,7 @@ class ProductController extends Controller
     /**
      * Tampilkan detail produk.
      */
-    public function show($slug)
+    public function show(string $slug)
     {
         $product = Product::where('slug', $slug)->first();
         

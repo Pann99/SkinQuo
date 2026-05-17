@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
@@ -13,8 +15,20 @@ class ProfileController extends Controller
      */
     public function show()
     {
-        $user = Auth::user();
-        return view('pages.profile', compact('user'));
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return redirect()->route('login');
+            }
+            // Eager load relationships untuk avoid N+1 queries
+            $user->load(['consultations', 'sex', 'role']);
+            $consultations = $user->consultations()->paginate(10);
+            
+            return view('pages.profile', compact('user', 'consultations'));
+        } catch (\Exception $e) {
+            \Log::error('Profile show error: ' . $e->getMessage());
+            return redirect()->route('home')->withErrors(['error' => 'Terjadi kesalahan saat memuat profil.']);
+        }
     }
 
     /**
@@ -24,33 +38,59 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
+        // Validasi input
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'birth_date' => ['nullable', 'date'],
-            'gender' => ['required', 'string', 'in:female,male,non_binary,prefer_not'],
-            'mobile_number' => ['nullable', 'string', 'max:20', 'unique:users,mobile_number,' . $user->id],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'avatar' => ['nullable', 'image', 'max:2048'],
+            'username' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->user_id . ',user_id'],
+            'date_birth' => ['nullable', 'date', 'before:today'],
+            'sex_id' => ['nullable', 'integer', 'in:1,2'],
+            'password' => ['nullable', 'string', 'min:8', 'max:255'],
+        ], [
+            'username.required' => 'Username tidak boleh kosong.',
+            'username.max' => 'Username terlalu panjang (maksimal 255 karakter).',
+            'email.required' => 'Email tidak boleh kosong.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan oleh user lain.',
+            'date_birth.date' => 'Format tanggal lahir tidak valid.',
+            'date_birth.before' => 'Tanggal lahir harus sebelum hari ini.',
+            'sex_id.integer' => 'Jenis kelamin tidak valid.',
+            'sex_id.in' => 'Jenis kelamin hanya boleh 1 (Laki-laki) atau 2 (Perempuan).',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.max' => 'Password terlalu panjang (maksimal 255 karakter).',
         ]);
 
-        // Handle file upload avatar
-        if ($request->hasFile('avatar')) {
-            // Hapus avatar lama jika ada
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
+        try {
+            // Update data dasar
+            $updateData = [
+                'username' => $validated['username'],
+                'email' => strtolower(trim($validated['email'])),
+            ];
+
+            // Update opsional
+            if ($validated['date_birth']) {
+                $updateData['date_birth'] = $validated['date_birth'];
+            }
+            if ($validated['sex_id']) {
+                $updateData['sex_id'] = $validated['sex_id'];
             }
 
-            // Simpan avatar baru
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $validated['avatar'] = $path;
+            // Update password jika ada input
+            if ($validated['password']) {
+                $updateData['password'] = Hash::make($validated['password']);
+            }
+
+            // Lakukan update
+            $user->update($updateData);
+
+            return redirect()->route('profile.show')->with('status', 'Profil berhasil diperbarui!');
+        } catch (\Exception $e) {
+            // Log error untuk debugging
+            \Log::error('Profile update error: ' . $e->getMessage());
+            
+            return back()->withErrors([
+                'error' => 'Terjadi kesalahan saat memperbarui profil. Silakan coba lagi.',
+            ])->withInput();
         }
-
-        // Update nama gabungan
-        $validated['name'] = $validated['first_name'] . ' ' . $validated['last_name'];
-
-        $user->update($validated);
-
-        return redirect()->route('profile.show')->with('status', 'Profile berhasil diperbarui!');
     }
 }
+
