@@ -299,6 +299,122 @@
     @media (max-width: 960px) { .cr-rec-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .cr-rec-grid { grid-template-columns: 1fr; } }
 
+    /* ── Product Slider Styles ── */
+    .cr-rec-slider-wrapper {
+        position: relative;
+        margin-bottom: 2.5rem;
+    }
+
+    .cr-rec-slider {
+        display: flex;
+        gap: 1.25rem;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        padding: 0.5rem 0;
+    }
+
+    .cr-rec-slider::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .cr-rec-slider::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .cr-rec-slider::-webkit-scrollbar-thumb {
+        background: rgba(96, 63, 38, 0.2);
+        border-radius: 3px;
+    }
+
+    .cr-rec-slider::-webkit-scrollbar-thumb:hover {
+        background: rgba(96, 63, 38, 0.4);
+    }
+
+    .cr-rec-slider-item {
+        flex: 0 0 calc(25% - 0.9375rem);
+        scroll-snap-align: start;
+        min-width: 0;
+    }
+
+    @media (max-width: 960px) {
+        .cr-rec-slider-item {
+            flex: 0 0 calc(50% - 0.625rem);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .cr-rec-slider-item {
+            flex: 0 0 calc(100% - 0rem);
+        }
+    }
+
+    /* ── Slider Navigation Buttons ── */
+    .cr-slider-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(96, 63, 38, 0.15);
+        color: #603F26;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        z-index: 10;
+        opacity: 0;
+    }
+
+    .cr-slider-nav:hover {
+        background: rgba(96, 63, 38, 0.3);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .cr-slider-nav:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .cr-rec-slider-wrapper:hover .cr-slider-nav {
+        opacity: 1;
+    }
+
+    .cr-slider-nav-prev {
+        left: -50px;
+    }
+
+    .cr-slider-nav-next {
+        right: -50px;
+    }
+
+    /* ── Slider Indicators ── */
+    .cr-slider-indicators {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 1.25rem;
+        align-items: center;
+        font-size: 0.8rem;
+        color: rgba(96, 63, 38, 0.5);
+    }
+
+    .cr-slider-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(96, 63, 38, 0.2);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .cr-slider-dot.active {
+        background: #603F26;
+    }
+
     .cr-rec-card {
         background: #fff;
         border-radius: 16px;
@@ -589,28 +705,55 @@
     <div class="cr-rec-section">
         <div class="cr-rec-header">
             <h2 class="cr-rec-title">Produk Rekomendasi</h2>
-            <span class="cr-rec-sub">Disesuaikan dengan kondisi kulit Anda</span>
+            <span class="cr-rec-sub">Disesuaikan dengan kondisi kulit Anda (Max 5 produk)</span>
         </div>
 
-        <div class="cr-rec-grid">
-            @foreach($recommendedProducts->take(4) as $i => $prod)
-                <a href="{{ route('catalog.show', $prod->slug) }}" class="cr-rec-card">
-                    <div class="cr-rec-thumb">
-                        @if($prod->image)
-                            <img src="{{ Storage::url($prod->image) }}" alt="{{ $prod->name }}">
-                        @else
-                            💧
-                        @endif
-                        <div class="cr-rec-match-badge">{{ 95 - $i * 5 }}% match</div>
+        <div class="cr-rec-slider-wrapper" id="productSliderWrapper">
+            <div class="cr-rec-slider" id="productSlider">
+                @foreach($recommendedProducts->take(5) as $i => $prod)
+                    <div class="cr-rec-slider-item">
+                        <a href="{{ route('catalog.show', $prod->slug) }}" class="cr-rec-card">
+                            <div class="cr-rec-thumb">
+                                @if($prod->image)
+                                    <img src="{{ Storage::url($prod->image) }}" alt="{{ $prod->name }}">
+                                @else
+                                    💧
+                                @endif
+                                <div class="cr-rec-match-badge">{{ 95 - $i * 5 }}% match</div>
+                            </div>
+                            <div class="cr-rec-body">
+                                <div class="cr-rec-cat">{{ $prod->category ?? 'Product' }}</div>
+                                <div class="cr-rec-name">{{ $prod->name }}</div>
+                                <div class="cr-rec-price">Rp{{ number_format($prod->price, 0, ',', '.') }}</div>
+                            </div>
+                        </a>
                     </div>
-                    <div class="cr-rec-body">
-                        <div class="cr-rec-cat">{{ $prod->category ?? 'Product' }}</div>
-                        <div class="cr-rec-name">{{ $prod->name }}</div>
-                        <div class="cr-rec-price">${{ number_format($prod->price, 2) }}</div>
-                    </div>
-                </a>
-            @endforeach
+                @endforeach
+            </div>
+            <button class="cr-slider-nav cr-slider-nav-prev" id="sliderPrev" aria-label="Previous products">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <button class="cr-slider-nav cr-slider-nav-next" id="sliderNext" aria-label="Next products">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
         </div>
+
+        {{-- Slider Indicators ── --}}
+        @php $productCount = min($recommendedProducts->count(), 5); @endphp
+        @if($productCount > 1)
+        <div class="cr-slider-indicators" id="sliderIndicators">
+            <span id="sliderCount">1</span> / <span id="totalCount">{{ $productCount }}</span>
+            <div class="cr-slider-dots" id="sliderDots" style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                @for($i = 0; $i < $productCount; $i++)
+                    <div class="cr-slider-dot {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}"></div>
+                @endfor
+            </div>
+        </div>
+        @endif
     </div>
     @endif
 
@@ -632,6 +775,97 @@
 
 @push('scripts')
 <script>
+    // ═══════════════════════════════════════════════════════
+    // GAUGE ANIMATION
+    // ═══════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function() {
+        const gaugeFill = document.getElementById('gauge-fill');
+        const gaugeNumber = document.getElementById('gauge-number');
+        if (gaugeFill && gaugeNumber) {
+            setTimeout(() => {
+                gaugeFill.style.strokeDashoffset = '57';
+                gaugeNumber.textContent = '72';
+            }, 100);
+        }
+
+        // Progress bars animation
+        const progressFills = document.querySelectorAll('.cr-progress-fill');
+        progressFills.forEach((bar) => {
+            const width = bar.getAttribute('data-width') || '0';
+            setTimeout(() => {
+                bar.style.width = width + '%';
+            }, 100);
+        });
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // PRODUCT SLIDER FUNCTIONALITY
+    // ═══════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.getElementById('productSlider');
+        const prevBtn = document.getElementById('sliderPrev');
+        const nextBtn = document.getElementById('sliderNext');
+        const sliderDots = document.querySelectorAll('#sliderDots .cr-slider-dot');
+        const sliderCount = document.getElementById('sliderCount');
+
+        if (!slider) return;
+
+        const itemWidth = slider.querySelector('.cr-rec-slider-item')?.offsetWidth || 0;
+        const gap = 20; // gap value from CSS
+        const scrollAmount = itemWidth + gap;
+        const totalItems = slider.querySelectorAll('.cr-rec-slider-item').length;
+
+        // Function to check scroll position and update button states
+        function updateButtonStates() {
+            const maxScroll = slider.scrollWidth - slider.clientWidth;
+            const isAtStart = slider.scrollLeft < 10;
+            const isAtEnd = slider.scrollLeft >= maxScroll - 10;
+
+            prevBtn.disabled = isAtStart;
+            nextBtn.disabled = isAtEnd;
+
+            // Update current item counter and dots
+            const currentIndex = Math.round(slider.scrollLeft / scrollAmount);
+            if (sliderCount) {
+                sliderCount.textContent = Math.min(currentIndex + 1, totalItems);
+            }
+            sliderDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        // Event listeners
+        prevBtn.addEventListener('click', () => {
+            slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            setTimeout(updateButtonStates, 300);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            setTimeout(updateButtonStates, 300);
+        });
+
+        slider.addEventListener('scroll', updateButtonStates);
+
+        // Dot navigation
+        sliderDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                slider.scrollTo({
+                    left: index * scrollAmount,
+                    behavior: 'smooth'
+                });
+                setTimeout(updateButtonStates, 300);
+            });
+        });
+
+        // Initial state
+        updateButtonStates();
+
+        // Update on window resize
+        window.addEventListener('resize', updateButtonStates);
+    });
+</script>
+@endpush
 document.addEventListener('DOMContentLoaded', function () {
     // Animate progress bars
     document.querySelectorAll('.cr-progress-fill').forEach(function(bar) {

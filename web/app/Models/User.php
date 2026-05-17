@@ -65,6 +65,8 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
     protected $table = 'users';
 
     protected $primaryKey = 'user_id';
@@ -84,4 +86,41 @@ class User extends Authenticatable
     ];
 
     public $timestamps = false;
+
+    /**
+     * Disable remember token since Supabase doesn't have this column
+     */
+    public $rememberTokenName = null;
+
+    /**
+     * Cast attributes to native types
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'date_birth' => 'date',
+    ];
+
+    /**
+     * Relationship: User has many Consultations
+     */
+    public function consultations()
+    {
+        return $this->hasMany(Consultation::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Relationship: User belongs to Sex
+     */
+    public function sex()
+    {
+        return $this->belongsTo(Sex::class, 'sex_id', 'id');
+    }
+
+    /**
+     * Relationship: User belongs to Role
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
 }

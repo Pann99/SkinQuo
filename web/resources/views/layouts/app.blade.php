@@ -113,6 +113,105 @@
         .nav-logo:hover { opacity: 0.72; }
 
         /* ═══════════════════════════════
+           NAVBAR PROFILE DROPDOWN
+        ═══════════════════════════════ */
+        .nav-profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--brown);
+            transition: background 0.2s;
+            position: relative;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+
+        .nav-profile-btn:hover {
+            background: rgba(96, 63, 38, 0.08);
+            color: var(--dark-brown);
+        }
+
+        .nav-profile-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--brown);
+        }
+
+        .nav-profile-avatar-placeholder {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--dark-brown);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: var(--cream);
+            font-weight: 700;
+        }
+
+        .nav-profile-container {
+            position: relative;
+            padding-bottom: 12px;
+            margin-bottom: -12px;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0;
+            background: #FFF8F0;
+            border: 1px solid rgba(96, 63, 38, 0.15);
+            border-radius: 12px;
+            padding: 8px 0;
+            min-width: 140px;
+            box-shadow: 0 8px 24px rgba(96, 63, 38, 0.12);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .nav-profile-container:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .nav-dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            text-align: left;
+            background: none;
+            border: none;
+            text-decoration: none;
+            color: var(--dark-brown);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(96, 63, 38, 0.08);
+        }
+
+        /* ═══════════════════════════════
            FOOTER
         ═══════════════════════════════ */
         .footer-link {
@@ -180,22 +279,29 @@
                 </a>
 
                 @auth
-                    <a href="{{ route('profile.show') }}"
-                       class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
-                       style="display:flex; align-items:center; gap:6px;">
-                        @if(auth()->user()->avatar)
-                            <img src="{{ Storage::url(auth()->user()->avatar) }}"
-                                 alt="Avatar"
-                                 style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid var(--brown);">
-                        @else
-                            <span style="width:26px;height:26px;border-radius:50%;background:var(--dark-brown);display:inline-flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--cream);font-weight:700;">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            </span>
-                        @endif
-                        Profile
-                    </a>
+                    <div class="nav-profile-container" style="position:relative;">
+                        <button class="nav-profile-btn" onclick="location.href='{{ route('profile.show') }}'" type="button">
+                            @if(auth()->user()->sex && auth()->user()->sex->icon_image_url)
+                                <img src="{{ auth()->user()->sex->icon_image_url }}"
+                                     alt="Avatar"
+                                     class="nav-profile-avatar">
+                            @else
+                                <span class="nav-profile-avatar-placeholder">
+                                    {{ strtoupper(substr(auth()->user()->username ?? 'U', 0, 1)) }}
+                                </span>
+                            @endif
+                            <span>{{ explode(' ', auth()->user()->username ?? 'Profile')[0] }}</span>
+                        </button>
+
+                        <div class="nav-dropdown">
+                            <form method="POST" action="{{ route('logout') }}" style="width:100%;">
+                                @csrf
+                                <button type="submit" class="nav-dropdown-item">Logout</button>
+                            </form>
+                        </div>
+                    </div>
                 @else
-                    <a href="{{ route('login') }}" class="nav-link">Profile</a>
+                    <a href="{{ route('login') }}" class="nav-link">Login</a>
                 @endauth
             </div>
         </nav>
@@ -218,10 +324,13 @@
 
                 {{-- Brand --}}
                 <div>
-                    <h3 class="font-serif"
-                        style="font-size:2rem; font-weight:700; color:var(--cream); margin-bottom:0.75rem;">
-                        SkinQuo
-                    </h3>
+                    <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:1rem;">
+                        <img src="{{ asset('images/logo_skinquo_cream.png') }}" alt="SkinQuo Logo" style="width:48px; height:48px; object-fit:contain;">
+                        <h3 class="font-serif"
+                            style="font-size:2rem; font-weight:700; color:var(--cream); margin:0;">
+                            SkinQuo
+                        </h3>
+                    </div>
                     <p style="font-size:0.8rem; line-height:1.75; color:rgba(255,219,181,0.65); max-width:190px;">
                         Because Every Skin Has Its Own Quo. Gentle skincare for every skin type.
                     </p>

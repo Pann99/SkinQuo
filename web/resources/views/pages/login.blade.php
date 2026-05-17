@@ -32,9 +32,16 @@
         text-decoration: none;
         letter-spacing: -0.02em;
         margin-bottom: auto;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
     }
     .auth-brand:hover { opacity: 0.75; }
+    .auth-brand img {
+        width: 45px;
+        height: 45px;
+        object-fit: contain;
+    }
 
     .auth-form-area {
         flex: 1;
@@ -156,7 +163,10 @@
     <div class="auth-left">
 
         {{-- Brand --}}
-        <a href="{{ route('home') }}" class="auth-brand">SkinQuo</a>
+        <a href="{{ route('home') }}" class="auth-brand">
+            <img src="{{ asset('images/logo_skinquo_coklat.png') }}" alt="SkinQuo Logo">
+            SkinQuo
+        </a>
 
         {{-- Form --}}
         <div class="auth-form-area">
@@ -183,33 +193,51 @@
                 @csrf
 
                 {{-- Email / Mobile --}}
-                <label class="auth-label" for="email">Mobile number or email address</label>
+                <label class="auth-label" for="email">Email address</label>
                 <input
                     id="email"
-                    type="text"
+                    type="email"
                     name="email"
                     class="auth-input"
-                    placeholder="Mobile number or email address"
+                    placeholder="Email address"
                     value="{{ old('email') }}"
                     required
                     autocomplete="username"
                     autofocus
+                    maxlength="255"
                 >
 
                 {{-- Password --}}
                 <label class="auth-label" for="password">Password</label>
-                <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    class="auth-input"
-                    placeholder="Password"
-                    required
-                    autocomplete="current-password"
-                >
-
-                {{-- Remember (hidden, default true for UX) --}}
-                <input type="hidden" name="remember" value="1">
+                <div style="position: relative; margin-bottom: 1.25rem;">
+                    <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        class="auth-input"
+                        placeholder="Password"
+                        required
+                        autocomplete="current-password"
+                        style="padding-right: 2.75rem;"
+                    >
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-target="password"
+                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity='1'"
+                        onmouseout="this.style.opacity='0.6'"
+                    >
+                        <svg class="eye-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-off-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="display: none;">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
 
                 {{-- Submit --}}
                 <button type="submit" class="auth-btn">Sign In</button>
@@ -229,4 +257,27 @@
     </div>
 
 </div>
+
+<script>
+    // Password visibility toggle functionality
+    document.querySelectorAll('.password-toggle').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const eyeIcon = this.querySelector('.eye-icon');
+            const eyeOffIcon = this.querySelector('.eye-off-icon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.style.display = 'none';
+                eyeOffIcon.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeIcon.style.display = 'block';
+                eyeOffIcon.style.display = 'none';
+            }
+        });
+    });
+</script>
 @endsection

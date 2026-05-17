@@ -32,9 +32,16 @@
         text-decoration: none;
         letter-spacing: -0.02em;
         margin-bottom: auto;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
     }
     .auth-brand:hover { opacity: 0.75; }
+    .auth-brand img {
+        width: 45px;
+        height: 45px;
+        object-fit: contain;
+    }
 
     .auth-form-area {
         flex: 1;
@@ -130,6 +137,39 @@
     }
     .dob-row .auth-select { margin-bottom: 1.25rem; }
 
+    /* ── Date input styling ── */
+    input[type="date"] {
+        width: 100%;
+        background: #FFDBB5;
+        border: none;
+        border-radius: 999px;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.85rem;
+        font-family: 'Poppins', sans-serif;
+        color: #603F26;
+        outline: none;
+        cursor: pointer;
+        transition: box-shadow 0.2s;
+        margin-bottom: 1.25rem;
+    }
+    input[type="date"]::placeholder {
+        color: rgba(96, 63, 38, 0.45);
+    }
+    input[type="date"]:focus {
+        box-shadow: 0 0 0 2.5px rgba(96, 63, 38, 0.25);
+    }
+    /* Styling untuk calendar picker */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        border-radius: 4px;
+        margin-right: 0.5rem;
+        opacity: 0.6;
+        filter: invert(0.3) sepia(0.3) hue-rotate(340deg) saturate(1.5);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+    }
+
     .auth-btn {
         display: block;
         width: fit-content;
@@ -204,7 +244,10 @@
     <div class="auth-left">
 
         {{-- Brand --}}
-        <a href="{{ route('home') }}" class="auth-brand">SkinQuo</a>
+        <a href="{{ route('home') }}" class="auth-brand">
+            <img src="{{ asset('images/logo_skinquo_coklat.png') }}" alt="SkinQuo Logo">
+            SkinQuo
+        </a>
 
         {{-- Form --}}
         <div class="auth-form-area">
@@ -234,19 +277,19 @@
                 <div class="name-row">
                     <input
                         type="text"
-                        name="first_name"
+                        name="name"
                         class="auth-input"
                         placeholder="First name"
-                        value="{{ old('first_name') }}"
+                        value="{{ old('name') }}"
                         required
                         autocomplete="given-name"
                     >
                     <input
                         type="text"
-                        name="last_name"
+                        name="surname"
                         class="auth-input"
                         placeholder="Surname"
-                        value="{{ old('last_name') }}"
+                        value="{{ old('surname') }}"
                         required
                         autocomplete="family-name"
                     >
@@ -254,69 +297,71 @@
 
                 {{-- Date of Birth --}}
                 <label class="auth-label">Date of birth</label>
-                <div class="dob-row">
-                    {{-- Day --}}
-                    <select name="birth_day" class="auth-select" required>
-                        <option value="" disabled {{ old('birth_day') ? '' : 'selected' }}>Day</option>
-                        @for ($d = 1; $d <= 31; $d++)
-                            <option value="{{ $d }}" {{ old('birth_day') == $d ? 'selected' : '' }}>{{ $d }}</option>
-                        @endfor
-                    </select>
-
-                    {{-- Month --}}
-                    <select name="birth_month" class="auth-select" required>
-                        <option value="" disabled {{ old('birth_month') ? '' : 'selected' }}>Month</option>
-                        @foreach(['January','February','March','April','May','June','July','August','September','October','November','December'] as $i => $month)
-                            <option value="{{ $i + 1 }}" {{ old('birth_month') == ($i + 1) ? 'selected' : '' }}>{{ $month }}</option>
-                        @endforeach
-                    </select>
-
-                    {{-- Year --}}
-                    <select name="birth_year" class="auth-select" required>
-                        <option value="" disabled {{ old('birth_year') ? '' : 'selected' }}>Year</option>
-                        @for ($y = date('Y'); $y >= 1940; $y--)
-                            <option value="{{ $y }}" {{ old('birth_year') == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
+                <input
+                    type="date"
+                    name="date_birth"
+                    id="date_birth"
+                    class="auth-input"
+                    value="{{ old('date_birth') }}"
+                    required
+                    max="{{ date('Y-m-d', strtotime('-13 years')) }}"
+                >
 
                 {{-- Gender --}}
                 <label class="auth-label" for="gender">Gender</label>
                 <select id="gender" name="gender" class="auth-select" required>
                     <option value="" disabled {{ old('gender') ? '' : 'selected' }}>Select your gender</option>
-                    <option value="female"     {{ old('gender') == 'female'     ? 'selected' : '' }}>Female</option>
-                    <option value="male"       {{ old('gender') == 'male'       ? 'selected' : '' }}>Male</option>
-                    <option value="non_binary" {{ old('gender') == 'non_binary' ? 'selected' : '' }}>Non-binary</option>
-                    <option value="prefer_not" {{ old('gender') == 'prefer_not' ? 'selected' : '' }}>Prefer not to say</option>
+                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
                 </select>
 
                 {{-- Email / Mobile --}}
-                <label class="auth-label" for="email">Mobile number or email address</label>
+                <label class="auth-label" for="email">Email address</label>
                 <input
                     id="email"
-                    type="text"
+                    type="email"
                     name="email"
                     class="auth-input"
-                    placeholder="Mobile number or email address"
+                    placeholder="Email address"
                     value="{{ old('email') }}"
                     required
                     autocomplete="username"
+                    maxlength="255"
                 >
 
                 {{-- Password --}}
                 <label class="auth-label" for="password">Password</label>
-                <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    class="auth-input"
-                    placeholder="Password"
-                    required
-                    autocomplete="new-password"
-                >
-
-                {{-- Hidden: combine first + last for the 'name' field if needed --}}
-                {{-- If your User model uses a single 'name' column, handle in Controller --}}
+                <div style="position: relative; margin-bottom: 1.25rem;">
+                    <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        class="auth-input"
+                        placeholder="Password"
+                        required
+                        autocomplete="new-password"
+                        minlength="8"
+                        maxlength="255"
+                        style="padding-right: 2.75rem;"
+                    >
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-target="password"
+                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity='1'"
+                        onmouseout="this.style.opacity='0.6'"
+                    >
+                        <svg class="eye-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-off-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="display: none;">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
 
                 {{-- Submit --}}
                 <button type="submit" class="auth-btn">Create Account</button>
@@ -336,4 +381,27 @@
     </div>
 
 </div>
+
+<script>
+    // Password visibility toggle functionality
+    document.querySelectorAll('.password-toggle').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const eyeIcon = this.querySelector('.eye-icon');
+            const eyeOffIcon = this.querySelector('.eye-off-icon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.style.display = 'none';
+                eyeOffIcon.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeIcon.style.display = 'block';
+                eyeOffIcon.style.display = 'none';
+            }
+        });
+    });
+</script>
 @endsection
