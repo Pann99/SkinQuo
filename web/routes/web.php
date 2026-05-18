@@ -30,7 +30,7 @@ Route::get('/products', function () {
 
 // ── Public Catalog / Produk ────────────────────────
 Route::get('/catalog', [ProductController::class, 'index'])->name('catalog.index');
-Route::get('/catalog/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/catalog/{product_id}', [ProductController::class, 'show'])->name('products.show');
 
 // ── Public Konsultasi (Form & AJAX Analysis) ───────────────
 Route::get('/consultation', [ConsultationController::class, 'index'])->name('consultation.index');
@@ -83,6 +83,10 @@ Route::middleware('auth')->group(function () {
     // ── User Profile Management ────────────────────
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // ── Change Password ────────────────────────────
+    Route::get('/profile/password/edit', [ProfileController::class, 'editPassword'])->name('profile.password.edit');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -92,5 +92,75 @@ class ProfileController extends Controller
             ])->withInput();
         }
     }
-}
 
+    /**
+     * Tampilkan halaman ubah password.
+     */
+    public function editPassword()
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return redirect()->route('login');
+            }
+            
+            return view('pages.change-password', compact('user'));
+        } catch (\Exception $e) {
+            \Log::error('Edit password page error: ' . $e->getMessage());
+            return redirect()->route('profile.show')->withErrors(['error' => 'Terjadi kesalahan saat membuka halaman ubah password.']);
+        }
+    }
+
+    /**
+     * Update password user dengan validasi current_password.
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validasi input
+        $validated = $request->validate([
+            'current_password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['required', 'string', 'min:8'],
+        ], [
+            'current_password.required' => 'Password saat ini tidak boleh kosong.',
+            'current_password.min' => 'Password saat ini minimal 8 karakter.',
+            'password.required' => 'Password baru tidak boleh kosong.',
+            'password.min' => 'Password baru minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak sesuai dengan password baru.',
+            'password_confirmation.required' => 'Konfirmasi password tidak boleh kosong.',
+            'password_confirmation.min' => 'Konfirmasi password minimal 8 karakter.',
+        ]);
+
+        try {
+            // Verifikasi current password cocok
+            if (!Hash::check($validated['current_password'], $user->password)) {
+                return back()->withErrors([
+                    'current_password' => 'Password saat ini tidak sesuai.',
+                ])->withInput($request->except('current_password', 'password', 'password_confirmation'));
+            }
+
+            // Cegah password baru sama dengan current password
+            if (Hash::check($validated['password'], $user->password)) {
+                return back()->withErrors([
+                    'password' => 'Password baru tidak boleh sama dengan password saat ini.',
+                ])->withInput($request->except('current_password', 'password', 'password_confirmation'));
+            }
+
+            // Update password
+            $user->update([
+                'password' => Hash::make($validated['password']),
+            ]);
+
+            return redirect()->route('profile.show')->with('status', 'Your password has been securely updated.');
+        } catch (\Exception $e) {
+            // Log error untuk debugging
+            \Log::error('Password update error: ' . $e->getMessage());
+            
+            return back()->withErrors([
+                'error' => 'Terjadi kesalahan saat memperbarui password. Silakan coba lagi.',
+            ])->withInput($request->except('current_password', 'password', 'password_confirmation'));
+        }
+    }
+}
