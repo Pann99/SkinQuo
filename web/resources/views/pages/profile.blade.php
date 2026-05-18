@@ -133,83 +133,39 @@
         padding-right: 2.2rem;
     }
 
-    .pf-pwd-section {
+    .pf-change-pwd-section {
         border-top: 1px solid rgba(255, 219, 181, 0.2);
-        padding-top: 0.9rem;
-        margin-top: 0.9rem;
-    }
-
-    .pf-pwd-label {
-        font-size: 0.58rem;
-        font-weight: 700;
-        letter-spacing: 0.13em;
-        text-transform: uppercase;
-        color: rgba(255, 219, 181, 0.52);
-        margin-bottom: 0.4rem;
-        display: block;
-    }
-
-    .pf-pwd-row {
+        padding-top: 1.2rem;
+        margin-top: 1.2rem;
         display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        margin-bottom: 1rem;
+        justify-content: center;
     }
-
-    .pf-pwd-wrap {
-        flex: 1;
-        position: relative;
-    }
-
-    .pf-pwd-input {
-        background: #FFEAC5;
-        border: none;
-        border-radius: 10px;
-        padding: 0.7rem 2.5rem 0.7rem 0.9rem;
-        font-size: 0.82rem;
-        font-family: 'Poppins', sans-serif;
-        color: #603F26;
-        width: 100%;
-        outline: none;
-    }
-
-    .pf-pwd-input:focus {
-        box-shadow: 0 0 0 2px rgba(255, 219, 181, 0.5);
-    }
-
-    .pf-pwd-toggle {
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: rgba(96,63,38,0.4);
-        padding: 0;
-        display: flex;
-        align-items: center;
-    }
-
-    .pf-pwd-toggle:hover { color: rgba(96,63,38,0.75); }
 
     .pf-ubah-btn {
-        background: #FFEAC5;
-        border: none;
-        border-radius: 12px;
-        padding: 0.7rem 1rem;
-        font-size: 0.62rem;
-        font-weight: 700;
-        letter-spacing: 0.09em;
+        display: inline-block;
+        border: 1.5px solid rgba(255, 234, 197, 0.6);
+        background: transparent;
+        border-radius: 999px;
+        padding: 0.75rem 1.8rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
         font-family: 'Poppins', sans-serif;
-        color: #603F26;
+        color: #FFEAC5;
+        text-decoration: none;
         cursor: pointer;
-        white-space: nowrap;
-        flex-shrink: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .pf-ubah-btn:hover { opacity: 0.8; }
+    .pf-ubah-btn:hover {
+        background: rgba(255, 234, 197, 0.12);
+        border-color: #FFEAC5;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .pf-ubah-btn:active { transform: translateY(0); }
 
     .pf-save-btn {
         width: 100%;
@@ -659,24 +615,10 @@
                 </select>
             </div>
 
-            <div class="pf-pwd-section">
-                <label class="pf-pwd-label">Password</label>
-                <form method="POST" action="{{ route('profile.update') }}">
-                    @csrf
-                    @method('PUT')
-                    <div class="pf-pwd-row">
-                        <div class="pf-pwd-wrap">
-                            <input type="password" name="password" class="pf-pwd-input" placeholder="Kosongkan jika tidak ingin mengubah" minlength="8" maxlength="255">
-                            <button type="button" class="pf-pwd-toggle" onclick="togglePasswordVisibility(this)">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                            </button>
-                        </div>
-                        <button type="submit" class="pf-ubah-btn">Ubah Password</button>
-                    </div>
-                </form>
+            <div class="pf-change-pwd-section">
+                <a href="{{ route('profile.password.edit') }}" class="pf-ubah-btn">
+                    ← Change Password
+                </a>
             </div>
         </div>
 
