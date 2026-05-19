@@ -51,7 +51,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Validate input dengan sanitasi
+        // LANGKAH 1: VALIDASI INPUT
         $request->validate([
             'email' => 'required|email|max:255',
             'password' => 'required|string|min:6|max:255'
@@ -64,30 +64,54 @@ class AuthController extends Controller
             'password.max' => 'Password terlalu panjang (maksimal 255 karakter).',
         ]);
 
-        // Sanitasi input untuk mencegah SQL injection
-        $email = $request->input('email');
-        $password = $request->input('password');
-        
-        // Gunakan parameterized queries (Laravel's Eloquent sudah handle ini)
-        $user = User::where('email', $email)->first();
+        // LANGKAH 2: AUTENTIKASI MENGGUNAKAN AUTH::ATTEMPT()
+        // Ini adalah cara yang aman dan benar di Laravel
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password
+        ];
 
-        // Verifikasi password dengan hash untuk keamanan
-        if (!$user || !Hash::check($password, $user->password)) {
+        // Jangan gunakan Hash::check() manual - gunakan Auth::attempt() yang lebih aman
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([
                 'email' => 'Email atau password salah.',
             ])->onlyInput('email');
         }
 
-        // Login berhasil
+        // LANGKAH 3: LOGIN BERHASIL - REGENERATE SESSION
+        $request->session()->regenerate();
+
+        // LANGKAH 4: LOAD USER DENGAN RELASI ROLE (EAGER LOADING)
+        // Ambil user yang sedang login beserta relasi rolenya
+        $user = Auth::user()->load('role');
+
+        // LANGKAH 5: REDIRECT BERDASARKAN ROLE
+        if ($user->role === null) {
+            Log::warning('User logged in but role not found. User ID: ' . $user->user_id);
+            return redirect()->route('home')
+                ->with('warning', 'Role tidak ditemukan. Hubungi administrator.');
+        }
+
+        // Cek role_name dari relasi role
+        $roleName = $user->role->role_name ?? null;
+
         try {
-            Auth::login($user);
-            $request->session()->regenerate();
-            return redirect()->intended(route('home'))->with('status', 'Login berhasil!');
+            if ($roleName === 'admin') {
+                return redirect()->route('admin.dashboard')
+                    ->with('status', 'Selamat datang, Admin! Login berhasil.');
+            } elseif ($roleName === 'user') {
+                return redirect()->route('profile.show')
+                    ->with('status', 'Login berhasil! Selamat datang di SkinQuo.');
+            } else {
+                // Fallback untuk role yang tidak dikenali
+                Log::warning('Unknown role detected. Role name: ' . $roleName . ', User ID: ' . $user->user_id);
+                return redirect()->route('home')
+                    ->with('warning', 'Role tidak dikenali. Silakan hubungi administrator.');
+            }
         } catch (\Exception $e) {
-            Log::error('Login session error: ' . $e->getMessage());
-            return back()->withErrors([
-                'email' => 'Terjadi kesalahan saat login. Silakan coba lagi.',
-            ])->onlyInput('email');
+            Log::error('Redirect error after login: ' . $e->getMessage());
+            return redirect()->route('home')
+                ->with('status', 'Login berhasil!');
         }
     }
 
