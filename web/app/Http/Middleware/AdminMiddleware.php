@@ -20,20 +20,31 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if user is authenticated
+        // STEP 1: Verifikasi user sudah authenticated
         if (!auth()->check()) {
-            return redirect()->route('login');
+            return redirect()->route('login')
+                ->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        // TODO: Check if user has 'admin' role from database
-        // Uncomment when database is ready:
-        // if (auth()->user()->role !== 'admin') {
-        //     abort(403, 'Unauthorized access. Admin privileges required.');
-        // }
+        // STEP 2: Ambil user dengan eager loading relasi role
+        $user = auth()->user()->load('role');
 
-        // For development: Allow all authenticated users to access admin panel
-        // REMOVE THIS IN PRODUCTION!
-        
+        // STEP 3: Validasi relasi role ada
+        if ($user->role === null) {
+            \Log::warning('Admin access attempt but role not found. User ID: ' . $user->user_id);
+            abort(403, 'Role tidak ditemukan. Hubungi administrator.');
+        }
+
+        // STEP 4: Cek apakah role_name === 'admin' menggunakan relasi
+        if ($user->role->role_name !== 'admin') {
+            \Log::warning(
+                'Unauthorized admin access attempt. User ID: ' . $user->user_id .
+                ', Role: ' . $user->role->role_name
+            );
+            abort(403, 'Akses ditolak. Anda tidak memiliki hak akses administrator.');
+        }
+
+        // STEP 5: User adalah admin, lanjutkan request
         return $next($request);
     }
 }

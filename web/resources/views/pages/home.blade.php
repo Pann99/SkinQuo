@@ -384,7 +384,7 @@
 
             @forelse($articles ?? [] as $article)
 
-                <a href="{{ route('skin-guide.show', $article->slug) }}" class="art-card">
+                <a href="{{ route('articles.show', $article->slug) }}" class="art-card">
                     <div class="art-thumb" style="background:#dfc9ad;">
                         @if($article->thumbnail)
                             <img src="{{ Storage::url($article->thumbnail) }}"

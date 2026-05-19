@@ -13,10 +13,10 @@ class ArticleController extends Controller
     public function index()
     {
         // Query dari database
-        $articles = Article::published()->paginate(12);
+        $articlesQuery = Article::published()->get();
         
         // Temporary dummy data untuk testing tanpa database
-        if ($articles->isEmpty()) {
+        if ($articlesQuery->isEmpty()) {
             $articles = [
                 [
                     'id' => 1,
@@ -85,6 +85,21 @@ class ArticleController extends Controller
                     'thumbnail' => null,
                 ],
             ];
+        } else {
+            // Convert eloquent collection to array for consistent view handling
+            $articles = $articlesQuery->map(function ($article) {
+                return [
+                    'id' => $article->id,
+                    'title' => $article->title,
+                    'slug' => $article->slug,
+                    'category' => $article->category,
+                    'excerpt' => $article->excerpt,
+                    'author' => $article->author,
+                    'date' => $article->created_at->format('d M Y'),
+                    'reading_time' => ceil(str_word_count($article->content) / 200) . ' min',
+                    'thumbnail' => $article->thumbnail,
+                ];
+            })->toArray();
         }
 
         return view('pages.skin-guide', compact('articles'));

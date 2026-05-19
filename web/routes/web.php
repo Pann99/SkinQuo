@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSkinGuideController;
 use App\Http\Controllers\AdminFeedbackController;
+use App\Http\Controllers\DebugAuthController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
@@ -183,4 +184,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/feedback/{id}/reject', [AdminFeedbackController::class, 'reject'])->name('feedback.reject');
     Route::post('/feedback/{id}/helpful', [AdminFeedbackController::class, 'markHelpful'])->name('feedback.helpful');
 
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DEBUG ROUTES - FOR DEVELOPMENT ONLY (REMOVE IN PRODUCTION!)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Route::prefix('debug')->middleware('web')->group(function () {
+    Route::get('/check-db', [DebugAuthController::class, 'checkDb'])->name('debug.check-db');
+    Route::get('/reset-admin-password', [DebugAuthController::class, 'resetAdminPassword'])->name('debug.reset-admin-password');
 });
