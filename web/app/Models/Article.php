@@ -14,7 +14,9 @@ class Article extends Model
         'slug',
         'excerpt',
         'body',
+        'content',
         'thumbnail',
+        'image_url',
         'category',
         'is_published',
         'published_at',
@@ -24,6 +26,19 @@ class Article extends Model
         'is_published' => 'boolean',
         'published_at' => 'datetime',
     ];
+
+    /**
+     * Many-to-Many relationship with Tag
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(
+            Tag::class,
+            'pivot_article_tag',
+            'article_id',
+            'tag_id'
+        );
+    }
 
     /**
      * Scope: hanya artikel yang dipublikasikan

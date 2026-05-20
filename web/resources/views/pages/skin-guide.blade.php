@@ -145,11 +145,13 @@
         min-height: 300px;
         position: relative;
         overflow: hidden;
+        aspect-ratio: 16 / 9;
     }
     .sg-featured-img img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center 35%;
         position: absolute;
         inset: 0;
     }
@@ -252,11 +254,13 @@
         font-size: 3rem;
         position: relative;
         overflow: hidden;
+        aspect-ratio: 4 / 3;
     }
     .sg-card-thumb img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center 35%;
         position: absolute;
         inset: 0;
         transition: transform 0.4s ease;
@@ -328,6 +332,27 @@
         transform: translateX(2px);
     }
 
+    /* ── Card Tags Display (Max 2) ── */
+    .sg-card-tags {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+    }
+
+    .sg-card-tag {
+        display: inline-block;
+        font-size: 0.69rem;
+        font-family: 'Courier New', monospace;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        color: rgba(96, 63, 38, 0.5);
+        transition: color 0.2s;
+    }
+    .sg-card-tag:hover {
+        color: #603F26;
+    }
+    }
+
     /* ── Pagination ── */
     .sg-pagination {
         display: flex;
@@ -343,6 +368,20 @@
         color: rgba(96, 63, 38, 0.45);
     }
     .sg-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .sg-empty-button {
+        display: inline-block;
+        margin-top: 1.5rem;
+        background: #603F26;
+        color: #FFEAC5;
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .sg-empty-button:hover { opacity: 0.85; }
 </style>
 @endpush
 
@@ -360,49 +399,68 @@
             <svg class="sg-search-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
-            <input
-                type="search"
-                class="sg-search-input"
-                placeholder="Cari artikel..."
-                id="sg-search"
-                value="{{ request('search') }}"
-            >
+            <form method="GET" action="{{ route('skin-guide.index') }}" style="width: 100%;">
+                <input
+                    type="search"
+                    class="sg-search-input"
+                    placeholder="Search articles..."
+                    name="search"
+                    id="sg-search"
+                    value="{{ $searchQuery }}"
+                >
+                @if($selectedCategory)
+                    <input type="hidden" name="category" value="{{ $selectedCategory }}">
+                @endif
+            </form>
         </div>
     </div>
 
     {{-- Category Filters ── --}}
     <div class="sg-filters">
         <span class="sg-filter-label">Filter:</span>
-        <button class="sg-filter-btn {{ !request('category') ? 'active' : '' }}" onclick="filterCategory('')">Semua</button>
-        @foreach(['Moisturizing','Anti-Aging','Acne','Sensitive','Industry Laundry'] as $cat)
-            <button class="sg-filter-btn {{ request('category') == $cat ? 'active' : '' }}"
+        <button class="sg-filter-btn {{ !$selectedCategory ? 'active' : '' }}" onclick="filterCategory('')">All</button>
+        @foreach($categories as $cat)
+            <button class="sg-filter-btn {{ $selectedCategory === $cat ? 'active' : '' }}"
                     onclick="filterCategory('{{ $cat }}')">{{ $cat }}</button>
         @endforeach
     </div>
 
     {{-- Featured Article (first item) ── --}}
-    @php $featured = $articles[0] ?? null; @endphp
-    @if($featured)
-        <a href="{{ route('articles.show', $featured['slug'] ?? 'featured') }}" style="text-decoration: none; color: inherit;">
-            <div class="sg-featured">
-                <div class="sg-featured-img">
-                    @if(isset($featured['thumbnail']) && $featured['thumbnail'])
-                        <img src="{{ $featured['thumbnail'] }}" alt="{{ $featured['title'] }}">
+    @if($featuredPost)
+        <a href="{{ route('articles.show', $featuredPost->slug) }}" style="text-decoration: none; color: inherit;">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-0 bg-[#3D2000] rounded-[32px] overflow-hidden hover:shadow-2xl hover:scale-[0.98] transition-all duration-300 mb-12">
+                {{-- Image Section --}}
+                <div class="w-full aspect-[16/10] md:aspect-auto md:h-full min-h-[350px] relative overflow-hidden">
+                    @if($featuredPost->image_url)
+                        <img src="{{ $featuredPost->image_url }}" alt="{{ $featuredPost->title }}" class="absolute inset-0 w-full h-full object-cover object-[center_30%] block">
                     @else
-                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3rem;">🌿</div>
+                        <div class="absolute inset-0 w-full h-full bg-[rgba(0,0,0,0.1)] flex items-center justify-center text-6xl">🌿</div>
                     @endif
                 </div>
-                <div class="sg-featured-body">
-                    <div class="sg-badge">{{ $featured['category'] ?? 'Featured' }}</div>
-                    <h2 class="sg-featured-title">{{ $featured['title'] }}</h2>
-                    <p class="sg-featured-excerpt">{{ Str::limit($featured['excerpt'], 140) }}</p>
-                    <span class="sg-read-link">
-                        Read More
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                    </span>
-                    <div class="sg-featured-date">{{ $featured['date'] ?? 'Terbaru' }}</div>
+                
+                {{-- Content Section --}}
+                <div class="p-8 md:p-12 flex flex-col justify-between">
+                    <div>
+                        <div class="inline-block bg-[rgba(255,219,181,0.18)] border border-[rgba(255,219,181,0.3)] rounded-full px-4 py-1 text-xs font-bold tracking-wider uppercase text-[#FFDBB5] mb-4">
+                            {{ $featuredPost->category ?? 'Featured' }}
+                        </div>
+                        <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl font-bold text-[#FFEAC5] leading-tight mb-4">
+                            {{ $featuredPost->title }}
+                        </h2>
+                        <p class="text-sm md:text-base text-[rgba(255,234,197,0.65)] leading-relaxed mb-6">
+                            {{ Str::limit(strip_tags($featuredPost->content), 140) }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <span class="inline-flex items-center gap-2 text-sm font-bold text-[#FFDBB5] tracking-wider mb-4">
+                            Read More
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                        <div class="text-xs text-[rgba(255,234,197,0.4)]">{{ $featuredPost->created_at->format('d M Y') }}</div>
+                    </div>
                 </div>
             </div>
         </a>
@@ -410,23 +468,44 @@
 
     {{-- Articles Grid ── --}}
     <div class="sg-grid" id="sg-grid">
-        @forelse(array_slice($articles ?? [], 1) as $article)
-            <a href="{{ route('articles.show', $article['slug'] ?? 'article') }}" style="text-decoration: none; color: inherit;">
-                <div class="sg-card">
-                    <div class="sg-card-thumb">
-                        @if(isset($article['thumbnail']) && $article['thumbnail'])
-                            <img src="{{ $article['thumbnail'] }}" alt="{{ $article['title'] }}">
+        @forelse($remainingPosts as $article)
+            <a href="{{ route('articles.show', $article->slug) }}" style="text-decoration: none; color: inherit;">
+                <div class="bg-white rounded-[20px] overflow-hidden border border-[rgba(108,78,49,0.08)] hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full">
+                    {{-- Image Section --}}
+                    <div class="w-full aspect-[4/3] overflow-hidden relative bg-[#e8d5bb]">
+                        @if($article->image_url)
+                            <img src="{{ $article->image_url }}" alt="{{ $article->title }}" class="absolute inset-0 w-full h-full object-cover object-[center_35%] block">
                         @else
-                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 2.5rem;">🌿</div>
+                            <div class="absolute inset-0 w-full h-full bg-[rgba(0,0,0,0.1)] flex items-center justify-center text-4xl">🌿</div>
                         @endif
                     </div>
-                    <div class="sg-card-body">
-                        <div class="sg-card-badge">{{ $article['category'] ?? 'Tips' }}</div>
-                        <h3 class="sg-card-title">{{ $article['title'] }}</h3>
-                        <p class="sg-card-excerpt">{{ Str::limit($article['excerpt'], 90) }}</p>
-                        <div class="sg-card-footer">
-                            <span class="sg-card-date">{{ $article['date'] ?? 'Terbaru' }}</span>
-                            <div class="sg-card-arrow">
+                    
+                    {{-- Content Section --}}
+                    <div class="p-5 md:p-6 flex flex-col flex-1">
+                        <div class="inline-block bg-[rgba(96,63,38,0.07)] text-[#6C4E31] rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase w-fit mb-3">
+                            {{ $article->category ?? 'Tips' }}
+                        </div>
+                        
+                        <h3 class="font-['Playfair_Display'] text-base md:text-lg font-bold text-[#603F26] leading-tight mb-2">
+                            {{ $article->title }}
+                        </h3>
+                        <p class="text-xs md:text-sm text-[rgba(96,63,38,0.58)] leading-relaxed flex-1 mb-3">
+                            {{ Str::limit(strip_tags($article->content), 90) }}
+                        </p>
+                        
+                        {{-- Tags (limited to 2) - below excerpt --}}
+                        @if($article->tags->count() > 0)
+                            <div class="flex gap-2 flex-wrap mb-3">
+                                @foreach($article->tags->take(2) as $tag)
+                                    <span class="text-[11px] font-mono text-[rgba(96,63,38,0.5)] tracking-tight hover:text-[#603F26] transition-colors">#{{ $tag->name }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+                        
+                        {{-- Footer --}}
+                        <div class="flex items-center justify-between pt-3 border-t border-[rgba(96,63,38,0.07)]">
+                            <span class="text-xs text-[rgba(96,63,38,0.42)]">{{ $article->created_at->format('d M Y') }}</span>
+                            <div class="w-7 h-7 rounded-full bg-[rgba(96,63,38,0.07)] flex items-center justify-center text-[#603F26] hover:bg-[#603F26] hover:text-[#FFEAC5] transition-colors">
                                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
                                 </svg>
@@ -438,17 +517,12 @@
         @empty
             <div class="sg-empty">
                 <div class="sg-empty-icon">📖</div>
-                <p style="font-size: 1rem; font-weight: 500;">Belum ada artikel tersedia.</p>
+                <p style="font-size: 1rem; font-weight: 500;">No articles found</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Try another keyword or reset the filter</p>
+                <button class="sg-empty-button" onclick="resetFilters()">Reset Filter</button>
             </div>
         @endforelse
     </div>
-
-    {{-- Pagination ── --}}
-    @if(!is_array($articles ?? null) && $articles && $articles->hasPages())
-        <div class="sg-pagination">
-            {{ $articles->appends(request()->query())->links() }}
-        </div>
-    @endif
 
 </div>
 </div>
@@ -458,20 +532,30 @@
 <script>
     function filterCategory(cat) {
         const url = new URL(window.location);
-        if (cat) url.searchParams.set('category', cat);
-        else url.searchParams.delete('category');
+        if (cat) {
+            url.searchParams.set('category', cat);
+        } else {
+            url.searchParams.delete('category');
+        }
+        url.searchParams.delete('search');
         window.location = url.toString();
+    }
+
+    function resetFilters() {
+        window.location = '{{ route("skin-guide.index") }}';
     }
 
     // Live search with debounce
     let sgSearchTimer;
-    document.getElementById('sg-search').addEventListener('input', function() {
+    document.getElementById('sg-search')?.addEventListener('input', function() {
         clearTimeout(sgSearchTimer);
         sgSearchTimer = setTimeout(() => {
-            const url = new URL(window.location);
-            if (this.value) url.searchParams.set('search', this.value);
-            else url.searchParams.delete('search');
-            window.location = url.toString();
+            if (this.value.trim()) {
+                const url = new URL(window.location);
+                url.searchParams.set('search', this.value);
+                url.searchParams.delete('category');
+                window.location = url.toString();
+            }
         }, 500);
     });
 </script>
