@@ -30,8 +30,26 @@ Route::get('/products', function () {
 });
 
 // ── Public Catalog / Produk ────────────────────────
-Route::get('/catalog', [ProductController::class, 'index'])->name('catalog.index');
-Route::get('/catalog/{product_id}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/catalog', [ProductController::class, 'index'])
+    ->name('catalog.index');
+
+Route::get('/catalog/create', [ProductController::class, 'create'])
+    ->name('catalog.create');
+
+Route::post('/catalog/store', [ProductController::class, 'store'])
+    ->name('catalog.store');
+
+Route::get('/catalog/{product_id}', [ProductController::class, 'show'])
+    ->name('products.show');
+
+Route::get('/catalog/{product_id}/edit', [ProductController::class, 'edit'])
+    ->name('catalog.edit');
+
+Route::put('/catalog/{product_id}', [ProductController::class, 'update'])
+    ->name('catalog.update');
+
+Route::delete('/catalog/{product_id}', [ProductController::class, 'destroy'])
+    ->name('catalog.destroy');
 
 // ── Public Konsultasi (Form & AJAX Analysis) ───────────────
 Route::get('/consultation', [ConsultationController::class, 'index'])->name('consultation.index');
@@ -194,3 +212,5 @@ Route::prefix('debug')->middleware('web')->group(function () {
     Route::get('/check-db', [DebugAuthController::class, 'checkDb'])->name('debug.check-db');
     Route::get('/reset-admin-password', [DebugAuthController::class, 'resetAdminPassword'])->name('debug.reset-admin-password');
 });
+
+
