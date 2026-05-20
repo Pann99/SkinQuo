@@ -3,210 +3,141 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ArticleController extends Controller
 {
     /**
-     * Tampilkan daftar artikel (skin guide).
+     * Display list of published articles (Skin Guide catalog).
+     * Supports filtering by category and search functionality.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Query dari database
-        $articlesQuery = Article::published()->get();
-        
-        // Temporary dummy data untuk testing tanpa database
-        if ($articlesQuery->isEmpty()) {
-            $articles = [
-                [
-                    'id' => 1,
-                    'title' => '10 Kesalahan Skincare yang Paling Umum',
-                    'slug' => 'kesalahan-skincare-umum',
-                    'category' => 'Tips & Trik',
-                    'excerpt' => 'Pelajari kesalahan-kesalahan yang sering dilakukan dalam rutinitas skincare dan bagaimana cara mengatasinya untuk hasil maksimal.',
-                    'author' => 'Dr. Siti Nurhaliza',
-                    'date' => '15 Jan 2025',
-                    'reading_time' => '8 min',
-                    'thumbnail' => null,
-                ],
-                [
-                    'id' => 2,
-                    'title' => 'Rutinitas Skincare Pagi untuk Kulit Sehat',
-                    'slug' => 'rutinitas-pagi-skincare',
-                    'category' => 'Perawatan Dasar',
-                    'excerpt' => 'Panduan lengkap langkah-demi-langkah untuk menciptakan rutinitas skincare pagi yang sempurna sesuai dengan tipe kulit Anda.',
-                    'author' => 'Intan Beauty',
-                    'date' => '10 Jan 2025',
-                    'reading_time' => '6 min',
-                    'thumbnail' => null,
-                ],
-                [
-                    'id' => 3,
-                    'title' => 'Manfaat Hyaluronic Acid untuk Kulit',
-                    'slug' => 'hyaluronic-acid-benefits',
-                    'category' => 'Ingredients',
-                    'excerpt' => 'Temukan mengapa hyaluronic acid menjadi bahan ajaib dalam skincare modern dan bagaimana menggunakannya dengan efektif.',
-                    'author' => 'Prof. Dr. Kusuma',
-                    'date' => '05 Jan 2025',
-                    'reading_time' => '7 min',
-                    'thumbnail' => null,
-                ],
-                [
-                    'id' => 4,
-                    'title' => 'Cara Mengatasi Kulit Sensitif dan Reaktif',
-                    'slug' => 'kulit-sensitif-solusi',
-                    'category' => 'Kesehatan Kulit',
-                    'excerpt' => 'Solusi komprehensif untuk mengatasi kulit sensitif termasuk pemilihan produk yang aman dan kebiasaan yang harus dihindari.',
-                    'author' => 'Dr. Ria Wijaya',
-                    'date' => '28 Dec 2024',
-                    'reading_time' => '9 min',
-                    'thumbnail' => null,
-                ],
-                [
-                    'id' => 5,
-                    'title' => 'SPF Sunscreen: Perlindungan Wajib Setiap Hari',
-                    'slug' => 'sunscreen-protection',
-                    'category' => 'Perawatan Dasar',
-                    'excerpt' => 'Memahami pentingnya sunscreen dalam mencegah penuaan dini dan kerusakan kulit akibat sinar UV.',
-                    'author' => 'Dermatology Clinic',
-                    'date' => '20 Dec 2024',
-                    'reading_time' => '5 min',
-                    'thumbnail' => null,
-                ],
-                [
-                    'id' => 6,
-                    'title' => 'Exfoliation: Teknik dan Frekuensi yang Tepat',
-                    'slug' => 'exfoliation-guide',
-                    'category' => 'Tips & Trik',
-                    'excerpt' => 'Pelajari cara melakukan exfoliation dengan benar tanpa merusak barrier kulit dan berapa kali sebulan yang ideal.',
-                    'author' => 'Beauty Expert Sara',
-                    'date' => '15 Dec 2024',
-                    'reading_time' => '6 min',
-                    'thumbnail' => null,
-                ],
-            ];
-        } else {
-            // Convert eloquent collection to array for consistent view handling
-            $articles = $articlesQuery->map(function ($article) {
-                return [
-                    'id' => $article->id,
-                    'title' => $article->title,
-                    'slug' => $article->slug,
-                    'category' => $article->category,
-                    'excerpt' => $article->excerpt,
-                    'author' => $article->author,
-                    'date' => $article->created_at->format('d M Y'),
-                    'reading_time' => ceil(str_word_count($article->content) / 200) . ' min',
-                    'thumbnail' => $article->thumbnail,
-                ];
-            })->toArray();
-        }
+        try {
+            // Get search query and category filter from request
+            $searchQuery = $request->input('search', '');
+            $selectedCategory = $request->input('category', '');
 
-        return view('pages.skin-guide', compact('articles'));
+            // Build base query with eager loading to avoid N+1 problem
+            $articlesQuery = Article::with('tags')
+                ->published()
+                ->orderBy('created_at', 'desc');
+
+            // Apply search filter (title, content, category) - use LIKE for cross-database compatibility
+            if (!empty($searchQuery)) {
+                $articlesQuery->where(function ($q) use ($searchQuery) {
+                    $q->where('title', 'LIKE', "%{$searchQuery}%")
+                      ->orWhere('content', 'LIKE', "%{$searchQuery}%")
+                      ->orWhere('category', 'LIKE', "%{$searchQuery}%");
+                });
+            }
+
+            // Apply category filter
+            if (!empty($selectedCategory)) {
+                $articlesQuery->where('category', '=', $selectedCategory);
+            }
+
+            // Get all filtered articles
+            $allArticles = $articlesQuery->get();
+
+            // Get distinct categories for filter buttons
+            $categories = Article::published()
+                ->select('category')
+                ->distinct()
+                ->pluck('category')
+                ->filter(fn($cat) => !empty($cat))
+                ->values();
+
+            // Data splitting: featured (first article) + remaining (rest)
+            $featuredPost = $allArticles->first();
+            $remainingPosts = $allArticles->skip(1);
+
+            return view('pages.skin-guide', compact(
+                'featuredPost',
+                'remainingPosts',
+                'categories',
+                'searchQuery',
+                'selectedCategory'
+            ));
+        } catch (\Exception $e) {
+            Log::error('Skin Guide Index Error: ' . $e->getMessage());
+            return view('pages.skin-guide', [
+                'featuredPost' => null,
+                'remainingPosts' => collect(),
+                'categories' => collect(),
+                'searchQuery' => '',
+                'selectedCategory' => ''
+            ]);
+        }
     }
 
     /**
-     * Tampilkan detail artikel.
+     * Display detail page for a single article.
+     * Shows article content with related articles, latest articles, and popular tags.
      */
     public function show($slug)
     {
-        // Try to get from database first
-        $article = Article::where('slug', $slug)->first();
-        
-        // All dummy articles for recommendations
-        $allDummyArticles = [
-            'kesalahan-skincare-umum' => [
-                'id' => 1,
-                'title' => '10 Kesalahan Skincare yang Paling Umum',
-                'slug' => 'kesalahan-skincare-umum',
-                'category' => 'Tips & Trik',
-                'excerpt' => 'Pelajari kesalahan-kesalahan yang sering dilakukan dalam rutinitas skincare dan bagaimana cara mengatasinya untuk hasil maksimal.',
-                'author' => 'Dr. Siti Nurhaliza',
-                'date' => '15 Jan 2025',
-                'reading_time' => '8 min',
-                'thumbnail' => null,
-                'content' => 'Kesalahan skincare adalah hal yang sangat umum dilakukan oleh mayoritas orang. Artikel ini membahas 10 kesalahan paling umum termasuk over-exfoliation, menggunakan produk yang salah, dan tidak konsisten dengan rutinitas. Dengan memahami kesalahan ini, Anda dapat mengoptimalkan hasil perawatan kulit Anda.',
-            ],
-            'rutinitas-pagi-skincare' => [
-                'id' => 2,
-                'title' => 'Rutinitas Skincare Pagi untuk Kulit Sehat',
-                'slug' => 'rutinitas-pagi-skincare',
-                'category' => 'Perawatan Dasar',
-                'excerpt' => 'Panduan lengkap langkah-demi-langkah untuk menciptakan rutinitas skincare pagi yang sempurna sesuai dengan tipe kulit Anda.',
-                'author' => 'Intan Beauty',
-                'date' => '10 Jan 2025',
-                'reading_time' => '6 min',
-                'thumbnail' => null,
-                'content' => 'Rutinitas skincare pagi adalah fondasi perawatan kulit yang baik. Mulai dari cleansing, toning, serum, moisturizer, hingga sunscreen. Setiap langkah dirancang untuk mempersiapkan kulit Anda menghadapi hari dengan perlindungan maksimal.',
-            ],
-            'hyaluronic-acid-benefits' => [
-                'id' => 3,
-                'title' => 'Manfaat Hyaluronic Acid untuk Kulit',
-                'slug' => 'hyaluronic-acid-benefits',
-                'category' => 'Ingredients',
-                'excerpt' => 'Temukan mengapa hyaluronic acid menjadi bahan ajaib dalam skincare modern dan bagaimana menggunakannya dengan efektif.',
-                'author' => 'Prof. Dr. Kusuma',
-                'date' => '05 Jan 2025',
-                'reading_time' => '7 min',
-                'thumbnail' => null,
-                'content' => 'Hyaluronic acid adalah humectant yang dapat menyimpan hingga 1000x beratnya dalam air. Ini membuat kulit tetap terhidrasi sepanjang hari. Pelajari cara menggunakan hyaluronic acid dalam skincare routine Anda.',
-            ],
-            'kulit-sensitif-solusi' => [
-                'id' => 4,
-                'title' => 'Cara Mengatasi Kulit Sensitif dan Reaktif',
-                'slug' => 'kulit-sensitif-solusi',
-                'category' => 'Kesehatan Kulit',
-                'excerpt' => 'Solusi komprehensif untuk mengatasi kulit sensitif termasuk pemilihan produk yang aman dan kebiasaan yang harus dihindari.',
-                'author' => 'Dr. Ria Wijaya',
-                'date' => '28 Dec 2024',
-                'reading_time' => '9 min',
-                'thumbnail' => null,
-                'content' => 'Kulit sensitif memerlukan perhatian khusus. Hindari bahan kimia keras, fragrances, dan produk yang tidak teruji secara dermatologi.',
-            ],
-            'sunscreen-protection' => [
-                'id' => 5,
-                'title' => 'SPF Sunscreen: Perlindungan Wajib Setiap Hari',
-                'slug' => 'sunscreen-protection',
-                'category' => 'Perawatan Dasar',
-                'excerpt' => 'Memahami pentingnya sunscreen dalam mencegah penuaan dini dan kerusakan kulit akibat sinar UV.',
-                'author' => 'Dermatology Clinic',
-                'date' => '20 Dec 2024',
-                'reading_time' => '5 min',
-                'thumbnail' => null,
-                'content' => 'Sunscreen bukan hanya untuk liburan pantai. Sinar UV hadir setiap hari dan dapat menyebabkan kerusakan kulit permanen.',
-            ],
-            'exfoliation-guide' => [
-                'id' => 6,
-                'title' => 'Exfoliation: Teknik dan Frekuensi yang Tepat',
-                'slug' => 'exfoliation-guide',
-                'category' => 'Tips & Trik',
-                'excerpt' => 'Pelajari cara melakukan exfoliation dengan benar tanpa merusak barrier kulit dan berapa kali sebulan yang ideal.',
-                'author' => 'Beauty Expert Sara',
-                'date' => '15 Dec 2024',
-                'reading_time' => '6 min',
-                'thumbnail' => null,
-                'content' => 'Exfoliation membantu menghilangkan sel kulit mati, tetapi harus dilakukan dengan hati-hati. Frekuensi ideal tergantung pada tipe kulit Anda.',
-            ],
-        ];
-        
-        // If not found in database, use dummy data
-        if (!$article) {
-            $article = $allDummyArticles[$slug] ?? null;
-            
-            if (!$article) {
-                abort(404, 'Article not found');
-            }
-        }
-        
-        // Get recommended articles (exclude current article)
-        $recommended = array_filter($allDummyArticles, function($item) use ($slug) {
-            return $item['slug'] !== $slug;
-        });
-        
-        // Shuffle and take 3 recommendations
-        $recommended = array_slice(array_values($recommended), 0, 3);
+        try {
+            // Fetch article by slug with eager loaded relations
+            $article = Article::with('tags')
+                ->where('slug', $slug)
+                ->published()
+                ->firstOrFail();
 
-        return view('pages.article-detail', compact('article', 'recommended'));
+            // Calculate word count and reading time
+            $content = $article->content ?? '';
+            $wordCount = str_word_count(strip_tags($content));
+            $readingTime = max(1, (int) ceil($wordCount / 200));
+
+            // Get related articles: same category OR shared tags (exclude current article)
+            $relatedArticles = Article::with('tags')
+                ->published()
+                ->where('id', '!=', $article->id)
+                ->where(function ($query) use ($article) {
+                    // Same category
+                    $query->where('category', $article->category);
+                    
+                    // OR shared tags
+                    if ($article->tags->isNotEmpty()) {
+                        $tagIds = $article->tags->pluck('id')->toArray();
+                        $query->orWhereHas('tags', function ($q) use ($tagIds) {
+                            $q->whereIn('tags.id', $tagIds);
+                        });
+                    }
+                })
+                ->orderBy('created_at', 'desc')
+                ->limit(3)
+                ->get();
+
+            // Get latest articles (exclude current article)
+            $latestArticles = Article::with('tags')
+                ->published()
+                ->where('id', '!=', $article->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(2)
+                ->get();
+
+            // Get popular tags (ordered by article count)
+            $popularTags = Tag::popular()
+                ->limit(8)
+                ->get();
+
+            return view('pages.article-detail', compact(
+                'article',
+                'readingTime',
+                'relatedArticles',
+                'latestArticles',
+                'popularTags'
+            ));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            abort(404, 'Article not found');
+        } catch (\Exception $e) {
+            Log::error('Article Detail Error: ' . $e->getMessage());
+            abort(500, 'Error loading article');
+        }
     }
 }
+
 
