@@ -22,33 +22,6 @@ class AuthController extends Controller
     /**
      * Proses login user.
      */
-    // public function login(Request $request)
-    // {
-    //     $credentials = $request->validate([
-    //         'email' => ['required', 'string'],
-    //         'password' => ['required', 'string'],
-    //     ], [
-    //         'email.required' => 'Email atau nomor telepon tidak boleh kosong.',
-    //         'password.required' => 'Password tidak boleh kosong.',
-    //     ]);
-
-    //     // Coba login dengan email atau mobile number
-    //     $user = User::where('email', $credentials['email'])
-    //                 ->orWhere('mobile_number', $credentials['email'])
-    //                 ->first();
-
-    //     if ($user && Hash::check($credentials['password'], $user->password)) {
-    //         Auth::login($user, $request->boolean('remember'));
-    //         $request->session()->regenerate();
-
-    //         return redirect()->intended(route('home'))->with('status', 'Login berhasil!');
-    //     }
-
-    //     return back()->withErrors([
-    //         'email' => 'Email/nomor telepon atau password salah.',
-    //     ])->onlyInput('email');
-    // }
-
     public function login(Request $request)
     {
         // LANGKAH 1: VALIDASI INPUT
@@ -65,13 +38,12 @@ class AuthController extends Controller
         ]);
 
         // LANGKAH 2: AUTENTIKASI MENGGUNAKAN AUTH::ATTEMPT()
-        // Ini adalah cara yang aman dan benar di Laravel
+        // Hanya gunakan field email karena kolom mobile_number tidak tersedia di database Supabase.
         $credentials = [
             'email' => $request->email,
             'password' => $request->password
         ];
 
-        // Jangan gunakan Hash::check() manual - gunakan Auth::attempt() yang lebih aman
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([
                 'email' => 'Email atau password salah.',
@@ -82,17 +54,14 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         // LANGKAH 4: LOAD USER DENGAN RELASI ROLE (EAGER LOADING)
-        // Ambil user yang sedang login beserta relasi rolenya
         $user = Auth::user()->load('role');
 
-        // LANGKAH 5: REDIRECT BERDASARKAN ROLE
         if ($user->role === null) {
             Log::warning('User logged in but role not found. User ID: ' . $user->user_id);
             return redirect()->route('home')
                 ->with('warning', 'Role tidak ditemukan. Hubungi administrator.');
         }
 
-        // Cek role_name dari relasi role
         $roleName = $user->role->role_name ?? null;
 
         try {
@@ -103,7 +72,6 @@ class AuthController extends Controller
                 return redirect()->route('profile.show')
                     ->with('status', 'Login berhasil! Selamat datang di SkinQuo.');
             } else {
-                // Fallback untuk role yang tidak dikenali
                 Log::warning('Unknown role detected. Role name: ' . $roleName . ', User ID: ' . $user->user_id);
                 return redirect()->route('home')
                     ->with('warning', 'Role tidak dikenali. Silakan hubungi administrator.');
@@ -149,30 +117,6 @@ class AuthController extends Controller
     //         'password.required' => 'Password tidak boleh kosong.',
     //         'password.confirmed' => 'Password tidak cocok.',
     //     ]);
-
-    //     // Gabungkan birth_day, birth_month, birth_year menjadi birth_date
-    //     $birthDate = sprintf('%04d-%02d-%02d', $validated['birth_year'], $validated['birth_month'], $validated['birth_day']);
-
-    //     try {
-    //         $user = User::create([
-    //             'name' => $validated['first_name'] . ' ' . $validated['last_name'],
-    //             'first_name' => $validated['first_name'],
-    //             'last_name' => $validated['last_name'],
-    //             'birth_date' => $birthDate,
-    //             'gender' => $validated['gender'],
-    //             'email' => $validated['email'],
-    //             'mobile_number' => filter_var($validated['email'], FILTER_VALIDATE_EMAIL) ? null : $validated['email'],
-    //             'password' => Hash::make($validated['password']),
-    //         ]);
-
-    //         Auth::login($user);
-    //         $request->session()->regenerate();
-
-    //         return redirect(route('home'))->with('status', 'Pendaftaran berhasil! Selamat datang di SkinQuo.');
-    //     } catch (\Exception $e) {
-    //         return back()->withErrors(['error' => 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.'])->withInput();
-    //     }
-    // }
 
     public function register(Request $request)
     {

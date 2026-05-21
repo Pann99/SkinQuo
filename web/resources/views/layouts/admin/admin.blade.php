@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@yield('title', 'Admin - The Sanctuary')</title>
+  <title>@yield('title', 'Admin - SkinQuo')</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -19,12 +19,8 @@
 
     {{-- Brand --}}
     <div style="margin-bottom: 36px; padding: 0 8px;">
-      <div style="font-family:'Playfair Display'; font-weight:700; font-size:18px;
-                  color:var(--brown-dark); line-height:1.2;">
-        The Sanctuary
-      </div>
-      <div style="font-family:'Jost'; font-size:10px; letter-spacing:0.18em;
-                  text-transform:uppercase; color:var(--brown-mid); margin-top:4px;">
+      <div style="font-family:'Playfair Display'; font-weight:700; font-size:24px;
+                  color:var(--brown-dark); line-height:1.1;">
         Admin Portal
       </div>
     </div>
@@ -92,17 +88,11 @@
     <footer class="admin-footer">
 
       {{-- Left: SkinQuo Logo --}}
-      <div style="display:flex; align-items:center; gap:10px;">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
-             xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="15" stroke="#F5E6D0" stroke-width="1.5"/>
-          <path d="M16 8 C10 12, 10 20, 16 24 C22 20, 22 12, 16 8Z"
-                stroke="#F5E6D0" stroke-width="1.2" fill="none"/>
-          <line x1="16" y1="8" x2="16" y2="24"
-                stroke="#F5E6D0" stroke-width="0.8"/>
-        </svg>
-        <span style="font-family:'Playfair Display'; font-style:italic;
-                     font-size:18px; color:#F5E6D0; letter-spacing:0.02em;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="{{ asset('images/logo_skinquo_cream.png') }}"
+             alt="SkinQuo" style="height:40px; width:auto; object-fit:contain;" />
+        <span style="font-family:'Jost', sans-serif; font-weight:600;
+                     font-size:18px; color:#F5E6D0; letter-spacing:0.04em;">
           SkinQuo
         </span>
       </div>

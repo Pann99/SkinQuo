@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSkinGuideController;
 use App\Http\Controllers\AdminFeedbackController;
 use App\Http\Controllers\DebugAuthController;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
@@ -119,7 +120,7 @@ Route::middleware('auth')->group(function () {
 // AKSES ADMIN HANYA UNTUK USER DENGAN ROLE = 'ADMIN'
 //
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
 
     // ── Admin Dashboard ────────────────────────────
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
