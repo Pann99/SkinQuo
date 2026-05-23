@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -26,25 +28,40 @@ class AdminMiddleware
                 ->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        // STEP 2: Ambil user dengan eager loading relasi role
-        $user = auth()->user()->load('role');
+        // STEP 2: Ambil user dengan relasi role
+        $user = User::with('role')->find(auth()->id());
 
-        // STEP 3: Validasi relasi role ada
+        // STEP 3: Validasi user ditemukan
+        if (!$user) {
+            abort(403, 'User tidak ditemukan.');
+        }
+
+        // STEP 4: Validasi relasi role ada
         if ($user->role === null) {
-            \Log::warning('Admin access attempt but role not found. User ID: ' . $user->user_id);
+            Log::warning(
+                'Admin access attempt but role not found. User ID: ' . $user->user_id
+            );
+
             abort(403, 'Role tidak ditemukan. Hubungi administrator.');
         }
 
-        // STEP 4: Cek apakah role_name === 'admin' menggunakan relasi
+        // STEP 5: Cek apakah admin
         if ($user->role->role_name !== 'admin') {
-            \Log::warning(
-                'Unauthorized admin access attempt. User ID: ' . $user->user_id .
-                ', Role: ' . $user->role->role_name
+
+            Log::warning(
+                'Unauthorized admin access attempt. User ID: ' .
+                $user->user_id .
+                ', Role: ' .
+                $user->role->role_name
             );
-            abort(403, 'Akses ditolak. Anda tidak memiliki hak akses administrator.');
+
+            abort(
+                403,
+                'Akses ditolak. Anda tidak memiliki hak akses administrator.'
+            );
         }
 
-        // STEP 5: User adalah admin, lanjutkan request
+        // STEP 6: Lanjut request
         return $next($request);
     }
 }

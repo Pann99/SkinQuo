@@ -1,11 +1,12 @@
-﻿@extends('layouts.admin.admin')
+@extends('layouts.admin.admin')
 @section('title', 'Create Article - The Sanctuary')
 @section('content')
 
 <div style="max-width:1000px; margin:0 auto; padding:40px 32px;">
 
   <div style="margin-bottom:40px;">
-    <h1 style="font-family:'Playfair Display'; font-size:42px; font-style:italic; color:var(--brown-dark); margin-bottom:12px; font-weight:400;">
+    <a href="{{ route('admin.journal') }}" class="back-link">← Back to Journal</a>
+    <h1 style="font-family:'Playfair Display'; font-size:42px; font-style:italic; color:var(--brown-dark); margin-bottom:12px; margin-top:16px; font-weight:400;">
       Make your new article
     </h1>
     <p style="font-family:'Jost'; font-size:13px; color:var(--brown-mid); line-height:1.8; letter-spacing:0.04em;">
@@ -67,7 +68,8 @@ At the heart of cellular regeneration lies a class of compounds...
           </div>
         </div>
 
-        <button type="button" style="background:transparent; border:none; color:var(--brown-dark); font-family:'Jost'; font-size:12px; letter-spacing:0.08em; text-decoration:underline; cursor:pointer;">
+        <button type="button" style="background:transparent; border:none; color:var(--brown-dark); font-family:'Jost'; font-size:12px; letter-spacing:0.08em; text-decoration:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-eye" style="font-size:16px;"></i>
           Lihat Preview
         </button>
 
@@ -109,46 +111,28 @@ At the heart of cellular regeneration lies a class of compounds...
         </div>
       </div>
 
-      <div style="background:rgba(255,255,255,0.95); border-radius:24px; padding:28px; box-shadow:0 40px 80px rgba(61,35,20,0.08);">
-        <label class="field-label">Meta Description</label>
-        <textarea name="meta_description" rows="3" class="admin-input" placeholder="Deskripsi untuk mesin pencari"
-                  style="padding:12px 16px; border-radius:12px; background:var(--white); border:1px solid #E8D5C4; resize:vertical; font-family:'Jost'; font-size:11px;"></textarea>
-        <div style="margin-top:18px;"><label class="field-label">Meta Keywords</label>
-          <textarea name="keywords" rows="2" class="admin-input" placeholder="retinoid, skincare, vitamin a"
-                    style="padding:12px 16px; border-radius:12px; background:var(--white); border:1px solid #E8D5C4; resize:vertical; font-family:'Jost'; font-size:11px;"></textarea>
-        </div>
-      </div>
+      <input type="hidden" name="status" id="article-status" value="publish">
 
-      <div style="background:rgba(255,255,255,0.95); border-radius:24px; padding:28px; box-shadow:0 40px 80px rgba(61,35,20,0.08);">
-        <div style="display:flex; flex-direction:column; gap:16px;">
-          <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
-            <input type="radio" name="status" value="publish" checked style="width:16px; height:16px; cursor:pointer;">
-            <span style="font-family:'Jost'; font-size:12px; color:var(--brown-dark);">Publish Sekarang</span>
-          </label>
-          <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
-            <input type="radio" name="status" value="draft" style="width:16px; height:16px; cursor:pointer;">
-            <span style="font-family:'Jost'; font-size:12px; color:var(--brown-dark);">Simpan sebagai Draft</span>
-          </label>
-        </div>
+      <!-- Premium Action Buttons Card -->
+      <div style="background:rgba(255,255,255,0.95); border-radius:24px; padding:28px; box-shadow:0 40px 80px rgba(61,35,20,0.08); display:flex; flex-direction:column; gap:12px;">
+        <button type="submit" form="article-form" onclick="setStatus('publish')"
+                style="width:100%; background:var(--brown-dark); color:white; border:none; padding:14px; border-radius:14px; font-family:'Jost'; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; font-weight:600; text-align:center; transition:background 0.2s;"
+                onmouseover="this.style.background='var(--brown-mid)'" onmouseout="this.style.background='var(--brown-dark)'">
+          Publish Artikel
+        </button>
+        <button type="button" onclick="saveAsDraft()"
+                style="width:100%; background:transparent; border:1px solid var(--brown-dark); color:var(--brown-dark); padding:14px; border-radius:14px; font-family:'Jost'; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; font-weight:600; text-align:center; transition:all 0.2s;"
+                onmouseover="this.style.background='rgba(60,32,16,0.05)'" onmouseout="this.style.background='transparent'">
+          Simpan Draf
+        </button>
+        <a href="{{ route('admin.journal') }}"
+           style="width:100%; display:block; background:transparent; border:1px solid var(--brown-light); color:var(--brown-mid); padding:14px; border-radius:14px; font-family:'Jost'; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; text-align:center; text-decoration:none; font-weight:500; box-sizing:border-box; transition:all 0.2s;"
+           onmouseover="this.style.background='rgba(196,160,122,0.08)'" onmouseout="this.style.background='transparent'">
+          Batal
+        </a>
       </div>
     </div>
   </form>
-
-  <div style="display:flex; justify-content:flex-end; gap:14px; margin-top:40px; padding-top:26px; border-top:1px solid #E8D5C4;">
-    <button type="button" onclick="document.getElementById('article-form').reset();"
-            style="background:transparent; border:1px solid var(--brown-mid); color:var(--brown-mid); padding:12px 28px; border-radius:999px; font-family:'Jost'; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer;">
-      Batal
-    </button>
-    <button type="button" onclick="document.getElementById('article-form').submit();"
-            style="background:transparent; border:1px solid var(--brown-dark); color:var(--brown-dark); padding:12px 28px; border-radius:999px; font-family:'Jost'; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer;">
-      Simpan Draft
-    </button>
-    <button type="submit" form="article-form"
-            style="background:var(--brown-dark); color:white; border:none; padding:12px 28px; border-radius:999px; font-family:'Jost'; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; font-weight:600;">
-      Publish Artikel
-    </button>
-  </div>
-
 </div>
 
 <script>
@@ -176,6 +160,15 @@ At the heart of cellular regeneration lies a class of compounds...
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  function setStatus(statusVal) {
+    document.getElementById('article-status').value = statusVal;
+  }
+
+  function saveAsDraft() {
+    setStatus('draft');
+    document.getElementById('article-form').submit();
   }
 </script>
 

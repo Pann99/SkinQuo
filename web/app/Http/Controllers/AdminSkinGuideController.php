@@ -4,122 +4,170 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
-/**
- * AdminSkinGuideController
- * 
- * Handles CRUD operations for Skin Guide articles in admin panel
- * 
- * @package App\Http\Controllers
- */
 class AdminSkinGuideController extends Controller
 {
     /**
-     * Display all articles with pagination
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * Display all articles
      */
     public function index(Request $request)
     {
-        // TODO: Fetch all articles with pagination
-        // TODO: Apply search filter if provided
-        // TODO: Apply category filter if provided
-        // TODO: Apply status filter (published/draft) if provided
-        
-        $articles = []; // Article::paginate(15);
-        
-        return view('admin.skin-guide.index', compact('articles'));
+        $query = Article::query();
+
+        // Search title & category
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(category) LIKE ?', ["%{$search}%"]);
+            });
+        }
+
+        // Filter category
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Filter publish status
+        if ($request->has('is_published')) {
+            $query->where('is_published', filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN));
+        }
+
+        $articles = $query
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data articles berhasil diambil',
+            'data' => $articles
+        ]);
     }
 
     /**
-     * Show article creation form
-     * 
-     * @return \Illuminate\View\View
-     */
-    public function create()
-    {
-        // TODO: Prepare form data (categories, etc.)
-        
-        return view('admin.skin-guide.create');
-    }
-
-    /**
-     * Store article in database
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Store article
      */
     public function store(Request $request)
     {
-        // TODO: Validate input with proper rules (title, slug, content, etc.)
-        // TODO: Handle thumbnail/featured image upload
-        // TODO: Generate reading time estimation if not provided
-        // TODO: Create article record with markdown content support
-        // TODO: Set published_at based on is_published checkbox
-        // TODO: Log admin action to admin_logs table
-        
-        return redirect()->route('admin.skin-guide.index')
-                       ->with('success', 'Article published successfully');
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'image_url' => 'nullable|string',
+            'category' => 'required|string|max:255',
+            'is_published' => 'required|boolean',
+        ]);
+
+        // Generate slug unik
+        $slug = Str::slug($validated['title']);
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (Article::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        $validated['slug'] = $slug;
+
+        $article = Article::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Article berhasil ditambahkan',
+            'data' => $article
+        ], 201);
     }
 
     /**
-     * Show article details
-     * 
-     * @param  \App\Models\Article  $article
-     * @return \Illuminate\View\View
+     * Show detail article
      */
     public function show(Article $article)
     {
-        // TODO: Show article detail view with all data
-        
-        return view('admin.skin-guide.show', compact('article'));
+        return response()->json([
+            'success' => true,
+            'data' => $article
+        ]);
     }
 
     /**
-     * Show article edit form
-     * 
-     * @param  \App\Models\Article  $article
-     * @return \Illuminate\View\View
+     * Update article
      */
-    public function edit(Article $article)
-    {
-        // TODO: Load article data into edit form
-        
-        return view('admin.skin-guide.edit', compact('article'));
+   public function update(Request $request, $id)
+{
+    // Cari article berdasarkan ID
+    $article = Article::find($id);
+
+    // Jika article tidak ditemukan
+    if (!$article) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Article tidak ditemukan'
+        ], 404);
     }
 
-    /**
-     * Update article in database
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Article  $article
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(Request $request, Article $article)
-    {
-        // TODO: Validate input with proper rules
-        // TODO: Handle thumbnail update if new image provided
-        // TODO: Update article record in database
-        // TODO: Handle publish/unpublish status change
-        // TODO: Log admin action to admin_logs table
-        
-        return redirect()->route('admin.skin-guide.index')
-                       ->with('success', 'Article updated successfully');
+    // Validasi request
+    $validated = $request->validate([
+        'title' => 'sometimes|required|string|max:255',
+        'content' => 'sometimes|required|string',
+        'image_url' => 'nullable|string',
+        'category' => 'sometimes|required|string|max:255',
+        'is_published' => 'sometimes|required|boolean',
+    ]);
+
+    // Update slug jika title berubah
+    if (isset($validated['title'])) {
+
+        $slug = Str::slug($validated['title']);
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (
+            Article::where('slug', $slug)
+                ->where('id', '!=', $article->id)
+                ->exists()
+        ) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        $validated['slug'] = $slug;
     }
 
+    // Update data
+    $article->update($validated);
+
+    // Refresh data terbaru
+    $article->refresh();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Article berhasil diupdate',
+        'data' => $article
+    ], 200);
+}
+
     /**
-     * Delete (soft delete) article
-     * 
-     * @param  \App\Models\Article  $article
-     * @return \Illuminate\Http\RedirectResponse
+     * Delete article
      */
-    public function destroy(Article $article)
-    {
-        // TODO: Soft delete article record (set deleted_at)
-        // TODO: Log admin action to admin_logs table
-        
-        return redirect()->route('admin.skin-guide.index')
-                       ->with('success', 'Article deleted successfully');
+    public function destroy($id)
+{
+    // Cari article berdasarkan ID
+    $article = Article::find($id);
+
+    // Jika tidak ditemukan
+    if (!$article) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Article tidak ditemukan'
+        ], 404);
     }
+
+    // Hapus article
+    $article->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Article berhasil dihapus'
+    ], 200);
+}
 }

@@ -15,6 +15,7 @@
 
   {{-- ===== SIDEBAR ===== --}}
   {{-- Sidebar berdiri sendiri full height, TIDAK dibungkus footer --}}
+  @if(!request()->routeIs('admin.profile.change-password'))
   <aside class="admin-sidebar">
 
     {{-- Brand --}}
@@ -75,6 +76,7 @@
     </div>
 
   </aside>
+  @endif
 
   {{-- ===== MAIN AREA: content + footer (sidebar TIDAK ikut footer) ===== --}}
   <div style="flex:1; display:flex; flex-direction:column; min-height:100vh;">
