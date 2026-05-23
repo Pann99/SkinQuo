@@ -12,7 +12,7 @@
 
         <div class="dashboard-timecard">
             <span class="timecard-label">CURRENT LOCAL TIME</span>
-            <strong>{{ now()->format('h:i A, M d') }}</strong>
+            <strong>{{ now()->setTimezone('Asia/Jakarta')->format('H:i') }} WIB, {{ now()->setTimezone('Asia/Jakarta')->format('d M Y') }}</strong>
         </div>
     </header>
 
