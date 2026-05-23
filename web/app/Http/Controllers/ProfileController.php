@@ -20,9 +20,17 @@ class ProfileController extends Controller
             if (!$user) {
                 return redirect()->route('login');
             }
-            // Eager load relationships untuk avoid N+1 queries
-            $user->load(['consultations', 'sex', 'role']);
-            $consultations = $user->consultations()->paginate(10);
+            
+            // Fetch consultations ordered by latest
+            $consultations = $user->consultations()
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            // Debug: Log consultation count
+            \Log::info('Profile show - User ID: ' . $user->user_id . ', Consultations count: ' . $consultations->count());
+            
+            // Eager load sex and role relationships
+            $user->load(['sex', 'role']);
             
             return view('pages.profile', compact('user', 'consultations'));
         } catch (\Exception $e) {

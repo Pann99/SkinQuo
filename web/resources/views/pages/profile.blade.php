@@ -298,7 +298,8 @@
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(150, 115, 80, 0.3);
+        background: rgba(96, 63, 38, 0.4);
+        backdrop-filter: blur(4px);
         z-index: 9999;
         align-items: flex-start;
         justify-content: center;
@@ -309,49 +310,64 @@
     .pf-modal-overlay.open { display: flex; }
 
     .pf-modal {
-        background: #FFF8F0;
-        border-radius: 20px;
+        background: linear-gradient(135deg, #FFEAC5 0%, #FFE0B2 100%);
+        border-radius: 24px;
         width: 100%;
-        max-width: 620px;
-        padding: 2rem 2.25rem 2.25rem;
+        max-width: 500px;
+        padding: 1.6rem 1.5rem;
         position: relative;
-        animation: modalIn 0.22s ease;
+        animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 20px 60px rgba(96, 63, 38, 0.2), 0 0 1px rgba(96, 63, 38, 0.1);
+        border: 1px solid rgba(255, 219, 181, 0.5);
     }
 
     @keyframes modalIn {
-        from { opacity: 0; transform: translateY(16px); }
-        to   { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(24px) scale(0.95); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .pf-modal-close {
         position: absolute;
-        top: 1.25rem;
-        right: 1.25rem;
-        background: none;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(96, 63, 38, 0.08);
         border: none;
         cursor: pointer;
         color: #603F26;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         line-height: 1;
-        padding: 0;
+        padding: 0.25rem 0.5rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .pf-modal-close:hover { opacity: 0.5; }
+    .pf-modal-close:hover { 
+        background: rgba(96, 63, 38, 0.15);
+        transform: scale(1.1);
+    }
 
     .pf-modal-title {
         font-family: 'Playfair Display', serif;
-        font-size: 1.65rem;
+        font-size: 1.5rem;
         font-weight: 700;
         font-style: italic;
         color: #603F26;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.1rem;
+        text-align: center;
     }
 
     .pf-modal-user {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.9rem;
         margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(96, 63, 38, 0.1);
     }
 
     .pf-modal-avatar, .pf-modal-avatar-placeholder {
@@ -359,6 +375,8 @@
         height: 52px;
         border-radius: 50%;
         flex-shrink: 0;
+        border: 3px solid #FFDBB5;
+        box-shadow: 0 4px 16px rgba(96, 63, 38, 0.15);
     }
 
     .pf-modal-avatar {
@@ -367,87 +385,104 @@
     }
 
     .pf-modal-avatar-placeholder {
-        background: #603F26;
+        background: linear-gradient(135deg, #603F26, #8B5A3C);
         display: flex;
         align-items: center;
         justify-content: center;
         font-family: 'Playfair Display', serif;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         font-weight: 700;
         color: #FFEAC5;
     }
 
+    .pf-modal-user-info {
+        flex: 1;
+    }
+
     .pf-modal-username {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-style: italic;
+        color: #603F26;
+        line-height: 1.2;
+    }
+
+    .pf-modal-datetime {
+        background: linear-gradient(135deg, #FFEAC5, #FFE0B2);
+        border-radius: 10px;
+        padding: 0.55rem 0.8rem;
+        flex-shrink: 0;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(96, 63, 38, 0.1);
+        border: 1px solid rgba(96, 63, 38, 0.08);
+    }
+
+    .pf-modal-date {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #603F26;
+        margin-bottom: 0.2rem;
+        letter-spacing: 0.5px;
+    }
+
+    .pf-modal-time {
+        font-size: 0.75rem;
+        color: rgba(96,63,38,0.7);
+        font-weight: 600;
+    }
+
+    .pf-diag-card {
+        background: linear-gradient(135deg, #FFFBF8 0%, #FFF8F3 100%);
+        border-radius: 14px;
+        padding: 1.2rem;
+        margin-bottom: 1.4rem;
+        border: 1.5px solid rgba(96, 63, 38, 0.1);
+        box-shadow: 0 6px 18px rgba(96, 63, 38, 0.08);
+    }
+
+    .pf-diag-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #603F26, #8B5A3C);
+        color: #FFEAC5;
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 0.8rem;
+        box-shadow: 0 4px 12px rgba(96, 63, 38, 0.15);
+    }
+
+    .pf-diag-name {
         font-family: 'Playfair Display', serif;
         font-size: 1.15rem;
         font-weight: 700;
         font-style: italic;
         color: #603F26;
-        flex: 1;
-    }
-
-    .pf-modal-datetime {
-        background: #FFEAC5;
-        border-radius: 12px;
-        padding: 0.6rem 0.9rem;
-        flex-shrink: 0;
-    }
-
-    .pf-modal-date {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #603F26;
-        margin-bottom: 0.2rem;
-    }
-
-    .pf-modal-time {
-        font-size: 0.75rem;
-        color: rgba(96,63,38,0.6);
-    }
-
-    .pf-diag-card {
-        background: #fff;
-        border-radius: 14px;
-        padding: 1.25rem 1.4rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .pf-diag-badge {
-        display: inline-block;
-        background: #603F26;
-        color: #FFEAC5;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        padding: 3px 10px;
-        border-radius: 999px;
-        margin-bottom: 0.7rem;
-    }
-
-    .pf-diag-name {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.2rem;
-        font-weight: 700;
-        font-style: italic;
-        color: #603F26;
-        margin-bottom: 0.9rem;
+        margin-bottom: 0.8rem;
     }
 
     .pf-diag-section-label {
-        font-size: 0.6rem;
+        font-size: 0.62rem;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: rgba(96,63,38,0.5);
-        margin-bottom: 0.3rem;
+        color: rgba(96,63,38,0.65);
+        margin-bottom: 0.4rem;
+        margin-top: 0.6rem;
+    }
+
+    .pf-diag-section-label:first-of-type {
+        margin-top: 0;
     }
 
     .pf-diag-section-text {
-        font-size: 0.8rem;
-        color: rgba(96,63,38,0.78);
-        line-height: 1.65;
-        margin-bottom: 0.9rem;
+        font-size: 0.82rem;
+        color: rgba(96,63,38,0.8);
+        line-height: 1.6;
+        margin-bottom: 0.6rem;
     }
 
     .pf-diag-section-text:last-child { margin-bottom: 0; }
@@ -456,28 +491,33 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 0.85rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(96, 63, 38, 0.1);
     }
 
     .pf-recs-title {
         font-family: 'Playfair Display', serif;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         font-weight: 700;
         color: #603F26;
     }
 
     .pf-recs-count {
-        font-size: 0.65rem;
+        font-size: 0.64rem;
         font-weight: 700;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: rgba(96,63,38,0.5);
+        color: rgba(96,63,38,0.65);
+        background: rgba(255, 219, 181, 0.3);
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
     }
 
     .pf-products-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
+        gap: 0.8rem;
     }
 
     @media (max-width: 500px) {
@@ -485,19 +525,30 @@
     }
 
     .pf-product-card {
-        background: #FFEAC5;
+        background: linear-gradient(135deg, #FFFBF8, #FFF8F3);
         border-radius: 12px;
         overflow: hidden;
+        box-shadow: 0 6px 16px rgba(96, 63, 38, 0.12);
+        border: 1px solid rgba(96, 63, 38, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .pf-product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(96, 63, 38, 0.18);
     }
 
     .pf-product-img {
         width: 100%;
         height: 110px;
-        background: rgba(96,63,38,0.07);
+        background: linear-gradient(135deg, rgba(96,63,38,0.08), rgba(96,63,38,0.04));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #603F26;
+        border-bottom: 1px solid rgba(96, 63, 38, 0.1);
     }
 
     .pf-product-img img {
@@ -507,46 +558,54 @@
     }
 
     .pf-product-info {
-        padding: 0.65rem 0.75rem 0.75rem;
+        padding: 0.75rem 0.8rem 0.8rem;
     }
 
     .pf-product-name {
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 700;
         color: #603F26;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
     }
 
     .pf-product-desc {
-        font-size: 0.65rem;
-        color: rgba(96,63,38,0.6);
-        line-height: 1.45;
-        margin-bottom: 0.55rem;
+        font-size: 0.64rem;
+        color: rgba(96,63,38,0.68);
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
     }
 
     .pf-product-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        border-top: 1px solid rgba(96, 63, 38, 0.1);
+        padding-top: 0.55rem;
     }
 
     .pf-product-price {
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         font-weight: 700;
         color: #603F26;
     }
 
     .pf-product-cart {
-        background: none;
-        border: none;
+        background: rgba(96, 63, 38, 0.1);
+        border: 1.5px solid rgba(96, 63, 38, 0.2);
         cursor: pointer;
-        color: rgba(96,63,38,0.45);
-        padding: 0;
+        color: #603F26;
+        padding: 0.35rem 0.5rem;
         font-weight: 700;
-        font-size: 1.1rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        transition: all 0.2s;
     }
 
-    .pf-product-cart:hover { color: #603F26; }
+    .pf-product-cart:hover { 
+        background: rgba(96, 63, 38, 0.15);
+        border-color: #603F26;
+    }
 
     @media (max-width: 620px) {
         .pf-inner { padding: 0 1.1rem; }
@@ -554,7 +613,15 @@
         .pf-avatar, .pf-avatar-placeholder { width: 80px; height: 80px; }
         .pf-hero-name { font-size: 1.75rem; }
         .pf-card { padding: 1.4rem 1.4rem 1.85rem; }
-        .pf-modal { padding: 1.5rem 1.4rem; }
+        .pf-modal { padding: 1.8rem 1.4rem; border-radius: 24px; }
+        .pf-modal-title { font-size: 1.6rem; }
+        .pf-modal-user { flex-wrap: wrap; }
+        .pf-modal-datetime { order: 3; flex-basis: 100%; margin-top: 0.8rem; width: 100%; text-align: left; }
+        .pf-diag-card { padding: 1.2rem; }
+        .pf-diag-name { font-size: 1.2rem; }
+        .pf-diag-section-text { font-size: 0.82rem; }
+        .pf-recs-title { font-size: 1.15rem; }
+        .pf-products-grid { gap: 0.8rem; }
     }
 </style>
 @endpush
@@ -576,7 +643,6 @@
 
         <div class="pf-card">
             <div class="pf-card-title">
-                <span style="font-size: 1.1rem;">👤</span>
                 <span>Personal Information</span>
             </div>
 
@@ -617,29 +683,28 @@
 
             <div class="pf-change-pwd-section">
                 <a href="{{ route('profile.password.edit') }}" class="pf-ubah-btn">
-                    ← Change Password
+                    Change Password
                 </a>
             </div>
         </div>
 
         <div class="pf-card">
             <div class="pf-card-title">
-                <span style="font-size: 1.1rem;">📋</span>
                 <span>History Consultation</span>
             </div>
 
             @if(($consultations ?? collect())->isEmpty())
                 <div class="pf-empty">
-                    <p>Belum ada konsultasi.</p>
-                    <a href="{{ route('consultation.index') }}">Mulai Konsultasi</a>
+                    <p>No consultations yet.</p>
+                    <a href="{{ route('consultation.index') }}">Start Consultation</a>
                 </div>
             @else
                 @foreach($consultations as $c)
-                    <a href="javascript:void(0)" class="pf-consult-item" onclick="openDetailModal({{ $c->id }})">
+                    <a href="javascript:void(0)" class="pf-consult-item" onclick="openDetailModal({{ $c->id }})" style="cursor: pointer;">
                         <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
                         <span class="pf-consult-sep"></span>
-                        <span class="pf-consult-topic">{{ implode(', ', (array)($c->tags ?? [])) ?: 'Konsultasi' }}</span>
-                        <span class="pf-consult-link">Lihat Detail</span>
+                        <span class="pf-consult-topic">{{ implode(', ', (array)($c->tags ?? [])) ?: 'Consultation' }}</span>
+                        <span class="pf-consult-link">View Details</span>
                     </a>
                 @endforeach
             @endif
@@ -654,7 +719,7 @@
     <div class="pf-modal">
 
         <button class="pf-modal-close" onclick="closeDetailModal()">×</button>
-        <h2 class="pf-modal-title">Detail Konsultasi</h2>
+        <h2 class="pf-modal-title">Detail Consultation</h2>
 
         <div class="pf-modal-user">
             @if($user->sex && $user->sex->icon_image_url)
@@ -662,7 +727,9 @@
             @else
                 <div class="pf-modal-avatar-placeholder">{{ strtoupper(substr($user->username ?? 'U', 0, 1)) }}</div>
             @endif
-            <span class="pf-modal-username">{{ $user->username ?? 'User' }}</span>
+            <div class="pf-modal-user-info">
+                <div class="pf-modal-username">{{ $user->username ?? 'User' }}</div>
+            </div>
             <div class="pf-modal-datetime">
                 <div class="pf-modal-date" id="modalDate">—</div>
                 <div class="pf-modal-time" id="modalTime">—</div>
@@ -670,7 +737,7 @@
         </div>
 
         <div class="pf-diag-card">
-            <span class="pf-diag-badge">DIAGNOSIS AI</span>
+            <span class="pf-diag-badge">Hasil Diagnosis</span>
             <div class="pf-diag-name" id="modalDiagnosis">—</div>
             <div class="pf-diag-section-label">ACTION PLAN</div>
             <div class="pf-diag-section-text" id="modalActionPlan">—</div>
@@ -701,22 +768,31 @@ function openDetailModal(id) {
             break;
         }
     }
-    if (!found) return;
+    if (!found) {
+        console.error('Consultation not found with id: ' + id);
+        return;
+    }
 
-    document.getElementById('modalDate').textContent = c.date || '—';
-    document.getElementById('modalTime').textContent = c.time || '—';
+    // Format date dari created_at
+    var dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) : '—';
+    var timeStr = c.created_at ? new Date(c.created_at).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : '—';
+    
+    document.getElementById('modalDate').textContent = dateStr;
+    document.getElementById('modalTime').textContent = timeStr;
 
-    var diag = 'Hasil Konsultasi';
-    if (c.detected_traits && c.detected_traits.length > 0) {
+    // Get diagnosis dari detected_traits atau tags
+    var diag = 'Skin Concern';
+    if (c.detected_traits && Array.isArray(c.detected_traits) && c.detected_traits.length > 0) {
         diag = c.detected_traits.join(', ');
-    } else if (c.tags && c.tags.length > 0) {
+    } else if (c.tags && Array.isArray(c.tags) && c.tags.length > 0) {
         diag = c.tags.join(', ');
     }
     document.getElementById('modalDiagnosis').textContent = diag;
 
-    var story = c.skin_story || '—';
+    // Get skin story atau recommendations
+    var story = c.skin_story ? c.skin_story : (c.recommendations ? (Array.isArray(c.recommendations) ? c.recommendations.join('. ') : c.recommendations) : 'Lakukan perawatan kulit secara rutin sesuai kondisi kulit Anda.');
     document.getElementById('modalActionPlan').textContent = 'Focus on treating: ' + diag + '.';
-    document.getElementById('modalNotes').textContent = story || 'Lakukan perawatan kulit secara rutin sesuai kondisi kulit Anda.';
+    document.getElementById('modalNotes').textContent = story;
 
     var products = getProductRecommendations(c.concern_1 || c.concern_2 || 'general');
     document.getElementById('modalRecsCount').textContent = products.length + ' ITEMS CURATED';

@@ -535,36 +535,39 @@
 
             @forelse($articles ?? [] as $article)
 
-                <a href="{{ route('skin-guide.index', ['article' => $article->slug]) }}" class="art-card">
-                    <div class="art-thumb" style="background:#dfc9ad;">
-                        @if($article->image_url)
-                            <img src="{{ $article->image_url }}"
-                                 alt="{{ $article->title }}">
-                        @else
-                            <span style="font-size:3rem;">🌿</span>
-                        @endif
-                    </div>
-                    <div style="padding:1.1rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
-                            <span class="cat-badge">{{ $article->category }}</span>
-                            <span style="font-size:0.62rem;color:var(--brown);">
-                                {{ $article->created_at?->format('M d, Y') }}
+                <div class="art-card" style="padding:0;">
+                    <a href="{{ route('skin-guide.show', $article->slug) }}"
+                       style="display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit;">
+                        <div class="art-thumb" style="background:#dfc9ad;">
+                            @if($article->image_url)
+                                <img src="{{ $article->image_url }}"
+                                     alt="{{ $article->title }}">
+                            @else
+                                <span style="font-size:3rem;">🌿</span>
+                            @endif
+                        </div>
+                        <div style="padding:1.1rem;flex:1;display:flex;flex-direction:column;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                                <span class="cat-badge">{{ $article->category }}</span>
+                                <span style="font-size:0.62rem;color:var(--brown);">
+                                    {{ $article->created_at?->format('M d, Y') }}
+                                </span>
+                            </div>
+                            <h3 class="font-serif"
+                                style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
+                                {{ $article->title }}
+                            </h3>
+                            <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;
+                                      display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;">
+                                {{ $article->excerpt }}
+                            </p>
+                            <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);
+                                         text-decoration:underline;text-underline-offset:3px;cursor:pointer;display:inline-block;">
+                                Read More →
                             </span>
                         </div>
-                        <h3 class="font-serif"
-                            style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
-                            {{ $article->title }}
-                        </h3>
-                        <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;
-                                  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">
-                            {{ $article->excerpt }}
-                        </p>
-                        <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);
-                                     text-decoration:underline;text-underline-offset:3px;">
-                            Read More →
-                        </span>
-                    </div>
-                </a>
+                    </a>
+                </div>
 
             @empty
 
@@ -589,27 +592,29 @@
                 @endphp
 
                 @foreach($placeholders as $p)
-                <div class="art-card">
-                    <div class="art-thumb" style="background:linear-gradient(135deg,#e8d5bb,#d4b896);">
-                        <span style="font-size:3rem;">{{ $p['icon'] }}</span>
-                    </div>
-                    <div style="padding:1.1rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
-                            <span class="cat-badge">{{ $p['cat'] }}</span>
-                            <span style="font-size:0.62rem;color:var(--brown);">{{ $p['date'] }}</span>
+                <div class="art-card" style="padding:0;">
+                    <div style="display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit;cursor:not-allowed;opacity:0.6;">
+                        <div class="art-thumb" style="background:linear-gradient(135deg,#e8d5bb,#d4b896);">
+                            <span style="font-size:3rem;">{{ $p['icon'] }}</span>
                         </div>
-                        <h3 class="font-serif"
-                            style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
-                            {{ $p['title'] }}
-                        </h3>
-                        <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;
-                                  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">
-                            {{ $p['body'] }}
-                        </p>
-                        <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);
-                                     text-decoration:underline;text-underline-offset:3px;">
-                            Read More →
-                        </span>
+                        <div style="padding:1.1rem;flex:1;display:flex;flex-direction:column;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                                <span class="cat-badge">{{ $p['cat'] }}</span>
+                                <span style="font-size:0.62rem;color:var(--brown);">{{ $p['date'] }}</span>
+                            </div>
+                            <h3 class="font-serif"
+                                style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
+                                {{ $p['title'] }}
+                            </h3>
+                            <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;
+                                      display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;">
+                                {{ $p['body'] }}
+                            </p>
+                            <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);
+                                         text-decoration:underline;text-underline-offset:3px;display:inline-block;">
+                                Read More →
+                            </span>
+                        </div>
                     </div>
                 </div>
                 @endforeach
