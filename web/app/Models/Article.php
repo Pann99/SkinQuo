@@ -1,203 +1,46 @@
 <?php
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ConsultationController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminProductController;
-use App\Http\Controllers\AdminSkinGuideController;
-use App\Http\Controllers\AdminFeedbackController;
-use App\Http\Controllers\DebugAuthController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// A. ROUTE PUBLIC - Accessible untuk Guest dan User
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+namespace App\Models;
 
-// ── Landing Page ───────────────────────────────────
-Route::get('/', [HomeController::class, 'index'])->name('home');
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-// ── Public Skin Guide / Artikel ────────────────────
-Route::get('/skin-guide', [ArticleController::class, 'index'])
-    ->name('skin-guide.index');
+class Article extends Model
+{
+    use HasFactory;
 
-// Detail Article User Page
-Route::get('/skin-guide/{slug}', [ArticleController::class, 'show'])
-    ->name('skin-guide.show');
+    protected $fillable = [
+        'title',
+        'slug',
+        'content',
+        'excerpt',
+        'image_url',
+        'category',
+        'is_published',
+        'created_at',
+        'updated_at',
+    ];
 
+    protected $casts = [
+        'is_published' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
-Route::get('/products', function () {
-    return DB::table('products')->get();
-});
+    /**
+     * Get all tags for this article
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'pivot_article_tag', 'article_id', 'tag_id');
+    }
 
-// ── Public Catalog / Produk ────────────────────────
-Route::get('/catalog', [ProductController::class, 'index'])->name('catalog.index');
-Route::get('/catalog/{product_id}', [ProductController::class, 'show'])->name('products.show');
-
-// ── Public Konsultasi (Form & AJAX Analysis) ───────────────
-Route::get('/consultation', [ConsultationController::class, 'index'])->name('consultation.index');
-Route::post('/consultation/analyze', [ConsultationController::class, 'analyze']); // AJAX endpoint
-Route::post('/consultation', [ConsultationController::class, 'store'])->name('consultation.store'); // Guest dapat submit
-Route::get('/consultation/{id}', [ConsultationController::class, 'result'])->name('consultation.result'); // Guest dapat view hasil
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// B. ROUTE AUTENTIKASI - LOGIN, REGISTER, LOGOUT (Laravel Breeze/Fortify Style)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// ── Login (GET & POST) ─────────────────────────────
-Route::get('/login', [AuthController::class, 'showLogin'])
-    ->name('login')
-    ->middleware('guest'); // Redirect ke home jika sudah login
-
-Route::post('/login', [AuthController::class, 'login'])
-    ->middleware('guest');
-
-// ── Register (GET & POST) ──────────────────────────
-Route::get('/register', [AuthController::class, 'showRegister'])
-    ->name('register')
-    ->middleware('guest');
-
-Route::post('/register', [AuthController::class, 'register'])
-    ->middleware('guest');
-
-// ── Logout ─────────────────────────────────────────
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->name('logout')
-    ->middleware('auth');
-
-// ── Preview routes for admin UI development (no login required)
-Route::view('/admin/profile-preview', 'admin.profile.profile')->name('admin.profile.preview');
-Route::view('/admin/profile-preview/change-password', 'admin.profile.change-password')
-     ->name('admin.profile.preview.change-password');
-
-// ── Journal Preview routes (for development - remove later)
-Route::view('/admin/journal-preview', 'admin.journal.index')->name('admin.journal.preview');
-Route::view('/admin/journal-preview/create', 'admin.journal.create')->name('admin.journal.preview.create');
-Route::view('/admin/journal-preview/edit', 'admin.journal.edit')->name('admin.journal.preview.edit');
-Route::view('/admin/feedback-preview', 'admin.feedback.monitor')->name('admin.feedback.preview');
-// TODO [DEV]: Remove preview routes after admin auth is implemented.
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// C. ROUTE USER (Protected by auth middleware)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Route::middleware('auth')->group(function () {
-    // ── User Profile Management ────────────────────
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    // ── Change Password ────────────────────────────
-    Route::get('/profile/password/edit', [ProfileController::class, 'editPassword'])->name('profile.password.edit');
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
-});
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// D. ROUTE ADMIN (Protected by auth + admin middleware)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 
-// ⚠️  MIDDLEWARE REQUIREMENTS:
-//     - 'auth'  : User harus login (Authenticated)
-//     - 'admin' : User.role HARUS === 'admin' (Custom Middleware Check)
-//
-// AKSES ADMIN HANYA UNTUK USER DENGAN ROLE = 'ADMIN'
-//
-
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    // ── Admin Dashboard ────────────────────────────
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-
-    // ── Admin Profile (Frontend preview only) ──────
-    Route::view('/profile', 'admin.profile.profile')->name('profile');
-    Route::view('/profile/change-password', 'admin.profile.change-password')
-         ->name('profile.change-password');
-    Route::patch('/profile/update-password', function () {
-        return redirect()->route('admin.profile');
-    })->name('profile.update-password');
-    // TODO [BACKEND]: Replace these view routes with real controller actions later.
-
-    // ── Admin placeholder pages for navigation links ──
-    Route::view('/inventory', 'admin.inventory.index')->name('inventory');
-    Route::get('/feedback', [AdminFeedbackController::class, 'monitor'])->name('feedback');
-
-    // ── Editorial Journal / Articles Management ────────
-    // TODO [BACKEND]: Create ArticleController with CRUD methods
-    // Controllers needed: create, store, edit, update, delete methods
-    // Database table: articles with fields documented in create.blade.php
-    Route::get('/journal', function() {
-        // TODO [BACKEND]: Fetch articles from database with pagination
-        return view('admin.journal.index');
-    })->name('journal');
-    
-    Route::get('/journal/create', function() {
-        return view('admin.journal.create');
-    })->name('journal.create');
-    
-    Route::post('/journal', function() {
-        // TODO [BACKEND]: Implement store logic in controller
-        return redirect()->route('admin.journal')->with('success', 'Article created successfully!');
-    })->name('journal.store');
-    
-    Route::get('/journal/{id}/edit', function($id) {
-        // TODO [BACKEND]: Fetch article by ID and pass to edit view
-        return view('admin.journal.edit');
-    })->name('journal.edit');
-    
-    Route::put('/journal/{id}', function($id) {
-        // TODO [BACKEND]: Implement update logic in controller
-        return redirect()->route('admin.journal')->with('success', 'Article updated successfully!');
-    })->name('journal.update');
-    
-    Route::delete('/journal/{id}', function($id) {
-        // TODO [BACKEND]: Implement delete logic in controller
-        return redirect()->route('admin.journal')->with('success', 'Article deleted successfully!');
-    })->name('journal.destroy');
-
-    // ── Products Management (Full CRUD) ────────────
-    Route::resource('products', AdminProductController::class, [
-        'names' => [
-            'index'   => 'products.index',
-            'create'  => 'products.create',
-            'store'   => 'products.store',
-            'show'    => 'products.show',
-            'edit'    => 'products.edit',
-            'update'  => 'products.update',
-            'destroy' => 'products.destroy',
-        ]
-    ]);
-
-    // ── Skin Guide / Articles Management (Full CRUD) ────
-   Route::resource('skin-guide', AdminSkinGuideController::class, [
-        'names' => [
-            'index'   => 'skin-guide.index',
-            'create'  => 'skin-guide.create',
-            'store'   => 'skin-guide.store',
-            'show'    => 'skin-guide.show',
-            'edit'    => 'skin-guide.edit',
-            'update'  => 'skin-guide.update',
-            'destroy' => 'skin-guide.destroy',
-        ]
-    ]);
-
-    // ── Feedback Monitoring & Management ───────────
-    Route::get('/feedback/monitor', [AdminFeedbackController::class, 'monitor'])->name('feedback.monitor');
-    Route::post('/feedback/{id}/approve', [AdminFeedbackController::class, 'approve'])->name('feedback.approve');
-    Route::post('/feedback/{id}/reject', [AdminFeedbackController::class, 'reject'])->name('feedback.reject');
-    Route::post('/feedback/{id}/helpful', [AdminFeedbackController::class, 'markHelpful'])->name('feedback.helpful');
-
-});
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// DEBUG ROUTES - FOR DEVELOPMENT ONLY (REMOVE IN PRODUCTION!)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Route::prefix('debug')->middleware('web')->group(function () {
-    Route::get('/check-db', [DebugAuthController::class, 'checkDb'])->name('debug.check-db');
-    Route::get('/reset-admin-password', [DebugAuthController::class, 'resetAdminPassword'])->name('debug.reset-admin-password');
-});
-
+    /**
+     * Scope: Get published articles only
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+}
 
