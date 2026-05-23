@@ -58,6 +58,9 @@ Route::post('/consultation/analyze', [ConsultationController::class, 'analyze'])
 Route::post('/consultation', [ConsultationController::class, 'store'])->name('consultation.store'); // Guest dapat submit
 Route::get('/consultation/{id}', [ConsultationController::class, 'result'])->name('consultation.result'); // Guest dapat view hasil
 
+// ── Public Feedback (Guest & Auth) ─────────────────────────
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store'); // Homepage feedback
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // B. ROUTE AUTENTIKASI - LOGIN, REGISTER, LOGOUT (Laravel Breeze/Fortify Style)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -107,6 +110,10 @@ Route::middleware('auth')->group(function () {
     // ── Change Password ────────────────────────────
     Route::get('/profile/password/edit', [ProfileController::class, 'editPassword'])->name('profile.password.edit');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
+    // ── Consultation Feedback (Auth Only) ──────────
+    Route::post('/consultation/feedback', [ConsultationController::class, 'storeFeedback'])
+        ->name('consultation.feedback.store');
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
