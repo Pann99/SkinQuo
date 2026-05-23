@@ -54,7 +54,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         // LANGKAH 4: LOAD USER DENGAN RELASI ROLE (EAGER LOADING)
-        $user = Auth::user()->load('role');
+       $user = User::with('role')->find(Auth::id());
 
         if ($user->role === null) {
             Log::warning('User logged in but role not found. User ID: ' . $user->user_id);

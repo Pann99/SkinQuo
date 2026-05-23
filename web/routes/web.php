@@ -11,7 +11,6 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSkinGuideController;
 use App\Http\Controllers\AdminFeedbackController;
 use App\Http\Controllers\DebugAuthController;
-use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
@@ -23,34 +22,21 @@ use Illuminate\Support\Facades\DB;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ── Public Skin Guide / Artikel ────────────────────
-Route::get('/skin-guide', [ArticleController::class, 'index'])->name('skin-guide.index');
-Route::get('/skin-guide/{slug}', [ArticleController::class, 'show'])->name('articles.show');
+Route::get('/skin-guide', [ArticleController::class, 'index'])
+    ->name('skin-guide.index');
+
+// Detail Article User Page
+Route::get('/skin-guide/{slug}', [ArticleController::class, 'show'])
+    ->name('skin-guide.show');
+
 
 Route::get('/products', function () {
     return DB::table('products')->get();
 });
 
 // ── Public Catalog / Produk ────────────────────────
-Route::get('/catalog', [ProductController::class, 'index'])
-    ->name('catalog.index');
-
-Route::get('/catalog/create', [ProductController::class, 'create'])
-    ->name('catalog.create');
-
-Route::post('/catalog/store', [ProductController::class, 'store'])
-    ->name('catalog.store');
-
-Route::get('/catalog/{product_id}', [ProductController::class, 'show'])
-    ->name('products.show');
-
-Route::get('/catalog/{product_id}/edit', [ProductController::class, 'edit'])
-    ->name('catalog.edit');
-
-Route::put('/catalog/{product_id}', [ProductController::class, 'update'])
-    ->name('catalog.update');
-
-Route::delete('/catalog/{product_id}', [ProductController::class, 'destroy'])
-    ->name('catalog.destroy');
+Route::get('/catalog', [ProductController::class, 'index'])->name('catalog.index');
+Route::get('/catalog/{product_id}', [ProductController::class, 'show'])->name('products.show');
 
 // ── Public Konsultasi (Form & AJAX Analysis) ───────────────
 Route::get('/consultation', [ConsultationController::class, 'index'])->name('consultation.index');
@@ -120,7 +106,7 @@ Route::middleware('auth')->group(function () {
 // AKSES ADMIN HANYA UNTUK USER DENGAN ROLE = 'ADMIN'
 //
 
-Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
 
     // ── Admin Dashboard ────────────────────────────
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -185,7 +171,7 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     ]);
 
     // ── Skin Guide / Articles Management (Full CRUD) ────
-    Route::resource('skin-guide', AdminSkinGuideController::class, [
+   Route::resource('skin-guide', AdminSkinGuideController::class, [
         'names' => [
             'index'   => 'skin-guide.index',
             'create'  => 'skin-guide.create',
@@ -202,8 +188,6 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::post('/feedback/{id}/approve', [AdminFeedbackController::class, 'approve'])->name('feedback.approve');
     Route::post('/feedback/{id}/reject', [AdminFeedbackController::class, 'reject'])->name('feedback.reject');
     Route::post('/feedback/{id}/helpful', [AdminFeedbackController::class, 'markHelpful'])->name('feedback.helpful');
-    Route::get('/feedback/export/csv', [AdminFeedbackController::class, 'exportCsv'])->name('feedback.export.csv');
-    Route::get('/feedback/export/pdf', [AdminFeedbackController::class, 'exportPdf'])->name('feedback.export.pdf');
 
 });
 
