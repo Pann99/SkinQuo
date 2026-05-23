@@ -2,117 +2,124 @@
 @section('title', 'Change Password - The Sanctuary')
 @section('content')
 
-{{-- TODO [BACKEND]: Handle POST in AdminPasswordController@update --}}
-{{-- TODO [BACKEND]: Validate: Hash::check($request->current_password, $admin->password) --}}
-{{-- TODO [BACKEND]: Save: $admin->update(['password' => Hash::make($request->new_password)]) --}}
+<div style="max-width:960px; margin:0 auto; padding:60px 32px;">
 
-<div style="max-width:580px; margin:0 auto; padding:32px 24px;">
-
-  {{-- ===== BACK TO PROFILE — CENTER ===== --}}
-  <div style="text-align:center; margin-bottom:24px;">
+  {{-- ===== BACK TO PROFILE — LEFT ALIGNED ===== --}}
+  <div style="text-align:left; margin-bottom:24px; padding-left:20px;">
     <a href="{{ route('admin.profile') }}" class="back-link">
       <i class="bi bi-arrow-left"></i> Back to Profile
     </a>
   </div>
 
-  {{-- ===== HERO TEXT — CENTER ===== --}}
-  <div style="text-align:center; margin-bottom:40px;">
+  {{-- ===== HERO TEXT — LEFT ALIGNED ===== --}}
+  <div style="text-align:left; margin-bottom:40px; padding-left:20px;">
     <h1 style="font-family:'Playfair Display'; font-style:italic; font-weight:700;
                font-size:48px; color:var(--brown-dark); margin-bottom:16px; line-height:1.1;">
       Secure Your Sanctuary
     </h1>
     <p style="font-family:'Jost'; font-size:16px; color:var(--brown-mid);
               line-height:1.6; margin:0;">
-      Ensure your personal ritual remains private with a<br>strong, updated password.
+      Ensure your personal ritual remains private with a strong, updated password.
     </p>
   </div>
 
-  {{-- ===== FORM ===== --}}
-  <form action="{{ route('admin.profile.update-password') }}" method="POST"
-        onsubmit="return validateForm()">
-    @csrf
-    @method('PATCH')
-    {{-- TODO [BACKEND]: Confirm PATCH or POST with backend PJ --}}
+  {{-- ===== FORM CARD ===== --}}
+  <div style="background:#FAF4EB; border-radius:40px; padding:48px; box-shadow:0 24px 64px rgba(61,35,20,0.04); border:1px solid rgba(124, 90, 60, 0.12);">
+    
+    <form action="{{ route('admin.profile.update-password') }}" method="POST"
+          onsubmit="return validateForm()">
+      @csrf
+      @method('PATCH')
 
-    {{-- USER NAME — disabled, auto-filled --}}
-    <div style="margin-bottom:24px;">
-      <label class="field-label">User Name</label>
-      <input type="text" class="admin-input-cream"
-             value="Dr. Elara Vance" disabled placeholder="Dr. Elara Vance">
-      {{-- TODO [BACKEND]: value="{{ Auth::user()->name }}" auto-filled, no editing --}}
-    </div>
+      {{-- USER NAME — disabled, auto-filled --}}
+      <div style="margin-bottom:28px;">
+        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">User Name</label>
+        <input type="text" value="Dr. Elara Vance" disabled placeholder="Dr. Elara Vance"
+               style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); opacity: 0.8;">
+      </div>
 
-    {{-- CURRENT PASSWORD --}}
-    <div style="margin-bottom:24px;">
-      <label class="field-label">Current Password</label>
-      <input type="password" name="current_password"
-             class="admin-input-cream" placeholder="••••••••">
-      {{-- TODO [BACKEND]: Validate with Hash::check() --}}
-      @error('current_password')
-        <span style="color:red; font-size:12px; font-family:'Jost';">
-          {{ $message }}
-        </span>
-      @enderror
-    </div>
-
-    {{-- NEW PASSWORD --}}
-    <div style="margin-bottom:8px;">
-      <label class="field-label">New Password</label>
-      <input type="password" name="new_password" id="newPasswordInput"
-             class="admin-input-cream" placeholder="••••••••"
-             oninput="checkStrength(this.value)">
-
-      {{-- Password Strength UI --}}
-      <div style="margin-top:12px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-          <span style="font-family:'Jost'; font-size:12px; color:var(--brown-mid);">
-            Ritual Strength
-          </span>
-          <span id="strengthLabel"
-                style="font-family:'Jost'; font-size:12px; color:var(--brown-mid);">
-            —
-          </span>
+      {{-- CURRENT PASSWORD --}}
+      <div style="margin-bottom:28px;">
+        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Current Password</label>
+        <div style="position:relative; width:100%;">
+          <input type="password" name="current_password" id="currentPasswordInput"
+                 style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
+                 placeholder="••••••••">
         </div>
-        <div style="background:#E8D5BC; border-radius:999px; height:6px; width:100%;">
-          <div id="strengthBar"
-               style="background:var(--brown-dark); border-radius:999px;
-                      height:6px; width:0%; transition:width 0.35s ease;">
+        @error('current_password')
+          <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:block; margin-top:6px;">
+            {{ $message }}
+          </span>
+        @enderror
+      </div>
+
+      {{-- NEW PASSWORD --}}
+      <div style="margin-bottom:28px;">
+        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">New Password</label>
+        <div style="position:relative; width:100%;">
+          <input type="password" name="new_password" id="newPasswordInput"
+                 style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 60px 18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
+                 placeholder="••••••••" oninput="checkStrength(this.value)">
+          <button type="button" onclick="togglePasswordVisibility('newPasswordInput', this)"
+                  style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:18px; display:flex; align-items:center;">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+
+        {{-- Password Strength UI --}}
+        <div style="margin-top:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-family:'Jost'; font-size:12px; color:#7A5C43; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">
+              Ritual Strength
+            </span>
+            <span id="strengthLabel"
+                  style="font-family:'Jost'; font-size:12px; color:#3C2010; font-weight:700;">
+              —
+            </span>
+          </div>
+          <div style="background:#EADBBF; border-radius:999px; height:6px; width:100%;">
+            <div id="strengthBar"
+                 style="background:#3C2010; border-radius:999px;
+                        height:6px; width:0%; transition:width 0.35s ease;">
+            </div>
+          </div>
+          <div style="display:flex; gap:28px; margin-top:12px;">
+            <span id="check8char"
+                  style="font-family:'Jost'; font-size:13px; color:#A89482; display:inline-flex; align-items:center; gap:6px; transition:color 0.2s;">
+              <i class="bi bi-circle"></i> 8+ characters
+            </span>
+            <span id="checkSymbol"
+                  style="font-family:'Jost'; font-size:13px; color:#A89482; display:inline-flex; align-items:center; gap:6px; transition:color 0.2s;">
+              <i class="bi bi-circle"></i> Uppercase & Symbols
+            </span>
           </div>
         </div>
-        <div style="display:flex; gap:24px; margin-top:10px;">
-          <span id="check8char"
-                style="font-family:'Jost'; font-size:13px; color:#bbb;">
-            <i class="bi bi-circle"></i> 8+ characters
-          </span>
-          <span id="checkSymbol"
-                style="font-family:'Jost'; font-size:13px; color:#bbb;">
-            <i class="bi bi-circle"></i> Uppercase & Symbols
-          </span>
-        </div>
       </div>
-    </div>
 
-    {{-- CONFIRM NEW PASSWORD --}}
-    <div style="margin-bottom:8px; margin-top:24px;">
-      <label class="field-label">Confirm New Password</label>
-      <input type="password" name="new_password_confirmation"
-             id="confirmPasswordInput"
-             class="admin-input-cream" placeholder="••••••••">
-      <span id="matchError"
-            style="color:red; font-size:12px; font-family:'Jost';
-                   display:none; margin-top:4px;">
-        Passwords do not match.
-      </span>
-    </div>
+      {{-- CONFIRM NEW PASSWORD --}}
+      <div style="margin-bottom:36px;">
+        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Confirm New Password</label>
+        <div style="position:relative; width:100%;">
+          <input type="password" name="new_password_confirmation" id="confirmPasswordInput"
+                 style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
+                 placeholder="••••••••">
+        </div>
+        <span id="matchError"
+              style="color:#C04444; font-size:12px; font-family:'Jost';
+                     display:none; margin-top:6px;">
+          Passwords do not match.
+        </span>
+      </div>
 
-    {{-- SUBMIT BUTTON --}}
-    <button type="submit" class="btn-save-password" style="margin-top:32px;">
-      Save New Password
-    </button>
-    {{-- TODO [BACKEND]: On success → redirect()->route('admin.profile')->with('success','Password updated!') --}}
-    {{-- TODO [BACKEND]: On fail → return back()->withErrors(['current_password' => 'Incorrect password']) --}}
+      {{-- SUBMIT BUTTON --}}
+      <button type="submit"
+              style="width:100%; background:var(--brown-dark); color:white; border:none; padding:18px; border-radius:999px; font-family:'Jost'; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; font-weight:600; text-align:center; transition:background 0.2s;"
+              onmouseover="this.style.background='var(--brown-mid)'" onmouseout="this.style.background='var(--brown-dark)'">
+        Save New Password
+      </button>
 
-  </form>
+    </form>
+  </div>
 
 </div>
 
@@ -120,23 +127,42 @@
 
 @push('scripts')
 <script>
+function togglePasswordVisibility(id, btn) {
+  const input = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('bi-eye');
+    icon.classList.add('bi-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('bi-eye-slash');
+    icon.classList.add('bi-eye');
+  }
+}
+
 function checkStrength(val) {
   const has8     = val.length >= 8;
   const hasUpper = /[A-Z]/.test(val);
   const hasSym   = /[^a-zA-Z0-9]/.test(val);
 
-  // Checkmark icons
-  document.getElementById('check8char').innerHTML =
-    (has8
-      ? '<i class="bi bi-check-circle-fill" style="color:#7A5C3E;"></i>'
-      : '<i class="bi bi-circle"></i>')
+  // Check8char label & color
+  const charElem = document.getElementById('check8char');
+  charElem.innerHTML = (has8
+    ? '<i class="bi bi-check-circle-fill" style="color:#3C2010;"></i>'
+    : '<i class="bi bi-circle"></i>')
     + ' 8+ characters';
+  charElem.style.color = has8 ? '#3C2010' : '#A89482';
+  charElem.style.fontWeight = has8 ? '600' : 'normal';
 
-  document.getElementById('checkSymbol').innerHTML =
-    (hasUpper && hasSym
-      ? '<i class="bi bi-check-circle-fill" style="color:#7A5C3E;"></i>'
-      : '<i class="bi bi-circle"></i>')
+  // CheckSymbol label & color
+  const symElem = document.getElementById('checkSymbol');
+  symElem.innerHTML = (hasUpper && hasSym
+    ? '<i class="bi bi-check-circle-fill" style="color:#3C2010;"></i>'
+    : '<i class="bi bi-circle"></i>')
     + ' Uppercase & Symbols';
+  symElem.style.color = (hasUpper && hasSym) ? '#3C2010' : '#A89482';
+  symElem.style.fontWeight = (hasUpper && hasSym) ? '600' : 'normal';
 
   // Strength level
   let width = 0, label = '—';
