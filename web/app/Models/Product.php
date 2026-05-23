@@ -16,6 +16,7 @@ class Product extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'product_id',
         'nama_produk',
         'slug',
         'deskripsi',

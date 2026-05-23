@@ -5,118 +5,123 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
-/**
- * AdminProductController
- * 
- * Handles CRUD operations for products in admin panel
- * 
- * @package App\Http\Controllers
- */
+
 class AdminProductController extends Controller
 {
     /**
-     * Display all products with pagination
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * Display all products
      */
     public function index(Request $request)
     {
-        // TODO: Fetch all products with pagination
-        // TODO: Apply search filter if provided
-        // TODO: Apply status filter if provided
-        
-        $products = []; // Product::paginate(15);
-        
+        $query = Product::query();
+
+        // Search product
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(nama_produk) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(nama_brand) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(kategori_produk) LIKE ?', ["%{$search}%"]);
+            });
+        }
+
+        $products = $query
+            ->orderBy('product_id', 'desc')
+            ->paginate(15);
+
         return view('admin.products.index', compact('products'));
     }
 
     /**
-     * Show product creation form
-     * 
-     * @return \Illuminate\View\View
+     * Show create form
      */
     public function create()
     {
-        // TODO: Fetch skin types for dropdown
-        
         return view('admin.products.create');
     }
 
     /**
-     * Store product in database
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Store product
      */
     public function store(Request $request)
     {
-        // TODO: Validate input with proper rules
-        // TODO: Handle image upload to storage
-        // TODO: Create product record in database
-        // TODO: Log admin action to admin_logs table
-        
-        return redirect()->route('admin.products.index')
-                       ->with('success', 'Product created successfully');
+        $validated = $request->validate([
+            'product_id' => 'nullable|integer|unique:products,product_id',
+            'nama_produk' => 'required|string|max:255',
+            'nama_brand' => 'required|string|max:255',
+            'kategori_produk' => 'required|string|max:255',
+            'harga_min' => 'required|numeric',
+            'harga_max' => 'required|numeric',
+            'deskripsi' => 'nullable|string',
+            'cara_pakai' => 'nullable|string',
+            'kandungan' => 'nullable|string',
+            'image' => 'nullable|string',
+            'link_produk' => 'nullable|string',
+        ]);
+
+        $product = Product::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product berhasil ditambahkan',
+            'data' => $product
+        ]);
     }
 
     /**
-     * Show product details
-     * 
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\View\View
+     * Show detail product
      */
     public function show(Product $product)
     {
-        // TODO: Show product detail view with all related data
-        
-        return view('admin.products.show', compact('product'));
+        return response()->json($product);
     }
 
     /**
-     * Show product edit form
-     * 
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\View\View
+     * Show edit form
      */
     public function edit(Product $product)
     {
-        // TODO: Load product data into edit form
-        // TODO: Fetch skin types for dropdown
-        
         return view('admin.products.edit', compact('product'));
     }
 
     /**
-     * Update product in database
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\RedirectResponse
+     * Update product
      */
     public function update(Request $request, Product $product)
     {
-        // TODO: Validate input with proper rules
-        // TODO: Handle image update if new image provided
-        // TODO: Update product record in database
-        // TODO: Log admin action to admin_logs table
-        
-        return redirect()->route('admin.products.index')
-                       ->with('success', 'Product updated successfully');
+        $validated = $request->validate([
+            'nama_produk' => 'sometimes|string|max:255',
+            'nama_brand' => 'sometimes|string|max:255',
+            'kategori_produk' => 'sometimes|string|max:255',
+            'harga_min' => 'sometimes|numeric',
+            'harga_max' => 'sometimes|numeric',
+            'deskripsi' => 'nullable|string',
+            'cara_pakai' => 'nullable|string',
+            'kandungan' => 'nullable|string',
+            'image' => 'nullable|string',
+            'link_produk' => 'nullable|string',
+        ]);
+
+        $product->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product berhasil diupdate',
+            'data' => $product
+        ]);
     }
 
     /**
-     * Delete (soft delete) product
-     * 
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\RedirectResponse
+     * Delete product
      */
     public function destroy(Product $product)
     {
-        // TODO: Soft delete product record (set deleted_at)
-        // TODO: Log admin action to admin_logs table
-        
-        return redirect()->route('admin.products.index')
-                       ->with('success', 'Product deleted successfully');
+        $product->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product berhasil dihapus'
+        ]);
     }
 }
