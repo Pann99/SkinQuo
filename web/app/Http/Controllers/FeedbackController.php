@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Feedback;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class FeedbackController extends Controller
 {
     /**
-     * Tampilkan halaman feedback.
+     * Tampilkan halaman daftar feedback (untuk admin).
      */
     public function index()
     {
@@ -79,23 +82,48 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Simpan feedback baru.
+     * Simpan feedback baru dari halaman homepage.
+     * 
+     * Alur:
+     * - Feedback dari homepage (guest atau auth user)
+     * - consultation_id = NULL (tidak terkait konsultasi apapun)
+     * - user_id = auth()->id() jika login, NULL jika guest
+     * 
+     * Route: POST /feedback
+     * Name: feedback.store
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'feedback' => ['required', 'string', 'min:10', 'max:1000'],
-        ]);
+        try {
+            // Validasi input
+            $validated = $request->validate([
+                'text' => ['required', 'string', 'min:10', 'max:1000'],
+                'rating' => ['required', 'numeric', 'between:1,5'],
+            ]);
 
-        // Save to database jika sudah siap
-        // Feedback::create($validated);
+            // Simpan feedback ke database
+            Feedback::create([
+                'consultation_id' => null, // Homepage feedback tidak terkait konsultasi
+                'user_id' => Auth::id(),   // NULL jika guest, user_id jika login
+                'text' => $validated['text'],
+                'rating' => (float) $validated['rating'],
+            ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Terima kasih atas feedback Anda!',
-        ]);
+            return redirect()->back()->with('feedback_success', 
+                'Thank you! Your feedback has been received.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return ke halaman sebelumnya dengan error
+            return redirect()->back()
+                ->withInput($request->all())
+                ->withErrors($e->errors());
+
+        } catch (\Exception $e) {
+            Log::error('Feedback store error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput($request->all())
+                ->withErrors(['error' => 'Failed to save feedback. Please try again.']);
+        }
     }
 }
+

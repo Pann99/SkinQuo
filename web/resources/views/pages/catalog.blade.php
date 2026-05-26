@@ -474,6 +474,63 @@
         color: rgba(96, 63, 38, 0.45);
     }
     .cat-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+
+    /* ── Pagination ── */
+    .cat-pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+    .cat-pagination {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .cat-pagination-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 0.4rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1.5px solid rgba(96, 63, 38, 0.15);
+        background: #FFFBF8;
+        color: #603F26;
+    }
+    .cat-pagination-item:hover:not(.active):not(.disabled) {
+        background: rgba(96, 63, 38, 0.08);
+        border-color: rgba(96, 63, 38, 0.25);
+    }
+    .cat-pagination-item.active {
+        background: #603F26;
+        color: #FFEAC5;
+        border-color: #603F26;
+        font-weight: 600;
+    }
+    .cat-pagination-item.disabled {
+        color: rgba(96, 63, 38, 0.2);
+        border-color: rgba(96, 63, 38, 0.08);
+        cursor: not-allowed;
+    }
+    .cat-pagination-ellipsis {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        padding: 0 0.3rem;
+        color: rgba(96, 63, 38, 0.3);
+        font-weight: 600;
+        font-size: 0.75rem;
+        user-select: none;
+    }
 </style>
 @endpush
 
@@ -493,7 +550,7 @@
     {{-- Mobile Filter Pills ── --}}
     <div class="cat-mobile-filters" id="cat-mobile-filters">
         <span style="font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(96,63,38,0.5); align-self:center;">Filter:</span>
-        @foreach(['Serum','Moisturizer','Cleanser','Toner','Sunscreen'] as $type)
+        @foreach($categories ?? [] as $type)
             <button class="cat-mobile-filter-btn" onclick="mobileFilter(this, '{{ $type }}')">{{ $type }}</button>
         @endforeach
     </div>
@@ -510,12 +567,14 @@
                     <div class="cat-filter-options-scrollbox">
                         @forelse($categories ?? [] as $category)
                             <label class="cat-filter-option" data-category="{{ strtolower($category) }}">
-                                <input type="radio" name="category" value="{{ $category }}"
-                                    {{ request('category') === $category ? 'checked' : '' }}>
+                                <input type="checkbox" name="category" value="{{ $category }}"
+                                    class="cat-category-checkbox"
+                                    {{ request('category') === $category ? 'checked' : '' }}
+                                    onchange="handleCategoryChange(this)">
                                 {{ $category }}
                             </label>
                         @empty
-                            <p style="font-size: 0.85rem; color: rgba(96, 63, 38, 0.4);">Tidak ada kategori</p>
+                            <p style="font-size: 0.85rem; color: rgba(96, 63, 38, 0.4);">No categories available</p>
                         @endforelse
                     </div>
                 </div>
@@ -529,12 +588,14 @@
                     <div class="cat-filter-options-scrollbox" id="brand-options-container">
                         @forelse($brands ?? [] as $brand)
                             <label class="cat-filter-option" data-brand="{{ strtolower($brand) }}">
-                                <input type="radio" name="brand" value="{{ $brand }}"
-                                    {{ request('brand') === $brand ? 'checked' : '' }}>
+                                <input type="checkbox" name="brand" value="{{ $brand }}"
+                                    class="cat-brand-checkbox"
+                                    {{ request('brand') === $brand ? 'checked' : '' }}
+                                    onchange="handleBrandChange(this)">
                                 {{ $brand }}
                             </label>
                         @empty
-                            <p style="font-size: 0.85rem; color: rgba(96, 63, 38, 0.4);">Tidak ada brand</p>
+                            <p style="font-size: 0.85rem; color: rgba(96, 63, 38, 0.4);">No brands available</p>
                         @endforelse
                     </div>
                 </div>
@@ -565,15 +626,24 @@
         {{-- Products Grid ── --}}
         <div class="cat-grid-area">
 
-            {{-- Sort bar ── --}}
-            <div class="cat-sort-bar">
-                <span class="cat-sort-label">Sort by:</span>
-                <select class="cat-sort-select" id="sort-select" onchange="doSort(this.value)">
-                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Latest</option>
-                    <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
-                    <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Product Name (A-Z)</option>
-                </select>
+            {{-- Sort bar + Results info ── --}}
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+                <div style="font-size:0.82rem; color:rgba(96,63,38,0.6);">
+                    @if($products && $products->total() > 0)
+                        Showing {{ $products->firstItem() }} to {{ $products->lastItem() }} of {{ $products->total() }} results
+                    @else
+                        No products found
+                    @endif
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <span class="cat-sort-label">Sort by:</span>
+                    <select class="cat-sort-select" id="sort-select" onchange="doSort(this.value)">
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Latest</option>
+                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                        <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Product Name (A-Z)</option>
+                    </select>
+                </div>
             </div>
 
             <div class="cat-products-grid">
@@ -581,9 +651,67 @@
             </div>
 
             {{-- Pagination ── --}}
-            @if(!is_array($products ?? null) && $products && $products->hasPages())
-                <div style="display:flex; justify-content:center; margin-top:2rem;">
-                    {{ $products->appends(request()->query())->links() }}
+            @if(!is_array($products ?? null) && $products && $products->total() > 0 && $products->lastPage() > 1)
+                <div class="cat-pagination-wrapper">
+                    <nav class="cat-pagination" aria-label="Pagination Navigation">
+                        {{-- Previous Page Link --}}
+                        @if ($products->onFirstPage())
+                            <span class="cat-pagination-item disabled">&laquo;</span>
+                        @else
+                            <a href="{{ $products->appends(request()->query())->previousPageUrl() }}" class="cat-pagination-item">&laquo;</a>
+                        @endif
+
+                        {{-- Smart Page Range Logic --}}
+                        @php
+                            $currentPage = $products->currentPage();
+                            $lastPage = $products->lastPage();
+                            $showPages = [];
+
+                            // Always show first page
+                            $showPages[] = 1;
+
+                            // Calculate range around current page (max 5 pages total)
+                            $rangeStart = max(2, $currentPage - 2);
+                            $rangeEnd = min($lastPage - 1, $currentPage + 2);
+
+                            // Add gap indicator if needed
+                            if ($rangeStart > 2) {
+                                $showPages[] = '...';
+                            }
+
+                            // Add range pages
+                            for ($i = $rangeStart; $i <= $rangeEnd; $i++) {
+                                $showPages[] = $i;
+                            }
+
+                            // Add gap indicator if needed
+                            if ($rangeEnd < $lastPage - 1) {
+                                $showPages[] = '...';
+                            }
+
+                            // Always show last page (if more than 1 page)
+                            if ($lastPage > 1) {
+                                $showPages[] = $lastPage;
+                            }
+                        @endphp
+
+                        @foreach($showPages as $page)
+                            @if ($page === '...')
+                                <span class="cat-pagination-ellipsis">…</span>
+                            @elseif ($page == $currentPage)
+                                <span class="cat-pagination-item active">{{ $page }}</span>
+                            @else
+                                <a href="{{ $products->appends(request()->query())->url($page) }}" class="cat-pagination-item">{{ $page }}</a>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if ($products->hasMorePages())
+                            <a href="{{ $products->appends(request()->query())->nextPageUrl() }}" class="cat-pagination-item">&raquo;</a>
+                        @else
+                            <span class="cat-pagination-item disabled">&raquo;</span>
+                        @endif
+                    </nav>
                 </div>
             @endif
         </div>
@@ -595,6 +723,28 @@
 
 @push('scripts')
 <script>
+    // ─── Handle Category Checkbox (Mutually Exclusive) ───
+    function handleCategoryChange(checkbox) {
+        if (checkbox.checked) {
+            // Uncheck all other category checkboxes
+            document.querySelectorAll('.cat-category-checkbox').forEach(cb => {
+                if (cb !== checkbox) cb.checked = false;
+            });
+        }
+        triggerFilter();
+    }
+
+    // ─── Handle Brand Checkbox (Mutually Exclusive) ───
+    function handleBrandChange(checkbox) {
+        if (checkbox.checked) {
+            // Uncheck all other brand checkboxes
+            document.querySelectorAll('.cat-brand-checkbox').forEach(cb => {
+                if (cb !== checkbox) cb.checked = false;
+            });
+        }
+        triggerFilter();
+    }
+
     // ─── Update price display function ───
     function updatePriceDisplay(value) {
         const formattedPrice = 'Rp ' + new Intl.NumberFormat('id-ID').format(parseInt(value));
@@ -605,17 +755,8 @@
     function initializeFilters() {
         console.log('Initializing filters...');
         
-        // ─── Event Listener untuk Radio Categories ───
-        document.querySelectorAll('input[name="category"]').forEach(radio => {
-            radio.addEventListener('change', triggerFilter);
-        });
-
-        // ─── Event Listener untuk Radio Brands ───
-        document.querySelectorAll('input[name="brand"]').forEach(radio => {
-            radio.addEventListener('change', triggerFilter);
-        });
-
         // ─── Event Listener untuk Price Range Slider ───
+
         document.getElementById('price-range')?.addEventListener('change', triggerFilter);
 
         // ─── Event Listener untuk Brand Search Input ───
@@ -641,14 +782,14 @@
     function resetAllFilters() {
         console.log('Resetting all filters...');
         
-        // Uncheck all radio buttons untuk kategori
-        document.querySelectorAll('input[name="category"]').forEach(radio => {
-            radio.checked = false;
+        // Uncheck all checkboxes untuk kategori
+        document.querySelectorAll('.cat-category-checkbox').forEach(cb => {
+            cb.checked = false;
         });
         
-        // Uncheck all radio buttons untuk brand
-        document.querySelectorAll('input[name="brand"]').forEach(radio => {
-            radio.checked = false;
+        // Uncheck all checkboxes untuk brand
+        document.querySelectorAll('.cat-brand-checkbox').forEach(cb => {
+            cb.checked = false;
         });
         
         // Reset price slider ke default
@@ -668,7 +809,7 @@
         window.location.href = '{{ route("catalog.index") }}';
     }
 
-    // ─── AJAX Filtering Function ───
+    // ─── Filtering Function (Redirect with Query Parameters) ───
     function triggerFilter() {
         console.log('Trigger filter called');
         
@@ -695,41 +836,11 @@
         params.append('max_price', maxPrice);
         params.append('sort', sortBy);
 
-        const fetchUrl = `{{ route('catalog.index') }}?${params.toString()}`;
-        console.log('Fetch URL:', fetchUrl);
-
-        // Fetch dengan AJAX untuk update halaman
-        fetch(fetchUrl, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            console.log('Response:', response.ok, response.status);
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            console.log('Response data:', data);
-            
-            // data.html contains the grid HTML
-            if (data.html) {
-                const currentGrid = document.querySelector('.cat-products-grid');
-                console.log('Grid found:', !!currentGrid);
-                if (currentGrid) {
-                    currentGrid.innerHTML = data.html;
-                    console.log('Grid updated');
-                }
-            }
-            
-            // Update URL tanpa reload
-            window.history.replaceState({}, '', fetchUrl);
-        })
-        .catch(err => {
-            console.error('Filter error:', err);
-        });
+        const filterUrl = `{{ route('catalog.index') }}?${params.toString()}`;
+        console.log('Filter URL:', filterUrl);
+        
+        // Redirect to filtered URL (server will handle pagination correctly)
+        window.location.href = filterUrl;
     }
 
     function doSort(val) {

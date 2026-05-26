@@ -25,16 +25,20 @@ class ArticleController extends Controller
                 ->published()
                 ->orderBy('created_at', 'desc');
 
-            // Apply search filter (title, content, category) - use LIKE for cross-database compatibility
+            // Apply search filter (title, slug, content, category, tags) - use LIKE for cross-database compatibility
             if (!empty($searchQuery)) {
                 $articlesQuery->where(function ($q) use ($searchQuery) {
-                    $q->where('title', 'LIKE', "%{$searchQuery}%")
-                      ->orWhere('content', 'LIKE', "%{$searchQuery}%")
-                      ->orWhere('category', 'LIKE', "%{$searchQuery}%");
+                    $q->where('title', 'ILIKE', "%{$searchQuery}%")
+                      ->orWhere('slug', 'ILIKE', "%{$searchQuery}%")
+                      ->orWhere('content', 'ILIKE', "%{$searchQuery}%")
+                      ->orWhere('category', 'ILIKE', "%{$searchQuery}%")
+                      ->orWhereHas('tags', function ($tagQuery) use ($searchQuery) {
+                          $tagQuery->where('name', 'ILIKE', "%{$searchQuery}%");
+                      });
                 });
             }
 
-            // Apply category filter
+            // Apply category filter (case-insensitive)
             if (!empty($selectedCategory)) {
                 $articlesQuery->where('category', '=', $selectedCategory);
             }

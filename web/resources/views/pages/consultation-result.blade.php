@@ -769,6 +769,95 @@
         <a href="{{ route('consultation.index') }}" class="cr-btn cr-btn-secondary">New Consultation</a>
     </div>
 
+    {{-- Feedback Form Section ── --}}
+    @auth
+    @php
+        $consultationId = is_array($consultation) ? ($consultation['id'] ?? null) : ($consultation->id ?? null);
+    @endphp
+    @if($consultationId)
+    <div style="background: #fff; border-radius: 20px; padding: 2rem; border: 1.5px solid rgba(108, 78, 49, 0.08); margin-top: 2.5rem;">
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: #603F26; margin-bottom: 0.5rem;">
+            📝 How Accurate Was Your Diagnosis?
+        </h3>
+        <p style="font-size: 0.85rem; color: rgba(96, 63, 38, 0.6); margin-bottom: 1.5rem; line-height: 1.6;">
+            Your feedback helps us improve our consultation process. Tell us how accurate the diagnosis was and whether the product recommendations suit your needs.
+        </p>
+
+        {{-- Success Message ── --}}
+        @if(session('feedback_success'))
+        <div style="background: rgba(29, 158, 117, 0.15); border: 1px solid rgba(29, 158, 117, 0.35); border-radius: 12px; padding: 12px 18px; margin-bottom: 1.5rem; font-size: 0.82rem; color: #5DCAA5; text-align: center;">
+            ✓ &nbsp;{{ session('feedback_success') }}
+        </div>
+        @endif
+
+        {{-- Form ── --}}
+        <form action="{{ route('consultation.feedback.store') }}" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
+            @csrf
+
+            {{-- Textarea ── --}}
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(96, 63, 38, 0.6);">
+                    Your Feedback
+                </label>
+                <textarea
+                    name="text"
+                    placeholder="How accurate was your skin diagnosis? Did the product recommendations suit your skin concern?"
+                    style="background: rgba(96, 63, 38, 0.03); border: 1.5px solid rgba(96, 63, 38, 0.12); border-radius: 12px; padding: 12px 16px; font-size: 0.875rem; color: #603F26; resize: vertical; min-height: 100px; font-family: inherit; outline: none;"
+                    required
+                    @error('text') aria-invalid="true" @enderror
+                >{{ old('text') }}</textarea>
+                @error('text')
+                <span style="font-size: 0.72rem; color: #E24B4A;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Hidden consultation_id ── --}}
+            <input type="hidden" name="consultation_id" value="{{ $consultationId }}">
+
+            {{-- Rating ── --}}
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(96, 63, 38, 0.6);">
+                    Overall Rating
+                </label>
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 8px;" id="consultRatingStars" role="group">
+                        @for($i = 1; $i <= 5; $i++)
+                        <button type="button"
+                                class="rating-star"
+                                data-value="{{ $i }}"
+                                style="font-size: 1.6rem; cursor: pointer; color: rgba(96, 63, 38, 0.2); border: none; background: none; padding: 0; transition: color 0.15s, transform 0.15s; line-height: 1;"
+                                aria-label="{{ $i }} star{{ $i > 1 ? 's' : '' }}">★</button>
+                        @endfor
+                    </div>
+                    <span id="consultRatingLabel" style="font-size: 0.75rem; color: rgba(96, 63, 38, 0.35); font-style: italic; transition: color 0.2s;">
+                        Tap a star to rate
+                    </span>
+                </div>
+                <input type="hidden" name="rating" id="consultRatingValue" value="{{ old('rating') }}">
+                @error('rating')
+                <span style="font-size: 0.72rem; color: #E24B4A; margin-top: 2px;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Submit ── --}}
+            <button type="submit"
+                    style="width: 100%; padding: 12px; border-radius: 999px; border: 1.5px solid rgba(96, 63, 38, 0.2); background: #603F26; color: #FFEAC5; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.22s, border-color 0.22s;">
+                Submit Feedback
+            </button>
+        </form>
+    </div>
+    @endif
+    @else
+    <div style="background: rgba(255, 219, 181, 0.08); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem;">
+        <p style="font-size: 0.9rem; color: #603F26; margin-bottom: 1rem;">
+            📝 Want to provide feedback on this consultation?
+        </p>
+        <a href="{{ route('login') }}" style="display: inline-block; padding: 10px 28px; background: #603F26; color: #FFEAC5; border-radius: 999px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">
+            Login to Share Feedback
+        </a>
+    </div>
+    @endauth
+
 </div>
 </div>
 @endsection
@@ -864,14 +953,40 @@
         // Update on window resize
         window.addEventListener('resize', updateButtonStates);
     });
-</script>
-@endpush
-document.addEventListener('DOMContentLoaded', function () {
-    // Animate progress bars
-    document.querySelectorAll('.cr-progress-fill').forEach(function(bar) {
-        const w = bar.getAttribute('data-width');
-        setTimeout(() => { bar.style.width = w + '%'; }, 300);
-    });
-});
+
+    // ═══════════════════════════════════════════════════════
+    // STAR RATING - CONSULTATION FEEDBACK
+    // ═══════════════════════════════════════════════════════
+    const consultStars = document.querySelectorAll('#consultRatingStars .rating-star');
+    const consultHidden = document.getElementById('consultRatingValue');
+    const consultLabel = document.getElementById('consultRatingLabel');
+    const labels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
+    let consultSelected = 0;
+
+    if (consultStars.length > 0) {
+        consultStars.forEach(btn => {
+            btn.addEventListener('mouseenter', () => consultHighlight(+btn.dataset.value));
+            btn.addEventListener('mouseleave', () => consultHighlight(consultSelected));
+            btn.addEventListener('click', () => {
+                consultSelected = +btn.dataset.value;
+                consultHidden.value = consultSelected;
+                consultHighlight(consultSelected);
+                consultLabel.textContent = labels[consultSelected];
+                consultLabel.style.color = 'rgba(96, 63, 38, 0.65)';
+            });
+        });
+
+        function consultHighlight(n) {
+            consultStars.forEach(b => {
+                if (+b.dataset.value <= n) {
+                    b.style.color = '#f5c842';
+                    b.classList.add('active');
+                } else {
+                    b.style.color = 'rgba(96, 63, 38, 0.2)';
+                    b.classList.remove('active');
+                }
+            });
+        }
+    }
 </script>
 @endpush

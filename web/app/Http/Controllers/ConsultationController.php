@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Consultation;
+use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -138,6 +139,65 @@ class ConsultationController extends Controller
         }
         
         return view('pages.consultation-result', compact('consultation'));
+    }
+
+    /**
+     * Simpan feedback untuk konsultasi yang baru diselesaikan.
+     * 
+     * Alur:
+     * - User harus sudah login
+     * - Feedback terkait dengan consultation_id tertentu
+     * - Simpan user_id = auth()->id() (user pasti login)
+     * 
+     * Route: POST /consultation/feedback
+     * Name: consultation.feedback.store
+     * Middleware: auth
+     */
+    public function storeFeedback(Request $request)
+    {
+        try {
+            // Pastikan user logged in
+            if (!Auth::check()) {
+                return redirect()->route('login')
+                    ->with('error', 'You must be logged in to provide feedback.');
+            }
+
+            // Validasi input
+            $validated = $request->validate([
+                'text' => ['required', 'string', 'min:10', 'max:1000'],
+                'rating' => ['required', 'numeric', 'between:1,5'],
+                'consultation_id' => ['required', 'integer', 'exists:consultations,id'],
+            ]);
+
+            // Authorization: Cek bahwa consultation_id milik user yang sedang login
+            $consultation = Consultation::findOrFail($validated['consultation_id']);
+            if ($consultation->user_id && $consultation->user_id !== Auth::id()) {
+                abort(403, 'You can only provide feedback for your own consultation.');
+            }
+
+            // Simpan feedback ke database
+            Feedback::create([
+                'consultation_id' => (int) $validated['consultation_id'],
+                'user_id' => Auth::id(),
+                'text' => $validated['text'],
+                'rating' => (float) $validated['rating'],
+            ]);
+
+            return redirect()->back()->with('feedback_success', 
+                'Thank you for your feedback!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return ke halaman sebelumnya dengan error
+            return redirect()->back()
+                ->withInput($request->all())
+                ->withErrors($e->errors());
+
+        } catch (\Exception $e) {
+            Log::error('Consultation feedback store error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput($request->all())
+                ->withErrors(['error' => 'Failed to save feedback. Please try again.']);
+        }
     }
 
     /**

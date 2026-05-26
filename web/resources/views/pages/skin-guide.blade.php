@@ -399,7 +399,7 @@
             <svg class="sg-search-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
-            <form method="GET" action="{{ route('skin-guide.index') }}" style="width: 100%;">
+            <form method="GET" action="{{ route('skin-guide.index') }}" style="width: 100%;" id="search-form">
                 <input
                     type="search"
                     class="sg-search-input"
@@ -409,7 +409,7 @@
                     value="{{ $searchQuery }}"
                 >
                 @if($selectedCategory)
-                    <input type="hidden" name="category" value="{{ $selectedCategory }}">
+                    <input type="hidden" name="category" value="{{ $selectedCategory }}" id="category-input">
                 @endif
             </form>
         </div>
@@ -427,7 +427,7 @@
 
     {{-- Featured Article (first item) ── --}}
     @if($featuredPost)
-        <a href="{{ route('articles.show', $featuredPost->slug) }}" style="text-decoration: none; color: inherit;">
+        <a href="{{ route('skin-guide.show', $featuredPost->slug) }}" style="text-decoration: none; color: inherit;">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-0 bg-[#3D2000] rounded-[32px] overflow-hidden hover:shadow-2xl hover:scale-[0.98] transition-all duration-300 mb-12">
                 {{-- Image Section --}}
                 <div class="w-full aspect-[16/10] md:aspect-auto md:h-full min-h-[350px] relative overflow-hidden">
@@ -469,7 +469,7 @@
     {{-- Articles Grid ── --}}
     <div class="sg-grid" id="sg-grid">
         @forelse($remainingPosts as $article)
-            <a href="{{ route('articles.show', $article->slug) }}" style="text-decoration: none; color: inherit;">
+            <a href="{{ route('skin-guide.show', $article->slug) }}" style="text-decoration: none; color: inherit;">
                 <div class="bg-white rounded-[20px] overflow-hidden border border-[rgba(108,78,49,0.08)] hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full">
                     {{-- Image Section --}}
                     <div class="w-full aspect-[4/3] overflow-hidden relative bg-[#e8d5bb]">
@@ -530,32 +530,56 @@
 
 @push('scripts')
 <script>
+    /**
+     * Filter articles by category
+     * Preserves search query when switching categories
+     * Clears search only when selecting "All"
+     */
     function filterCategory(cat) {
         const url = new URL(window.location);
+        
         if (cat) {
+            // User selected a specific category
             url.searchParams.set('category', cat);
+            // Keep search parameter if it exists
         } else {
+            // User clicked "All" - remove category and search
             url.searchParams.delete('category');
+            url.searchParams.delete('search');
         }
-        url.searchParams.delete('search');
+        
         window.location = url.toString();
     }
 
+    /**
+     * Reset all filters and search
+     */
     function resetFilters() {
         window.location = '{{ route("skin-guide.index") }}';
     }
 
-    // Live search with debounce
+    /**
+     * Live search with debounce
+     * Preserves category filter while searching
+     */
     let sgSearchTimer;
     document.getElementById('sg-search')?.addEventListener('input', function() {
         clearTimeout(sgSearchTimer);
         sgSearchTimer = setTimeout(() => {
-            if (this.value.trim()) {
-                const url = new URL(window.location);
-                url.searchParams.set('search', this.value);
-                url.searchParams.delete('category');
-                window.location = url.toString();
+            const searchValue = this.value.trim();
+            const url = new URL(window.location);
+            
+            if (searchValue) {
+                // Set search parameter
+                url.searchParams.set('search', searchValue);
+                // Keep category parameter if it exists
+            } else {
+                // Clear search if input is empty
+                url.searchParams.delete('search');
+                // Keep category parameter if it exists
             }
+            
+            window.location = url.toString();
         }, 500);
     });
 </script>

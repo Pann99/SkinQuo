@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Product;
+use App\Models\Feedback;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -13,19 +14,33 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Ambil 8 artikel terbaru
+        // Ambil 8 artikel terbaru yang dipublikasikan
         $articles = Article::where('is_published', true)
                             ->latest('created_at')
                             ->take(8)
                             ->get();
 
-        // Ambil 3 produk best seller
-        // $bestSellers = Product::where('is_best_seller', true)
-        //                       ->orderByDesc('sold_count')
-        
-        //                       ->take(3)
-        //                       ->get();
+        // Ambil feedback dengan rating >= 4 untuk Community Voices section
+        // Order by latest first, take 3
+        $communityVoices = Feedback::with('user')
+            ->whereNotNull('text')
+            ->where('rating', '>=', 4)
+            ->latest('id')
+            ->take(3)
+            ->get();
 
-        return view('pages.home', compact('articles'));
+        // Ambil 3 produk best seller
+        // TEMPORARY: Ambil 3 produk dengan harga tertinggi sebagai proxy untuk "best seller"
+        // TODO: Setelah migration, gunakan kolom is_best_seller dan sold_count
+        $bestSellers = Product::orderByDesc('harga_max')
+                              ->take(3)
+                              ->get();
+
+        // Jika tidak ada produk, tampilkan placeholder di view
+        if ($bestSellers->isEmpty()) {
+            $bestSellers = collect([]);
+        }
+
+        return view('pages.home', compact('articles', 'communityVoices', 'bestSellers'));
     }
 }

@@ -354,10 +354,10 @@
                         INFO
                     </h4>
                     <div style="display:flex; flex-direction:column;">
-                        <a href="#" class="footer-link">Courses</a>
-                        <a href="#" class="footer-link">Schedule</a>
-                        <a href="#" class="footer-link">Product</a>
-                        <a href="#" class="footer-link">Teachers</a>
+                        <a href="{{ route('skin-guide.index') }}" class="footer-link">Skin Guide</a>
+                        <a href="{{ route('catalog.index') }}" class="footer-link">Catalog</a>
+                        <a href="{{ route('consultation.index') }}" class="footer-link">Consultation</a>
+                        <a href="{{ route('home') }}#community-voices" class="footer-link">Feedback</a>
                     </div>
                 </div>
 
@@ -367,8 +367,9 @@
                         ABOUT
                     </h4>
                     <div style="display:flex; flex-direction:column;">
-                        <a href="#" class="footer-link">Blog</a>
-                        <a href="#" class="footer-link">About us</a>
+                        <a href="{{ route('about') }}" class="footer-link">About Us</a>
+                        <a href="{{ route('how-it-works') }}" class="footer-link">How It Works</a>
+                        <a href="{{ route('privacy-policy') }}" class="footer-link">Privacy Policy</a>
                     </div>
                 </div>
 

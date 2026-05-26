@@ -578,7 +578,7 @@
                 <div class="ad-sidebar-label">Latest Articles</div>
                 <div class="ad-popular-list">
                     @foreach($latestArticles as $latest)
-                    <a href="{{ route('articles.show', $latest->slug) }}" class="ad-popular-item">
+                    <a href="{{ route('skin-guide.show', $latest->slug) }}" class="ad-popular-item">
                         <div class="ad-popular-thumb">
                             @if($latest->image_url)
                                 <img src="{{ $latest->image_url }}" alt="{{ $latest->title }}">
@@ -636,7 +636,7 @@
 
         <div class="ad-rec-grid">
             @foreach($relatedArticles as $related)
-                <a href="{{ route('articles.show', $related->slug) }}" class="ad-rec-card">
+                <a href="{{ route('skin-guide.show', $related->slug) }}" class="ad-rec-card">
                     <div class="ad-rec-thumb">
                         @if($related->image_url)
                             <img src="{{ $related->image_url }}" alt="{{ $related->title }}">

@@ -109,6 +109,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relationship: User has many Feedback
+     */
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class, 'user_id', 'user_id');
+    }
+
+    /**
      * Relationship: User belongs to Sex
      */
     public function sex()

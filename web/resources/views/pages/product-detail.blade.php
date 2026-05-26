@@ -54,8 +54,6 @@
 
     /* ── LEFT: Image Panel ── */
     .pd-image-panel {
-        position: sticky;
-        top: 6.5rem;
         max-width: 480px;
     }
 

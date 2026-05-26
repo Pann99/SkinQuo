@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSkinGuideController;
 use App\Http\Controllers\AdminFeedbackController;
 use App\Http\Controllers\DebugAuthController;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
@@ -43,6 +44,14 @@ Route::get('/consultation', [ConsultationController::class, 'index'])->name('con
 Route::post('/consultation/analyze', [ConsultationController::class, 'analyze']); // AJAX endpoint
 Route::post('/consultation', [ConsultationController::class, 'store'])->name('consultation.store'); // Guest dapat submit
 Route::get('/consultation/{id}', [ConsultationController::class, 'result'])->name('consultation.result'); // Guest dapat view hasil
+
+// ── Public Feedback (Guest & Auth) ─────────────────────────
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store'); // Homepage feedback
+
+// ── Public Pages ──────────────────────────────────
+Route::view('/about', 'pages.about')->name('about');
+Route::view('/how-it-works', 'pages.how-it-works')->name('how-it-works');
+Route::view('/privacy-policy', 'pages.privacy-policy')->name('privacy-policy');
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // B. ROUTE AUTENTIKASI - LOGIN, REGISTER, LOGOUT (Laravel Breeze/Fortify Style)
@@ -93,6 +102,10 @@ Route::middleware('auth')->group(function () {
     // ── Change Password ────────────────────────────
     Route::get('/profile/password/edit', [ProfileController::class, 'editPassword'])->name('profile.password.edit');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
+    // ── Consultation Feedback (Auth Only) ──────────
+    Route::post('/consultation/feedback', [ConsultationController::class, 'storeFeedback'])
+        ->name('consultation.feedback.store');
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -106,7 +119,7 @@ Route::middleware('auth')->group(function () {
 // AKSES ADMIN HANYA UNTUK USER DENGAN ROLE = 'ADMIN'
 //
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
 
     // ── Admin Dashboard ────────────────────────────
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
