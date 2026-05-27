@@ -84,25 +84,41 @@
     .auth-input {
         width: 100%;
         background: #FFDBB5;
-        border: none;
+        border: 2px solid transparent;
         border-radius: 999px;
         padding: 0.5rem 0.9rem;
         font-size: 0.75rem;
         font-family: 'Poppins', sans-serif;
         color: #603F26;
         outline: none;
-        transition: box-shadow 0.2s;
+        transition: box-shadow 0.2s, border-color 0.2s;
         margin-bottom: 0.5rem;
     }
     .auth-input::placeholder { color: rgba(96, 63, 38, 0.45); }
     .auth-input:focus {
         box-shadow: 0 0 0 2.5px rgba(96, 63, 38, 0.25);
     }
+    .auth-input.is-invalid {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.08);
+    }
+    .auth-input.is-invalid:focus {
+        box-shadow: 0 0 0 2.5px rgba(220, 53, 69, 0.25);
+    }
+
+    .auth-error {
+        display: block;
+        color: #dc3545;
+        font-size: 0.65rem;
+        margin-top: -0.4rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
 
     .auth-select {
         width: 100%;
         background: #FFDBB5;
-        border: none;
+        border: 2px solid transparent;
         border-radius: 999px;
         padding: 0.48rem 0.85rem;
         font-size: 0.72rem;
@@ -115,11 +131,18 @@
         background-repeat: no-repeat;
         background-position: right 0.85rem center;
         cursor: pointer;
-        transition: box-shadow 0.2s;
+        transition: box-shadow 0.2s, border-color 0.2s;
         margin-bottom: 0.5rem;
     }
     .auth-select:focus {
         box-shadow: 0 0 0 2.5px rgba(96, 63, 38, 0.25);
+    }
+    .auth-select.is-invalid {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.08);
+    }
+    .auth-select.is-invalid:focus {
+        box-shadow: 0 0 0 2.5px rgba(220, 53, 69, 0.25);
     }
     .auth-select option { color: #603F26; background: #FFDBB5; }
 
@@ -132,19 +155,37 @@
     }
     .name-row .auth-input { margin-bottom: 0.5rem; }
 
-    /* ── DOB row (3 columns) ── */
-    .dob-row {
+    /* ── Date of Birth & Gender Row (2 columns) ── */
+    .dob-gender-row {
         display: grid;
-        grid-template-columns: 1fr 1.3fr 1fr;
-        gap: 0.3rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        margin-bottom: 0;
     }
-    .dob-row .auth-select { margin-bottom: 0.5rem; }
+    .dob-gender-row > div {
+        display: flex;
+        flex-direction: column;
+    }
+    .dob-gender-row .auth-input,
+    .dob-gender-row .auth-select {
+        margin-bottom: 0.5rem;
+    }
+    .dob-gender-row .auth-error {
+        margin-bottom: 0;
+    }
+    /* Responsive: Stack vertically on mobile */
+    @media (max-width: 768px) {
+        .dob-gender-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+    }
 
     /* ── Date input styling ── */
     input[type="date"] {
         width: 100%;
         background: #FFDBB5;
-        border: none;
+        border: 2px solid transparent;
         border-radius: 999px;
         padding: 0.48rem 0.85rem;
         font-size: 0.72rem;
@@ -152,7 +193,7 @@
         color: #603F26;
         outline: none;
         cursor: pointer;
-        transition: box-shadow 0.2s;
+        transition: box-shadow 0.2s, border-color 0.2s;
         margin-bottom: 0.5rem;
     }
     input[type="date"]::placeholder {
@@ -160,6 +201,13 @@
     }
     input[type="date"]:focus {
         box-shadow: 0 0 0 2.5px rgba(96, 63, 38, 0.25);
+    }
+    input[type="date"].is-invalid {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.08);
+    }
+    input[type="date"].is-invalid:focus {
+        box-shadow: 0 0 0 2.5px rgba(220, 53, 69, 0.25);
     }
     /* Styling untuk calendar picker */
     input[type="date"]::-webkit-calendar-picker-indicator {
@@ -190,8 +238,12 @@
         margin-top: 0.15rem;
         margin-bottom: 0;
     }
-    .auth-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-    .auth-btn:active { transform: translateY(0); }
+    .auth-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .auth-btn:active:not(:disabled) { transform: translateY(0); }
+    .auth-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 
     .auth-switch {
         margin-top: 0.3rem;
@@ -262,85 +314,100 @@
                 Get personalized skincare guidance and consultations.
             </p>
 
-            {{-- Validation Errors --}}
-            @if ($errors->any())
-                <div class="auth-alert">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('register') }}" id="register-form">
                 @csrf
 
                 {{-- Name --}}
                 <label class="auth-label">Name</label>
                 <div class="name-row">
-                    <input
-                        type="text"
-                        name="name"
-                        class="auth-input"
-                        placeholder="First name"
-                        value="{{ old('name') }}"
-                        required
-                        autocomplete="given-name"
-                    >
-                    <input
-                        type="text"
-                        name="surname"
-                        class="auth-input"
-                        placeholder="Surname"
-                        value="{{ old('surname') }}"
-                        required
-                        autocomplete="family-name"
-                    >
+                    <div>
+                        <input
+                            type="text"
+                            name="name"
+                            class="auth-input @error('name') is-invalid @enderror"
+                            placeholder="First name"
+                            value="{{ old('name') }}"
+                            required
+                            autocomplete="given-name"
+                        >
+                        @error('name')
+                            <span class="auth-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div>
+                        <input
+                            type="text"
+                            name="surname"
+                            class="auth-input @error('surname') is-invalid @enderror"
+                            placeholder="Surname"
+                            value="{{ old('surname') }}"
+                            required
+                            autocomplete="family-name"
+                        >
+                        @error('surname')
+                            <span class="auth-error">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
-                {{-- Date of Birth --}}
-                <label class="auth-label">Date of birth</label>
-                <input
-                    type="date"
-                    name="date_birth"
-                    id="date_birth"
-                    class="auth-input"
-                    value="{{ old('date_birth') }}"
-                    required
-                    max="{{ date('Y-m-d', strtotime('-13 years')) }}"
-                >
+                {{-- Date of Birth & Gender Row --}}
+                <div class="dob-gender-row">
+                    <div>
+                        {{-- Date of Birth --}}
+                        <label class="auth-label">Date of birth</label>
+                        <input
+                            type="date"
+                            name="date_birth"
+                            id="date_birth"
+                            class="auth-input @error('date_birth') is-invalid @enderror"
+                            value="{{ old('date_birth') }}"
+                            required
+                            max="{{ date('Y-m-d', strtotime('-13 years')) }}"
+                        >
+                        @error('date_birth')
+                            <span class="auth-error">{{ $message }}</span>
+                        @enderror
+                    </div>
 
-                {{-- Gender --}}
-                <label class="auth-label" for="gender">Gender</label>
-                <select id="gender" name="gender" class="auth-select" required>
-                    <option value="" disabled {{ old('gender') ? '' : 'selected' }}>Select your gender</option>
-                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
-                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                </select>
+                    <div>
+                        {{-- Gender --}}
+                        <label class="auth-label" for="gender">Gender</label>
+                        <select id="gender" name="gender" class="auth-select @error('gender') is-invalid @enderror" required>
+                            <option value="" disabled {{ old('gender') ? '' : 'selected' }}>Select your gender</option>
+                            <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                            <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                        </select>
+                        @error('gender')
+                            <span class="auth-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
 
-                {{-- Email / Mobile --}}
+                {{-- Email --}}
                 <label class="auth-label" for="email">Email address</label>
                 <input
                     id="email"
                     type="email"
                     name="email"
-                    class="auth-input"
+                    class="auth-input @error('email') is-invalid @enderror"
                     placeholder="Email address"
                     value="{{ old('email') }}"
                     required
                     autocomplete="username"
                     maxlength="255"
                 >
+                @error('email')
+                    <span class="auth-error">{{ $message }}</span>
+                @enderror
 
                 {{-- Password --}}
                 <label class="auth-label" for="password">Password</label>
-                <div style="position: relative; margin-bottom: 1.25rem;">
+                <div style="position: relative;">
                     <input
                         id="password"
                         type="password"
                         name="password"
-                        class="auth-input"
+                        class="auth-input @error('password') is-invalid @enderror"
                         placeholder="Password"
                         required
                         autocomplete="new-password"
@@ -366,9 +433,49 @@
                         </svg>
                     </button>
                 </div>
+                @error('password')
+                    <span class="auth-error">{{ $message }}</span>
+                @enderror
+
+                {{-- Password Confirmation --}}
+                <label class="auth-label" for="password_confirmation">Confirm Password</label>
+                <div style="position: relative;">
+                    <input
+                        id="password_confirmation"
+                        type="password"
+                        name="password_confirmation"
+                        class="auth-input @error('password_confirmation') is-invalid @enderror"
+                        placeholder="Confirm password"
+                        required
+                        autocomplete="new-password"
+                        minlength="8"
+                        maxlength="255"
+                        style="padding-right: 2.75rem;"
+                    >
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-target="password_confirmation"
+                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity='1'"
+                        onmouseout="this.style.opacity='0.6'"
+                    >
+                        <svg class="eye-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-off-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="display: none;">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+                @error('password_confirmation')
+                    <span class="auth-error">{{ $message }}</span>
+                @enderror
 
                 {{-- Submit --}}
-                <button type="submit" class="auth-btn">Create Account</button>
+                <button type="submit" class="auth-btn" id="submit-btn">Create Account</button>
 
             </form>
 
@@ -406,6 +513,15 @@
                 eyeOffIcon.style.display = 'none';
             }
         });
+    });
+
+    // Form submission - Disable button and show loading state
+    const registerForm = document.getElementById('register-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    registerForm.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating Account...';
     });
 </script>
 @endsection

@@ -77,19 +77,35 @@
     .auth-input {
         width: 100%;
         background: #FFDBB5;
-        border: none;
+        border: 2px solid transparent;
         border-radius: 999px;
         padding: 0.5rem 0.9rem;
         font-size: 0.75rem;
         font-family: 'Poppins', sans-serif;
         color: #603F26;
         outline: none;
-        transition: box-shadow 0.2s;
+        transition: box-shadow 0.2s, border-color 0.2s;
         margin-bottom: 0.6rem;
     }
     .auth-input::placeholder { color: rgba(96, 63, 38, 0.45); }
     .auth-input:focus {
         box-shadow: 0 0 0 2.5px rgba(96, 63, 38, 0.25);
+    }
+    .auth-input.is-invalid {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.08);
+    }
+    .auth-input.is-invalid:focus {
+        box-shadow: 0 0 0 2.5px rgba(220, 53, 69, 0.25);
+    }
+
+    .auth-error {
+        display: block;
+        color: #dc3545;
+        font-size: 0.65rem;
+        margin-top: -0.45rem;
+        margin-bottom: 0.6rem;
+        font-weight: 500;
     }
 
     .auth-btn {
@@ -109,8 +125,12 @@
         margin-top: 0.4rem;
         margin-bottom: 0;
     }
-    .auth-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-    .auth-btn:active { transform: translateY(0); }
+    .auth-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .auth-btn:active:not(:disabled) { transform: translateY(0); }
+    .auth-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 
     .auth-switch {
         margin-top: 0.4rem;
@@ -182,18 +202,7 @@
                 <div class="auth-alert">{{ session('status') }}</div>
             @endif
 
-            {{-- Validation Errors --}}
-            @if ($errors->any())
-                <div class="auth-alert">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" id="login-form">
                 @csrf
 
                 {{-- Email / Mobile --}}
@@ -202,7 +211,7 @@
                     id="email"
                     type="email"
                     name="email"
-                    class="auth-input"
+                    class="auth-input @error('email') is-invalid @enderror"
                     placeholder="Email address"
                     value="{{ old('email') }}"
                     required
@@ -210,15 +219,18 @@
                     autofocus
                     maxlength="255"
                 >
+                @error('email')
+                    <span class="auth-error">{{ $message }}</span>
+                @enderror
 
                 {{-- Password --}}
                 <label class="auth-label" for="password">Password</label>
-                <div style="position: relative; margin-bottom: 1.25rem;">
+                <div style="position: relative;">
                     <input
                         id="password"
                         type="password"
                         name="password"
-                        class="auth-input"
+                        class="auth-input @error('password') is-invalid @enderror"
                         placeholder="Password"
                         required
                         autocomplete="current-password"
@@ -242,9 +254,12 @@
                         </svg>
                     </button>
                 </div>
+                @error('password')
+                    <span class="auth-error">{{ $message }}</span>
+                @enderror
 
                 {{-- Submit --}}
-                <button type="submit" class="auth-btn">Sign In</button>
+                <button type="submit" class="auth-btn" id="submit-btn">Sign In</button>
 
             </form>
 
@@ -282,6 +297,16 @@
                 eyeOffIcon.style.display = 'none';
             }
         });
+    });
+
+    // Form submission - Disable button and show loading state
+    const loginForm = document.getElementById('login-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    loginForm.addEventListener('submit', function() {
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing In...';
     });
 </script>
 @endsection

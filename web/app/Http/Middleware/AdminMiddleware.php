@@ -22,30 +22,30 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // STEP 1: Verifikasi user sudah authenticated
+        // STEP 1: Verify user is authenticated
         if (!auth()->check()) {
             return redirect()->route('login')
-                ->with('error', 'Anda harus login terlebih dahulu.');
+                ->with('error', 'You must be logged in to access this page.');
         }
 
-        // STEP 2: Ambil user dengan relasi role
+        // STEP 2: Fetch user with role relation
         $user = User::with('role')->find(auth()->id());
 
-        // STEP 3: Validasi user ditemukan
+        // STEP 3: Validate user exists
         if (!$user) {
-            abort(403, 'User tidak ditemukan.');
+            abort(403, 'User account not found.');
         }
 
-        // STEP 4: Validasi relasi role ada
+        // STEP 4: Validate role relation exists
         if ($user->role === null) {
             Log::warning(
                 'Admin access attempt but role not found. User ID: ' . $user->user_id
             );
 
-            abort(403, 'Role tidak ditemukan. Hubungi administrator.');
+            abort(403, 'Role not found. Please contact an administrator.');
         }
 
-        // STEP 5: Cek apakah admin
+        // STEP 5: Check if user is admin
         if ($user->role->role_name !== 'admin') {
 
             Log::warning(
@@ -57,7 +57,7 @@ class AdminMiddleware
 
             abort(
                 403,
-                'Akses ditolak. Anda tidak memiliki hak akses administrator.'
+                'Access denied. You do not have administrator permissions.'
             );
         }
 
