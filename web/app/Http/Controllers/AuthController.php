@@ -66,7 +66,7 @@ class AuthController extends Controller
 
         try {
             if ($roleName === 'admin') {
-                return redirect()->route('admin.dashboard')
+                return redirect()->route('dashboard')
                     ->with('status', 'Selamat datang, Admin! Login berhasil.');
             } elseif ($roleName === 'user') {
                 return redirect()->route('profile.show')

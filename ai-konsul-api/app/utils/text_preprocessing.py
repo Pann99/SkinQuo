@@ -14,7 +14,7 @@ stemmer          = stemmer_factory.create_stemmer()
 PROTECTED_KEYWORDS = set()
 for keywords in VALIDATION_KEYWORDS.values():
     for kw in keywords:
-        PROTECTED_KEYWORDS.add(kw.lower())
+        PROTECTED_KEYWORDS.add(kw.lower())  
 
 # Urutkan dari yang terpanjang agar multi-word phrase di-mask duluan
 SORTED_PROTECTED = sorted(PROTECTED_KEYWORDS, key=len, reverse=True)
@@ -52,16 +52,20 @@ def _safe_remove_stopwords(text: str) -> str:
     return " ".join(filtered_words)
 
 
+# Tambahkan cache di luar fungsi
+STEM_CACHE = {}
+
 def _safe_stemming(text: str) -> str:
-    """Stemming hanya untuk kata yang tidak mengandung placeholder."""
     words = text.split()
     stemmed_words = []
     for word in words:
-        # Jika kata mengandung placeholder (misal: __KW_12__an), tidak di-stem
         if "__KW_" in word:
             stemmed_words.append(word)
         else:
-            stemmed_words.append(stemmer.stem(word))
+            # Gunakan cache 
+            if word not in STEM_CACHE:
+                STEM_CACHE[word] = stemmer.stem(word)
+            stemmed_words.append(STEM_CACHE[word])
     return " ".join(stemmed_words)
 
 

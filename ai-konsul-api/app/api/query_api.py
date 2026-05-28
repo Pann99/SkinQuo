@@ -1,81 +1,73 @@
-from fastapi import APIRouter
-
+from fastapi import APIRouter, HTTPException
 from app.schemas.query_schema import QueryRequest
-
 from app.services.query_pipeline_service import QueryPipelineService
 from app.services.Database_pipeline import run_pipeline_supabase
 from app.services.Recommender import RecommenderService
 
-
+# Murni deklarasi router tanpa membuat instance app baru
 router = APIRouter()
 
 # =====================================================
-# INIT SERVICES 
+# INIT SERVICES DI TINGKAT GLOBAL
 # =====================================================
-
-# Ganti inisialisasi awal
 print("[API] Loading database from Supabase...")
-df_clean = run_pipeline_supabase() # Fungsi baru dari Database_pipeline.py
+df_clean = run_pipeline_supabase() 
 
 print("[API] Initializing recommender engine...")
-recommender = RecommenderService(df_clean) # Engine tetap menggunakan DataFrame bersih
+recommender = RecommenderService(df_clean)
 
 query_pipeline = QueryPipelineService()
-
 
 # =====================================================
 # API ENDPOINT
 # =====================================================
-
-@router.post("/recommend")
+@router.post("/recommend") # Ketika digabung ke main.py, ini menjadi /api/recommend
 def recommend_products(request: QueryRequest):
+    try:
+        # Menggunakan penamaan yang konsisten: query_result
+        query_result = query_pipeline.run(request.query)
 
-    # ==========================================
-    # QUERY PIPELINE
-    # ==========================================
+        if query_result["status"] == "invalid":
+            return {
+                "status": "invalid",
+                "message": "Query tidak valid atau berada di luar konteks perawatan kulit.",
+                "missing_points": query_result.get("missing_points", []),
+                "matched_points": query_result.get("matched_points", {}),
+                "extracted_products": [],
+                "extracted_concerns": [],
+                "extracted_constraints": [],
+                "recommendations": [],
+                "query_fixing": query_result.get("query_fixing")
+            }
 
-    query_result = query_pipeline.run(
-        request.query
-    )
+        # Ambil data dari query_result dengan mapping kunci yang baru
+        cleaned_query = query_result["cleaned_text"]
+        extracted_products = query_result.get("extracted_products", [])
+        extracted_concerns = query_result.get("extracted_concerns", [])
+        extracted_constraints = query_result.get("extracted_constraints", [])
 
-    # Jika query invalid
-    if query_result["status"] == "invalid":
+        # PERBAIKAN UTAMA: Menggunakan argumen dan variabel yang benar
+        recommendations = recommender.recommend(
+            cleaned_query=cleaned_query,
+            extracted_products=extracted_products, # Sesuai dengan parameter baru di Recommender.py
+            extracted_constraints=extracted_constraints,
+            top_n=5
+        )
+
+        # Kembalikan response terstruktur untuk dikonsumsi oleh Laravel Controller
         return {
-            "status": "invalid",
-            "message": "Query tidak valid",
-            "query_result": query_result,
-            "recommendations": []
+            "status": query_result["status"], # Bisa berupa 'valid' atau 'fixable'
+            "original_query": request.query,
+            "cleaned_query": cleaned_query,
+            "extracted_products": extracted_products,
+            "extracted_concerns": extracted_concerns, # Ikut dikirim agar Laravel bisa menyimpan ke 'skin_concern'
+            "extracted_constraints": extracted_constraints, 
+            "recommendations": recommendations,
+            "query_fixing": query_result.get("query_fixing")
         }
 
-    # ==========================================
-    # CLEAN QUERY & EXTRACT CATEGORY
-    # ==========================================
-
-    cleaned_query = query_result["cleaned_text"]
-
-    extracted_category = None
-    matched_points = query_result.get("matched_points", {})
-    
-    if "product" in matched_points:
-        if matched_points["product"].get("exact"):
-            extracted_category = matched_points["product"]["exact"][0]
-        elif matched_points["product"].get("fuzzy"):
-            extracted_category = matched_points["product"]["fuzzy"][0]
-
-    # ==========================================
-    # RECOMMENDATION
-    # ==========================================
-
-    recommendations = recommender.recommend(
-        cleaned_query=cleaned_query,
-        extracted_category=extracted_category,
-        top_n=5
-    )
-
-    return {
-        "status": "success",
-        "original_query": request.query,
-        "cleaned_query": cleaned_query,
-        "extracted_category": extracted_category, # Ditambahkan untuk mempermudah pemantauan
-        "recommendations": recommendations
-    }
+    except ValueError as e:
+        # MENANGKAP ERROR SPAM/HACKING/OOD:
+        # ValueError yang dilempar dari query_schema.py atau query_pipeline_service.py
+        # akan ditangkap di sini dan diubah menjadi HTTP 422 Unprocessable Entity
+        raise HTTPException(status_code=422, detail=str(e))

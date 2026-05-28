@@ -1,219 +1,438 @@
-# SkinQuo - Smart Skin Analysis Platform
+# 🚀 SkinQuo - Smart Skin Analysis Platform
 
-Ini adalah proyek PBL SkinQuo - platform e-learning dan konsultasi skincare yang inovatif untuk membantu pengguna menemukan rutinitas skincare yang tepat berdasarkan tipe kulit mereka.
-
-## 👥 Anggota Kelompok 1
-
-| No. | Nama | NIM | Tugas |
-|-----|------|-----|-------|
-| 1 | Axelo Matthew Terang Barus | 2341760001 | Knowledge Engineer |
-| 2 | Khoir Karol Nurzuraidah | 2341760048 | Documentation Expert |
-| 3 | Lyra Faiqah Bilqis | 2341760013 | BackEnd Developer |
-| 4 | Nadya Hapsari Putri | 2341760179 | Frontend Developer |
-| 5 | Pandya Cahya | 2341760053 | UI/UX Designer |
-
-## 🎯 Deskripsi Proyek
-
-**SkinQuo** adalah platform edukasi dan konsultasi skincare yang dirancang untuk membantu pengguna (terutama wanita Indonesia) dalam menemukan rutinitas perawatan kulit yang optimal sesuai dengan tipe dan kondisi kulit mereka. Platform ini mengintegrasikan:
-
-- **Konsultasi Interaktif**: Sistem analisis kulit berbasis AI yang memberikan rekomendasi produk personal
-- **Panduan Edukasi**: Koleksi artikel lengkap tentang skincare, ingredients, dan routine tips
-- **Katalog Produk**: Database produk skincare dengan filtering berdasarkan jenis kulit dan concern
-- **Dashboard Admin**: Interface untuk mengelola produk, artikel, dan feedback pengguna
-- **Feedback**: Sistem feedback untuk meningkatkan kualitas layanan
+SkinQuo adalah platform e-learning dan konsultasi skincare berbasis AI yang membantu pengguna menemukan rekomendasi produk dan rutinitas skincare sesuai tipe serta kondisi kulit mereka.
 
 ---
 
-## 🎯 Fitur Utama
+# 👥 Anggota Kelompok 1
 
-### **User Features**
-
-#### 1. **Home Page (Halaman Utama)**
-- Hero banner dengan call-to-action
-- Featured articles & products showcase
-- Testimonial section dari user
-- Newsletter signup integration
-- SEO-optimized landing page
-
-#### 2. **Catalog (Katalog Produk)** 🛍️
-- Grid produk interaktif dengan filter (kategori, harga, rating)
-- Search & sort functionality (A-Z, harga, rating)
-- Detail product page dengan informasi lengkap:
-  - Ingredients list dengan deskripsi
-  - How-to-use instructions
-  - User reviews & ratings
-  - Related products suggestions
-  - Stock availability status
-- Responsive grid design untuk semua ukuran device
-
-#### 3. **Skin Guide (Panduan Perawatan Kulit)** 📚
-- Artikel edukatif tentang skincare dari expert
-- Grid artikel dengan kategori filter:
-  - Basic Care Routine
-  - Advanced Routines
-  - Ingredients Education
-  - Tips & Tricks
-- Detail article page dengan:
-  - Full article content
-  - Author & publication date
-  - Reading time estimate
-  - Recommended related articles
-  - Comment section ready
-- Tag-based article discovery
-
-#### 4. **Smart Consultation (Konsultasi Kulit)** 🔍
-- Form interaktif 6-langkah untuk analisis kulit:
-  1. Skin Story (deskripsi kondisi kulit)
-  2. Skin Type Detection (pilihan jenis kulit)
-  3. Main Concerns (masalah utama kulit)
-  4. Preferences (preferensi ingredients)
-  5. Confirmation modal dengan detected traits
-  6. Result dengan rekomendasi lengkap
-- Result page yang menampilkan:
-  - Skin health score & metrics
-  - Personalized product recommendations
-  - Suggested skincare routine
-  - Detailed trait analysis
-  - Saved consultation history (untuk registered users)
-- No login redirect - guest users dapat melihat hasil
-
-#### 5. **Feedback System** 💬
-- Form feedback dari semua pengguna
-- Display feedback list untuk community insights
-- Admin moderation capabilities
-- Rating & sentiment tracking
-
-#### 6. **User Profile** (Authenticated Users) 👤
-- Profile information management
-- Consultation history tracking
-- Saved preferences & wishlist
-- Download consultation reports
-- Account settings & preferences
+| No | Nama                       | NIM        | Role                 |
+| -- | -------------------------- | ---------- | -------------------- |
+| 1  | Axelo Matthew Terang Barus | 2341760001 | Knowledge Engineer   |
+| 2  | Khoir Karol Nurzuraidah    | 2341760048 | Documentation Expert |
+| 3  | Lyra Faiqah Bilqis         | 2341760013 | Backend Developer    |
+| 4  | Nadya Hapsari Putri        | 2341760179 | Frontend Developer   |
+| 5  | Pandya Cahya               | 2341760053 | UI/UX Designer       |
 
 ---
 
-### **Admin Features**
+# 🎯 Deskripsi Proyek
 
-#### 7. **Admin Dashboard** 📊
-- Premium dashboard dengan statistics cards:
-  - Total users, products, articles, pending feedback
-  - Quick action links untuk management
-  - Admin profile information
-  - System health status
-- Real-time metrics & analytics
-- Quick shortcuts untuk common tasks
+SkinQuo merupakan platform edukasi dan konsultasi skincare yang dirancang untuk membantu pengguna memahami kondisi kulit mereka melalui pendekatan AI dan Natural Language Processing (NLP).
 
-#### 8. **Product Management** 🏪
-- **Index**: Tabel semua produk dengan filter & search
-  - Columns: Product name, brand, price, stock, status
-  - Action buttons: View, Edit, Delete
-  - Pagination & bulk operations ready
-  
-- **Create**: Form tambah produk baru dengan:
-  - Product details (name, brand, category)
-  - Pricing & stock information
-  - Image upload dengan drag-drop UI
-  - SEO metadata (slug, description)
-  - Publishing status (draft/published)
-  - CSRF protection & validation
-  
-- **Edit**: Form edit dengan:
-  - Pre-filled data dari database
-  - Current image preview
-  - Optional image replacement
-  - Timestamp tracking (created_at, updated_at)
+Platform ini menyediakan:
 
-#### 9. **Article Management** ✍️
-- **Index**: Tabel artikel dengan filtering
-  - Search by title/category
-  - Status filter (published/draft)
-  - Author & date tracking
-  
-- **Create**: Form editor artikel dengan:
-  - Title, category, tags input
-  - Rich content editor (textarea)
-  - Cover image upload
-  - Publish/draft status selector
-  - SEO slug generation
-  
-- **Edit**: Article editor dengan:
-  - Pre-filled content
-  - Current cover preview
-  - Optional image update
-  - Version history ready
-
-#### 10. **Feedback Monitor** 📋
-- Dashboard untuk melihat user feedback
-- Feedback cards dengan:
-  - User info & feedback type
-  - Message content
-  - Status tracking (pending/approved/rejected)
-  - Helpful/helpful action tracking
-- Filter by status, type, user
-- Search functionality
-- Admin action buttons: Approve, Reject, Mark as Helpful
+* Konsultasi kulit berbasis AI
+* Rekomendasi produk personal
+* Edukasi skincare
+* Dashboard admin management
+* Sistem feedback pengguna
 
 ---
 
-## 🛠 Tech Stack
+# ✨ Fitur Utama
 
-**Backend**
-- **Framework**: Laravel 12.56.0 (Modern PHP framework)
-- **Language**: PHP 8.2+
-- **Database**: PostgreSQL 15+ via Supabase (Cloud-hosted)
-- **Authentication**: Laravel Sanctum & custom middleware
-- **API**: RESTful API dengan JSON responses
+## 👤 User Features
 
-**Frontend**
-- **Templating**: Laravel Blade Engine
-- **Styling**: Tailwind CSS v4 (via CDN)
-- **JavaScript**: Vanilla JS + Alpine.js (optional interactivity)
-- **Icons**: Unicode emoji + custom SVG icons
-- **Design System**: Custom color palette (cream, peach, brown)
+### 🏠 Home Page
 
-**DevOps & Tools**
-- **Package Manager**: Composer (PHP), npm (Node.js)
-- **Version Control**: Git + GitHub
-- **Development Server**: Laravel Artisan serve
-- **Testing**: PHPUnit (ready for implementation)
-- **Documentation**: Markdown files
+* Hero section interaktif
+* Featured skincare products
+* Featured articles
+* Testimonials
+* Newsletter integration
 
-**Design & UX**
-- **Typography**: Playfair Display (headings), Poppins (body)
-- **Color Scheme**: 
-  - Cream (#FFEAC5) - Primary background
-  - Peach (#FFDBB5) - Accent & hover states
-  - Brown (#6C4E31) - Secondary text
-  - Dark Brown (#603F26) - Headings & buttons
-- **Responsive**: Mobile-first design, breakpoints at 640px, 820px, 1024px
-- **Accessibility**: WCAG compliant, semantic HTML, proper ARIA labels
+### 🛍️ Product Catalog
 
-## 🚀 Quick Start
+* Product filtering & searching
+* Product detail page
+* Ingredients information
+* User reviews & ratings
+* Responsive product grid
 
-### Prerequisites
-- PHP 8.2+
-- Composer
-- Node.js & npm
+### 📚 Skin Guide
 
-### Installation
+* Artikel edukasi skincare
+* Kategori artikel
+* Tips & tricks skincare
+* Ingredients education
+* Related article recommendations
+
+### 🔍 Smart Consultation
+
+* Multi-step consultation form
+* Skin concern analysis
+* Personalized skincare recommendation
+* AI-powered recommendation engine
+* Consultation result summary
+
+### 💬 Feedback System
+
+* User feedback form
+* Community feedback display
+* Rating system
+* Admin moderation
+
+### 👤 User Profile
+
+* Consultation history
+* Saved preferences
+* Download consultation report
+* Account settings
+
+---
+
+## 🛠️ Admin Features
+
+### 📊 Admin Dashboard
+
+* User statistics
+* Product statistics
+* Feedback monitoring
+* Quick management actions
+
+### 🏪 Product Management
+
+* Add/Edit/Delete product
+* Product image upload
+* Product categorization
+* Product stock management
+
+### ✍️ Article Management
+
+* Add/Edit/Delete article
+* Article categorization
+* Cover image upload
+* Draft & publish system
+
+### 📋 Feedback Monitoring
+
+* View user feedback
+* Approve/Reject feedback
+* Feedback filtering
+* User interaction tracking
+
+---
+
+# 🛠️ Tech Stack
+
+## Backend (Laravel)
+
+* Laravel 12
+* PHP 8.2+
+* PostgreSQL
+* REST API
+* Laravel Sanctum
+
+## AI Recommendation Engine
+
+* Python 3.10.11
+* FastAPI
+* Uvicorn
+* sentence-transformers
+* scikit-learn
+* rapidfuzz
+* Sastrawi
+* pandas
+
+## Frontend
+
+* Laravel Blade
+* Tailwind CSS v4
+* Vanilla JavaScript
+* Alpine.js
+
+## Tools & DevOps
+
+* Git & GitHub
+* Composer
+* npm
+* pip
+* PHPUnit
+
+---
+
+# 🚀 Quick Start
+
+# 1️⃣ Setup Laravel Backend
+
+## 📦 Prerequisites
+
+Pastikan telah menginstall:
+
+* PHP 8.2+
+* Composer
+* Node.js & npm
+* PostgreSQL
+
+---
+
+## ⚙️ Installation
 
 ```bash
 # Clone repository
-git clone <repo-url>
+git clone <repository-url>
+
+# Masuk ke project
 cd SkinQuo
 
-# Install dependencies
+# Install dependency PHP
 composer install
+
+# Install dependency frontend
 npm install
 
-# Setup environment
+# Copy environment
 cp .env.example .env
+
+# Generate app key
 php artisan key:generate
-
-# Run migrations (optional, app works without DB)
-php artisan migrate
-
-# Start development server
-php artisan serve
-# Server will be available at http://localhost:8000
 ```
+
+---
+
+## 🗄️ Database Setup
+
+Konfigurasi database pada file `.env`
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=skinquo
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+```
+
+Lalu jalankan migration:
+
+```bash
+php artisan migrate
+```
+
+---
+
+## ▶️ Run Laravel Server
+
+```bash
+php artisan serve
+```
+
+Laravel akan berjalan pada:
+
+```bash
+http://127.0.0.1:8000
+```
+
+---
+
+# 2️⃣ Setup AI Service Engine (Python)
+
+AI Engine digunakan untuk melakukan:
+
+* Analisis konsultasi kulit
+* NLP preprocessing
+* Semantic similarity matching
+* Personalized recommendation
+
+---
+
+## 📦 Prerequisites
+
+Pastikan Python versi berikut telah terinstall:
+
+```bash
+Python 3.10.11
+```
+
+Cek versi Python:
+
+```bash
+python --version
+```
+
+---
+
+## ⚙️ AI Service Installation
+
+Buka terminal baru lalu arahkan ke folder AI Service yang berisi:
+
+```bash
+main.py
+requirements.txt
+```
+
+---
+
+### 1. Buat Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+---
+
+### 2. Aktivasi Virtual Environment
+
+#### Windows (CMD)
+
+```bash
+venv\Scripts\activate
+```
+
+#### Windows (PowerShell)
+
+```bash
+.\venv\Scripts\Activate.ps1
+```
+
+#### Linux / macOS
+
+```bash
+source venv/bin/activate
+```
+
+Jika berhasil aktif akan muncul indikator:
+
+```bash
+(venv)
+```
+
+---
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Dependency utama:
+
+* FastAPI
+* Uvicorn
+* sentence-transformers
+* scikit-learn
+* rapidfuzz
+* pandas
+* Sastrawi
+
+---
+
+## ▶️ Menjalankan AI Service
+
+```bash
+python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+```
+
+---
+
+## 🌐 API Endpoint
+
+AI Service akan berjalan pada:
+
+```bash
+http://127.0.0.1:8001
+```
+
+Swagger API Documentation:
+
+```bash
+http://127.0.0.1:8001/docs
+```
+
+ReDoc Documentation:
+
+```bash
+http://127.0.0.1:8001/redoc
+```
+
+---
+
+# 🔗 System Architecture
+
+```text
+Laravel Frontend
+        ↓
+REST API Request
+        ↓
+FastAPI AI Service
+        ↓
+NLP & Recommendation Engine
+        ↓
+Recommendation Response
+        ↓
+Consultation Result Page
+```
+
+---
+
+# 🧠 AI Capabilities
+
+SkinQuo AI mendukung:
+
+* Skin concern detection
+* Semantic recommendation
+* Typo correction
+* Indonesian NLP preprocessing
+* Personalized product recommendation
+* Content-based filtering
+
+---
+
+# 📁 Project Structure
+
+```text
+SkinQuo/
+├── app/
+├── public/
+├── resources/
+├── routes/
+├── database/
+├── storage/
+├── main.py
+├── requirements.txt
+├── composer.json
+└── README.md
+```
+
+---
+
+# 🚨 Troubleshooting
+
+## Module Not Found
+
+Pastikan virtual environment aktif sebelum menjalankan AI Service.
+
+---
+
+## Port Already In Use
+
+Ganti port:
+
+```bash
+python -m uvicorn main:app --host 127.0.0.1 --port 8002 --reload
+```
+
+---
+
+## PowerShell Execution Policy Error
+
+Jalankan PowerShell sebagai Administrator:
+
+```powershell
+Set-ExecutionPolicy RemoteSigned
+```
+
+---
+
+# 📌 Notes
+
+* Laravel Backend dan AI Service harus berjalan bersamaan.
+* Pastikan koneksi database PostgreSQL aktif.
+* Gunakan environment terpisah untuk development dan production.
+
+---
+
+# 📄 License
+
+Project ini dibuat untuk keperluan pembelajaran dan Project Based Learning (PBL).

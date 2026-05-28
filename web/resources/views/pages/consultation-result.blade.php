@@ -1,992 +1,615 @@
 @extends('layouts.app')
 
-@section('title', 'Hasil Konsultasi — SkinQuo')
+@section('title', 'Hasil Konsultasi')
 
 @push('styles')
 <style>
-    /* ══════════════════════════════════
-       CONSULTATION RESULT PAGE
-    ══════════════════════════════════ */
+    /* ═══════════════════════════════════════
+       CONSULTATION RESULT PAGE — LUXURY DESIGN
+    ═══════════════════════════════════════ */
+
     .cr-page {
-        background: #FFEAC5;
+        background: linear-gradient(135deg, #FAF3E8 0%, #F5EAD9 100%);
         min-height: 100vh;
-        padding-top: 6.5rem;
-        padding-bottom: 6rem;
+        padding: 120px 0 4rem;
     }
 
-    .cr-inner {
-        max-width: 1100px;
+    .cr-container {
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 0 2rem;
+        padding: 0 1.5rem;
     }
 
-    /* ── Hero Banner ── */
-    .cr-hero {
-        background: #603F26;
-        border-radius: 28px;
-        padding: 3rem 3.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        margin-bottom: 2.5rem;
-        flex-wrap: wrap;
-    }
+    /* ═══ HEADER SECTION ═══ */
+    .cr-header { text-align: center; margin-bottom: 3rem; }
+    .cr-header-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.5rem; }
+    .cr-header-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #4A3728; line-height: 1.2; margin-bottom: 0.8rem; }
+    .cr-header-subtitle { font-size: 0.95rem; color: #7C6355; margin-bottom: 0.3rem; }
+    .cr-header-date { font-size: 0.8rem; color: #A18269; opacity: 0.8; }
 
-    .cr-hero-left {}
+    /* ═══ MAIN GRID ═══ */
+    .cr-main-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; margin-bottom: 3rem; }
 
-    .cr-hero-eyebrow {
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: rgba(255, 219, 181, 0.5);
-        margin-bottom: 0.6rem;
-    }
-
-    .cr-hero-title {
-        font-family: 'Playfair Display', serif;
-        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-        font-weight: 700;
-        color: #FFEAC5;
-        line-height: 1.25;
-        margin-bottom: 0.75rem;
-    }
-
-    .cr-hero-sub {
-        font-size: 0.88rem;
-        color: rgba(255, 234, 197, 0.6);
-        line-height: 1.7;
-        max-width: 400px;
-    }
-
-    .cr-hero-right {
-        text-align: center;
-        flex-shrink: 0;
-    }
-
-    .cr-consult-id {
-        font-size: 0.7rem;
-        color: rgba(255, 234, 197, 0.4);
-        margin-bottom: 0.5rem;
-        letter-spacing: 0.06em;
-    }
-
-    .cr-status-badge {
-        display: inline-block;
-        padding: 0.4rem 1.2rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-    }
-    .cr-status-pending {
-        background: rgba(255, 152, 0, 0.2);
-        color: #ffb74d;
-    }
-    .cr-status-processed {
-        background: rgba(76, 175, 80, 0.2);
-        color: #81c784;
-    }
-
-    /* ── Layout: 2 columns ── */
-    .cr-layout {
+    /* ═══ TOP PRODUCT SHOWCASE ═══ */
+    .cr-showcase-section {
         display: grid;
-        grid-template-columns: 1.05fr 1fr;
-        gap: 1.75rem;
-        margin-bottom: 2rem;
-    }
-
-    @media (max-width: 820px) { .cr-layout { grid-template-columns: 1fr; } }
-
-    /* ── Card base ── */
-    .cr-card {
-        background: #fff;
-        border-radius: 20px;
-        padding: 1.75rem 2rem;
-        border: 1.5px solid rgba(108, 78, 49, 0.08);
-    }
-
-    .cr-card-title {
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
-        font-family: 'Playfair Display', serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: #603F26;
-        margin-bottom: 1.5rem;
-    }
-
-    .cr-card-icon {
-        width: 34px; height: 34px;
-        border-radius: 50%;
-        background: rgba(96, 63, 38, 0.09);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem;
-        flex-shrink: 0;
-    }
-
-    /* ── Skin Score Gauge ── */
-    .cr-score-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .cr-gauge-wrap {
+        grid-template-columns: 300px 1fr 290px;
+        gap: 2.5rem;
+        align-items: start;
+        background: white;
+        border-radius: 32px;
+        padding: 2.5rem;
+        border: 1px solid rgba(74, 55, 40, 0.08);
+        box-shadow: 0 8px 32px rgba(74, 55, 40, 0.06);
         position: relative;
-        width: 160px;
-        height: 90px;
-        margin-bottom: 0.5rem;
     }
 
-    .cr-gauge-svg {
-        width: 160px;
-        height: 90px;
-        overflow: visible;
-    }
+    @media (max-width: 1100px) { .cr-showcase-section { grid-template-columns: 1fr; gap: 2rem; padding: 2rem; } }
+    @media (max-width: 700px) { .cr-showcase-section { padding: 1.5rem; } }
 
-    .cr-gauge-label {
-        text-align: center;
-    }
+    /* ─ Left: Gallery Carousel ─ */
+    .cr-gallery-carousel { display: flex; flex-direction: column; gap: 1rem; }
+    .cr-gallery-main { width: 100%; height: 280px; background: linear-gradient(135deg, #F0E4CC 0%, #FFFDF8 100%); border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; }
+    .cr-gallery-main img { width: 100%; height: 100%; object-fit: contain; padding: 1.5rem; }
 
-    .cr-gauge-number {
-        font-family: 'Playfair Display', serif;
-        font-size: 2rem;
-        font-weight: 700;
-        color: #603F26;
-        line-height: 1;
-    }
+    .cr-alt-thumbs-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #A18269; margin-bottom: 0.5rem; }
+    .cr-alt-thumbs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+    .cr-alt-thumb-item { background: #FFFDF8; border: 1.5px solid rgba(196, 149, 106, 0.2); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
+    .cr-alt-thumb-item:hover, .cr-alt-thumb-item.active { border-color: #C4956A; transform: scale(1.04); box-shadow: 0 4px 12px rgba(196, 149, 106, 0.2); }
+    .cr-alt-thumb-img { width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #F0E4CC 0%, #FFFDF8 100%); font-size: 1.2rem; }
+    .cr-alt-thumb-img img { width: 100%; height: 100%; object-fit: contain; padding: 0.3rem; }
+    .cr-alt-thumb-score { position: absolute; top: 3px; right: 3px; background: rgba(74, 55, 40, 0.8); color: #FFFDF8; font-size: 0.55rem; font-weight: 700; padding: 0.15rem 0.35rem; border-radius: 5px; }
+    .cr-alt-thumb-name { font-size: 0.6rem; color: #4A3728; font-weight: 500; padding: 0.25rem 0.35rem; line-height: 1.3; text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-    .cr-gauge-sublabel {
-        font-size: 0.72rem;
-        color: rgba(96, 63, 38, 0.45);
-        margin-top: 0.25rem;
-    }
+    /* ─ Center: Product Info ─ */
+    .cr-product-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 1.2rem; }
+    .cr-p-brand { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C4956A; }
+    .cr-p-title { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3.5vw, 2rem); font-weight: 900; color: #4A3728; line-height: 1.2; }
+    .cr-p-subtitle { font-size: 0.85rem; color: #7C6355; font-style: italic; }
 
-    /* ── Progress bars ── */
-    .cr-metrics {
+    .cr-p-desc-wrapper { background: rgba(250, 243, 232, 0.5); border: 1px solid rgba(196, 149, 106, 0.2); border-radius: 14px; padding: 1rem 1.2rem; width: 100%; }
+    .cr-p-desc-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.6rem; }
+    .cr-p-desc-label svg { width: 12px; height: 12px; opacity: 0.8; }
+    
+    .cr-expandable-text { font-size: 0.88rem; color: #603F38; line-height: 1.7; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .cr-expandable-text.expanded { -webkit-line-clamp: unset; }
+    .cr-text-toggle-btn { font-size: 0.75rem; color: #C4956A; background: none; border: none; padding: 0; margin-top: 0.5rem; cursor: pointer; font-weight: 600; font-family: inherit; }
+    .cr-text-toggle-btn:hover { text-decoration: underline; }
+
+    .cr-p-full-ingredients-wrapper { background: rgba(196, 149, 106, 0.04); border: 1px dashed rgba(196, 149, 106, 0.25); border-radius: 14px; padding: 1rem 1.2rem; width: 100%; }
+    .cr-p-full-ingredients-text { font-size: 0.82rem; color: #7C6355; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .cr-p-full-ingredients-text.expanded { -webkit-line-clamp: unset; }
+
+    .cr-p-ingredients-wrapper { background: rgba(196, 149, 106, 0.06); border: 1px solid rgba(196, 149, 106, 0.18); border-radius: 14px; padding: 1rem 1.2rem; width: 100%; }
+    .cr-p-ingredients-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.6rem; }
+    .cr-p-ingredient-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .cr-p-ingredient-tag { background: white; border: 1px solid rgba(196, 149, 106, 0.25); color: #4A3728; font-size: 0.75rem; font-weight: 500; padding: 0.3rem 0.7rem; border-radius: 10px; }
+    .cr-p-ingredient-tag.hero { background: #4A3728; color: #FFFDF8; border-color: #4A3728; }
+
+    .cr-match-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: #2E7D32; color: white; font-size: 0.8rem; font-weight: 700; padding: 0.5rem 1.1rem; border-radius: 50px; }
+    .cr-match-badge svg { width: 14px; height: 14px; }
+
+    /* ─ Right Column & Sidebar ─ */
+    .cr-right-sidebar {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.2rem;
+        height: fit-content;
     }
 
-    .cr-metric-row {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-    }
+    .cr-diagnosis-card { background: linear-gradient(135deg, #FFFDF8 0%, #FAF3E8 100%); border-radius: 20px; padding: 1.5rem; border: 1px solid rgba(74, 55, 40, 0.08); }
+    .cr-diagnosis-title { font-size: 0.9rem; font-weight: 700; color: #4A3728; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(74, 55, 40, 0.08); display: flex; align-items: center; gap: 0.4rem; }
+    .cr-diagnosis-block { margin-bottom: 1rem; }
+    .cr-diagnosis-block:last-child { margin-bottom: 0; }
+    .cr-diagnosis-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.4rem; }
+    .cr-diagnosis-value { font-size: 0.82rem; color: #603F38; line-height: 1.5; font-style: italic; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .cr-diag-query-expand { font-size: 0.7rem; color: #C4956A; cursor: pointer; font-weight: 600; margin-top: 0.2rem; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; }
+    .cr-diag-query-expand:hover { text-decoration: underline; }
 
-    .cr-metric-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+    .cr-tag-group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .cr-tag { display: inline-block; background: rgba(196, 149, 106, 0.12); color: #4A3728; font-size: 0.75rem; font-weight: 500; padding: 0.3rem 0.7rem; border-radius: 12px; border: 1px solid rgba(196, 149, 106, 0.25); }
+    .cr-tag.danger { background: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+    .cr-tag.empty-state { background: rgba(74, 55, 40, 0.04); color: #A18269; font-style: italic; border: 1px dashed rgba(74, 55, 40, 0.12); }
 
-    .cr-metric-label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #6C4E31;
-    }
+    /* Layout untuk Reason Banner di Sidebar Kanan */
+    .cr-reason-banner { width: 100%; background: linear-gradient(135deg, #4A3728 0%, #603F38 100%); border-radius: 16px; padding: 1.2rem; display: flex; gap: 0.8rem; align-items: flex-start; }
+    .cr-reason-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .cr-reason-title-small { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.35rem; }
+    .cr-reason-text { font-size: 0.82rem; color: rgba(255,253,248,0.9); line-height: 1.5; }
 
-    .cr-metric-value {
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #603F26;
-    }
+    /* Layout untuk Button di Sidebar Kanan */
+    .cr-btn-group { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
+    .cr-btn { display: inline-flex; justify-content: center; align-items: center; gap: 0.6rem; width: 100%; background: #4A3728; color: #FFFDF8; padding: 0.85rem 1.6rem; border: none; border-radius: 50px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; font-family: 'DM Sans', sans-serif; }
+    .cr-btn:hover { background: #603F38; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(74, 55, 40, 0.15); }
+    .cr-btn-secondary { background: transparent; border: 1.5px solid #C4956A; color: #4A3728; }
+    .cr-btn-secondary:hover { background: #FAF3E8; border-color: #4A3728; }
 
-    .cr-progress-track {
-        height: 7px;
-        background: rgba(96, 63, 38, 0.1);
-        border-radius: 999px;
-        overflow: hidden;
-    }
+    /* ─ Ingredients Section Global ─ */
+    .cr-ingredients-section { background: white; border-radius: 32px; padding: 2.5rem; border: 1px solid rgba(74, 55, 40, 0.08); box-shadow: 0 8px 32px rgba(74, 55, 40, 0.06); margin-bottom: 2rem; }
+    .cr-ingredients-title { font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 3vw, 1.6rem); font-weight: 700; color: #4A3728; margin-bottom: 1.8rem; text-align: center; }
+    .cr-carousel-container { display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0; scroll-behavior: smooth; margin-left: -1rem; margin-right: -1rem; padding-left: 1rem; padding-right: 1rem; }
+    .cr-carousel-container::-webkit-scrollbar { height: 6px; }
+    .cr-carousel-container::-webkit-scrollbar-track { background: rgba(74, 55, 40, 0.05); border-radius: 10px; }
+    .cr-carousel-container::-webkit-scrollbar-thumb { background: rgba(196, 149, 106, 0.3); border-radius: 10px; }
+    .cr-ingredient-card { background: #FFFDF8; border-radius: 20px; padding: 1.6rem; border: 1px solid rgba(74, 55, 40, 0.06); min-width: 260px; max-width: 260px; flex-shrink: 0; transition: all 0.3s; }
+    .cr-ingredient-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(74, 55, 40, 0.1); border-color: rgba(196, 149, 106, 0.3); }
+    .cr-ingredient-emoji { font-size: 2rem; margin-bottom: 0.7rem; display: block; }
+    .cr-ingredient-name { font-size: 0.95rem; font-weight: 600; color: #4A3728; margin-bottom: 0.4rem; }
+    .cr-ingredient-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.8rem; }
+    .cr-ingredient-desc { font-size: 0.83rem; color: #603F38; line-height: 1.6; }
 
-    .cr-progress-fill {
-        height: 100%;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #6C4E31, #C4934A);
-        transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        width: 0;
-    }
+    /* ─ Articles Section ─ */
+    .cr-articles-section { background: white; border-radius: 32px; padding: 2.5rem; border: 1px solid rgba(74, 55, 40, 0.08); box-shadow: 0 8px 32px rgba(74, 55, 40, 0.06); margin-bottom: 2rem; }
+    .cr-articles-title { font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 3vw, 1.6rem); font-weight: 700; color: #4A3728; margin-bottom: 1.8rem; text-align: center; }
+    .cr-articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+    .cr-article-card { background: #FFFDF8; border-radius: 20px; border: 1px solid rgba(74, 55, 40, 0.06); overflow: hidden; transition: all 0.3s; display: flex; flex-direction: column; text-decoration: none; }
+    .cr-article-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(74, 55, 40, 0.1); border-color: rgba(196, 149, 106, 0.3); }
+    .cr-article-cover { width: 100%; height: 140px; background: linear-gradient(135deg, #F0E4CC 0%, #FFFDF8 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; flex-shrink: 0; position: relative; }
+    .cr-article-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cr-article-tag { position: absolute; top: 10px; left: 10px; background: rgba(74, 55, 40, 0.8); color: #FFFDF8; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.7rem; border-radius: 8px; }
+    .cr-article-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+    .cr-article-category { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; }
+    .cr-article-headline { font-size: 0.88rem; font-weight: 600; color: #4A3728; line-height: 1.4; flex: 1; }
+    .cr-article-excerpt { font-size: 0.78rem; color: #A18269; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .cr-article-meta { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; color: #A18269; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(74, 55, 40, 0.06); }
+    .cr-article-meta svg { width: 12px; height: 12px; opacity: 0.6; }
+    .cr-articles-empty { text-align: center; padding: 2rem; color: #A18269; font-size: 0.9rem; font-style: italic; }
 
-    /* ── Trait list ── */
-    .cr-trait-list {
-        list-style: none;
-        padding: 0;
-    }
-    .cr-trait-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(96, 63, 38, 0.06);
-        font-size: 0.88rem;
-        color: #603F26;
-        line-height: 1.5;
-    }
-    .cr-trait-item:last-child { border-bottom: none; }
-    .cr-trait-bullet {
-        width: 7px; height: 7px;
-        border-radius: 50%;
-        background: #C4934A;
-        flex-shrink: 0;
-        margin-top: 0.4rem;
-    }
+    /* ─ Panel Alt Product ─ */
+    .cr-alt-detail-panel { display: none; background: rgba(250, 243, 232, 0.7); border: 1px solid rgba(196, 149, 106, 0.2); border-radius: 14px; padding: 1rem 1.2rem; gap: 0.8rem; align-items: flex-start; animation: fadeIn 0.2s ease; }
+    .cr-alt-detail-panel.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .cr-alt-detail-img { width: 60px; height: 60px; background: #FFFDF8; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(196, 149, 106, 0.2); }
+    .cr-alt-detail-img img { width: 100%; height: 100%; object-fit: contain; padding: 0.3rem; }
+    .cr-alt-detail-info { flex: 1; min-width: 0; }
+    .cr-alt-detail-brand { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; }
+    .cr-alt-detail-name { font-size: 0.82rem; font-weight: 600; color: #4A3728; line-height: 1.3; margin: 0.2rem 0; }
+    .cr-alt-detail-cat { font-size: 0.75rem; color: #A18269; }
+    .cr-alt-detail-match { font-size: 0.72rem; font-weight: 700; color: white; background: #2E7D32; padding: 0.2rem 0.5rem; border-radius: 8px; display: inline-block; margin-top: 0.3rem; }
+    .cr-alt-detail-desc { font-size: 0.75rem; color: #603F38; line-height: 1.5; margin-top: 0.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .cr-alt-detail-link { font-size: 0.75rem; font-weight: 600; color: #C4956A; text-decoration: none; margin-top: 0.4rem; display: inline-flex; align-items: center; gap: 0.3rem; }
+    .cr-alt-detail-link:hover { color: #4A3728; }
 
-    /* ── Preferences badges ── */
-    .cr-pref-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
+    @media (max-width: 768px) {
+        .cr-showcase-section { grid-template-columns: 1fr; padding: 1.5rem; gap: 1.5rem; }
+        .cr-gallery-main { height: 240px; }
+        .cr-btn-group { flex-direction: row; }
+        .cr-ingredients-section, .cr-articles-section { padding: 1.8rem 1.2rem; }
+        .cr-articles-grid { grid-template-columns: 1fr 1fr; }
     }
-    .cr-pref-tag {
-        background: rgba(96, 63, 38, 0.08);
-        border: 1px solid rgba(96, 63, 38, 0.14);
-        border-radius: 999px;
-        padding: 0.35rem 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #6C4E31;
-    }
-
-    /* ── Skin Story ── */
-    .cr-story-text {
-        background: rgba(96, 63, 38, 0.04);
-        border-left: 3px solid #FFDBB5;
-        border-radius: 0 12px 12px 0;
-        padding: 1.25rem 1.5rem;
-        font-size: 0.9rem;
-        color: rgba(96, 63, 38, 0.75);
-        line-height: 1.8;
-        font-style: italic;
-    }
-
-    /* ── Recommended Products ── */
-    .cr-rec-section {
-        margin-top: 2rem;
-    }
-
-    .cr-rec-header {
-        display: flex;
-        align-items: baseline;
-        gap: 1rem;
-        margin-bottom: 1.75rem;
-        padding-top: 1rem;
-        border-top: 1.5px solid rgba(108, 78, 49, 0.1);
-    }
-
-    .cr-rec-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.65rem;
-        font-weight: 700;
-        color: #603F26;
-    }
-
-    .cr-rec-sub {
-        font-size: 0.8rem;
-        color: rgba(96, 63, 38, 0.45);
-    }
-
-    .cr-rec-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 2.5rem;
-    }
-    @media (max-width: 960px) { .cr-rec-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 480px) { .cr-rec-grid { grid-template-columns: 1fr; } }
-
-    /* ── Product Slider Styles ── */
-    .cr-rec-slider-wrapper {
-        position: relative;
-        margin-bottom: 2.5rem;
-    }
-
-    .cr-rec-slider {
-        display: flex;
-        gap: 1.25rem;
-        overflow-x: auto;
-        scroll-behavior: smooth;
-        scroll-snap-type: x mandatory;
-        padding: 0.5rem 0;
-    }
-
-    .cr-rec-slider::-webkit-scrollbar {
-        height: 6px;
-    }
-
-    .cr-rec-slider::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .cr-rec-slider::-webkit-scrollbar-thumb {
-        background: rgba(96, 63, 38, 0.2);
-        border-radius: 3px;
-    }
-
-    .cr-rec-slider::-webkit-scrollbar-thumb:hover {
-        background: rgba(96, 63, 38, 0.4);
-    }
-
-    .cr-rec-slider-item {
-        flex: 0 0 calc(25% - 0.9375rem);
-        scroll-snap-align: start;
-        min-width: 0;
-    }
-
-    @media (max-width: 960px) {
-        .cr-rec-slider-item {
-            flex: 0 0 calc(50% - 0.625rem);
-        }
-    }
-
     @media (max-width: 480px) {
-        .cr-rec-slider-item {
-            flex: 0 0 calc(100% - 0rem);
-        }
-    }
-
-    /* ── Slider Navigation Buttons ── */
-    .cr-slider-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 40px;
-        height: 40px;
-        border: none;
-        border-radius: 50%;
-        background: rgba(96, 63, 38, 0.15);
-        color: #603F26;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        z-index: 10;
-        opacity: 0;
-    }
-
-    .cr-slider-nav:hover {
-        background: rgba(96, 63, 38, 0.3);
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .cr-slider-nav:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-    }
-
-    .cr-rec-slider-wrapper:hover .cr-slider-nav {
-        opacity: 1;
-    }
-
-    .cr-slider-nav-prev {
-        left: -50px;
-    }
-
-    .cr-slider-nav-next {
-        right: -50px;
-    }
-
-    /* ── Slider Indicators ── */
-    .cr-slider-indicators {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: center;
-        margin-top: 1.25rem;
-        align-items: center;
-        font-size: 0.8rem;
-        color: rgba(96, 63, 38, 0.5);
-    }
-
-    .cr-slider-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(96, 63, 38, 0.2);
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .cr-slider-dot.active {
-        background: #603F26;
-    }
-
-    .cr-rec-card {
-        background: #fff;
-        border-radius: 16px;
-        overflow: hidden;
-        text-decoration: none;
-        border: 1.5px solid rgba(108, 78, 49, 0.08);
-        transition: transform 0.25s, box-shadow 0.25s;
-    }
-    .cr-rec-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 28px rgba(96, 63, 38, 0.13);
-    }
-
-    .cr-rec-thumb {
-        height: 150px;
-        background: linear-gradient(135deg, #f0e2cc, #e0c8a8);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 2.5rem;
-        overflow: hidden; position: relative;
-    }
-    .cr-rec-thumb img {
-        width: 100%; height: 100%; object-fit: contain;
-        padding: 0.75rem;
-    }
-
-    .cr-rec-match-badge {
-        position: absolute;
-        top: 0.6rem; right: 0.6rem;
-        background: #603F26;
-        color: #FFEAC5;
-        font-size: 0.58rem;
-        font-weight: 700;
-        padding: 0.22rem 0.6rem;
-        border-radius: 999px;
-    }
-
-    .cr-rec-body { padding: 1rem 1.1rem 1.25rem; }
-    .cr-rec-cat {
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(96, 63, 38, 0.45);
-        margin-bottom: 0.35rem;
-    }
-    .cr-rec-name {
-        font-family: 'Playfair Display', serif;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #603F26;
-        line-height: 1.35;
-        margin-bottom: 0.4rem;
-    }
-    .cr-rec-price {
-        font-size: 0.88rem;
-        font-weight: 800;
-        color: #603F26;
-    }
-
-    /* ── CTA Buttons ── */
-    .cr-cta-row {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .cr-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.85rem 2rem;
-        border: none;
-        border-radius: 999px;
-        font-size: 0.875rem;
-        font-weight: 700;
-        font-family: 'Poppins', sans-serif;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
-    }
-    .cr-btn-primary {
-        background: #603F26;
-        color: #FFEAC5;
-    }
-    .cr-btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
-
-    .cr-btn-secondary {
-        background: transparent;
-        color: #603F26;
-        border: 1.5px solid rgba(96, 63, 38, 0.3);
-    }
-    .cr-btn-secondary:hover {
-        border-color: #603F26;
-        background: rgba(96, 63, 38, 0.04);
-    }
-
-    @media (max-width: 640px) {
-        .cr-hero { padding: 2rem 1.75rem; }
-        .cr-rec-grid { grid-template-columns: repeat(2, 1fr); }
-        .cr-cta-row { flex-direction: column; }
-        .cr-btn { width: 100%; justify-content: center; }
+        .cr-btn-group { flex-direction: column; }
+        .cr-articles-grid { grid-template-columns: 1fr; }
+        .cr-alt-thumbs-grid { grid-template-columns: repeat(3, 1fr); }
     }
 </style>
 @endpush
 
 @section('content')
+
 <div class="cr-page">
-<div class="cr-inner">
+    <div class="cr-container">
 
-    {{-- Hero ── --}}
-    <div class="cr-hero">
-        <div class="cr-hero-left">
-            <div class="cr-hero-eyebrow">STEP 3 OF 3 — COMPLETE</div>
-            <h1 class="cr-hero-title">✨ Analisis Kulit<br>Anda Selesai</h1>
-            <p class="cr-hero-sub">Berdasarkan cerita kulit Anda, kami telah mengidentifikasi karakteristik utama dan rekomendasi terbaik untuk rutinitas Anda.</p>
+        @php
+            $skinConcern = is_string($consultation->skin_concern ?? '')
+                ? json_decode($consultation->skin_concern, true)
+                : ($consultation->skin_concern ?? []);
+
+            $ingredientResult = is_string($consultation->ingredient_result ?? '')
+                ? json_decode($consultation->ingredient_result, true)
+                : ($consultation->ingredient_result ?? []);
+
+            $queryText = $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
+            $constraints = $ingredientResult['constraints'] ?? [];
+            $products = $ingredientResult['all_products'] ?? [];
+            $ingredients = $ingredientResult['ingredients'] ?? [];
+
+            $heroProduct = !empty($products) ? $products[0] : null;
+            $alternateProducts = array_slice($products, 1);
+
+            $heroIngredients = $heroProduct['key_ingredients'] ?? $heroProduct['ingredients'] ?? [];
+            if (!empty($heroIngredients) && is_array($heroIngredients)) {
+                $heroIngredientNames = array_map(function($ing) {
+                    return is_array($ing) ? ($ing['name'] ?? '') : $ing;
+                }, $heroIngredients);
+                $heroIngredientNames = array_filter($heroIngredientNames);
+            } else {
+                $heroIngredientNames = [];
+            }
+        @endphp
+
+        {{-- ═══ HEADER ═══ --}}
+        <div class="cr-header">
+            <div class="cr-header-eyebrow">✓ Analisis Selesai</div>
+            <h1 class="cr-header-title">Hasil Rekomendasi Skincare</h1>
+            <p class="cr-header-subtitle">Produk & bahan yang cocok untuk kulitmu</p>
+            <p class="cr-header-date">{{ \Carbon\Carbon::parse($consultation->created_at)->format('d M Y, H:i') }} WIB</p>
         </div>
-        <div class="cr-hero-right">
-            <div class="cr-consult-id">Consultation ID</div>
-            <div style="font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:#FFDBB5;">#{{ is_array($consultation) ? ($consultation['id'] ?? '—') : ($consultation->id ?? '—') }}</div>
-            <div style="margin-top: 0.75rem;">
-                @php
-                    $status = is_array($consultation) ? ($consultation['status'] ?? 'pending') : ($consultation->status ?? 'pending');
-                @endphp
-                <span class="cr-status-badge {{ $status === 'completed' ? 'cr-status-processed' : 'cr-status-pending' }}">
-                    {{ ucfirst($status) }}
-                </span>
-            </div>
-        </div>
-    </div>
 
-    {{-- 2-col Layout ── --}}
-    <div class="cr-layout">
+        {{-- ═══ MAIN SHOWCASE ═══ --}}
+        @if($heroProduct)
+        <div class="cr-main-grid">
+            <div class="cr-showcase-section">
 
-        {{-- LEFT: Skin Score + Progress Bars ── --}}
-        <div class="cr-card">
-            <div class="cr-card-title">
-                <div class="cr-card-icon">📊</div>
-                Kondisi Kulit
-            </div>
+                {{-- LEFT: Gallery + Alternatif Thumbnail --}}
+                <div class="cr-gallery-carousel">
+                    <div class="cr-gallery-main" id="mainImage">
+                        @if(!empty($heroProduct['image_url']))
+                            <img src="{{ $heroProduct['image_url'] }}" alt="{{ $heroProduct['product_name'] }}" loading="lazy">
+                        @else
+                            ✨
+                        @endif
+                    </div>
 
-            {{-- Gauge ── --}}
-            <div class="cr-score-section">
-                <div class="cr-gauge-wrap">
-                    <svg class="cr-gauge-svg" viewBox="0 0 160 90">
-                        {{-- Track arc ── --}}
-                        <path d="M 15 80 A 65 65 0 0 1 145 80"
-                              fill="none"
-                              stroke="rgba(96,63,38,0.1)"
-                              stroke-width="10"
-                              stroke-linecap="round"/>
-                        {{-- Fill arc ── (72% = good score) --}}
-                        <path id="gauge-fill"
-                              d="M 15 80 A 65 65 0 0 1 145 80"
-                              fill="none"
-                              stroke="url(#gaugeGrad)"
-                              stroke-width="10"
-                              stroke-linecap="round"
-                              stroke-dasharray="204"
-                              stroke-dashoffset="57"
-                              style="transition: stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)"/>
-                        <defs>
-                            <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stop-color="#6C4E31"/>
-                                <stop offset="100%" stop-color="#C4934A"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-                <div class="cr-gauge-label">
-                    <div class="cr-gauge-number" id="gauge-number">72</div>
-                    <div class="cr-gauge-sublabel">Skin Health Score</div>
-                </div>
-            </div>
-
-            {{-- Metric bars ── --}}
-            <div class="cr-metrics">
-                @php
-                    $metrics = [
-                        'Hidrasi'       => 68,
-                        'Elastisitas'   => 74,
-                        'Kecerahan'     => 55,
-                        'Keseimbangan' => 82,
-                    ];
-                @endphp
-                @foreach($metrics as $label => $val)
-                    <div class="cr-metric-row">
-                        <div class="cr-metric-header">
-                            <span class="cr-metric-label">{{ $label }}</span>
-                            <span class="cr-metric-value">{{ $val }}%</span>
+                    @if(!empty($alternateProducts))
+                    <div>
+                        <div class="cr-alt-thumbs-label">Alternatif Produk</div>
+                        <div class="cr-alt-thumbs-grid">
+                            @foreach($alternateProducts as $i => $prod)
+                            <div
+                                class="cr-alt-thumb-item"
+                                onclick="selectAltProduct(this, {{ $i }})"
+                                data-index="{{ $i }}"
+                            >
+                                <div class="cr-alt-thumb-img">
+                                    @if(!empty($prod['image_url']))
+                                        <img src="{{ $prod['image_url'] }}" alt="{{ $prod['product_name'] }}" loading="lazy">
+                                    @else
+                                        ✨
+                                    @endif
+                                </div>
+                                <div class="cr-alt-thumb-score">{{ round(($prod['similarity_score'] ?? 0.8) * 100) }}%</div>
+                                <div class="cr-alt-thumb-name">{{ $prod['product_name'] }}</div>
+                            </div>
+                            @endforeach
                         </div>
-                        <div class="cr-progress-track">
-                            <div class="cr-progress-fill" data-width="{{ $val }}"></div>
+
+                        <div class="cr-alt-detail-panel" id="altDetailPanel" style="margin-top: 0.8rem;">
+                            <div class="cr-alt-detail-img" id="altDetailImg"></div>
+                            <div class="cr-alt-detail-info">
+                                <div class="cr-alt-detail-brand" id="altDetailBrand"></div>
+                                <div class="cr-alt-detail-name" id="altDetailName"></div>
+                                <div class="cr-alt-detail-cat" id="altDetailCat"></div>
+                                <div class="cr-alt-detail-match" id="altDetailMatch"></div>
+                                <div class="cr-alt-detail-desc" id="altDetailDesc"></div>
+                                <a href="#" class="cr-alt-detail-link" id="altDetailLink" target="_blank">
+                                    Lihat Produk
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                @endforeach
-            </div>
-        </div>
-
-        {{-- RIGHT: Traits, Concerns, Preferences ── --}}
-        <div style="display:flex; flex-direction:column; gap:1.5rem;">
-
-            {{-- Detected Traits ── --}}
-            @php
-                $traits = is_array($consultation) ? ($consultation['detected_traits'] ?? null) : ($consultation->detected_traits ?? null);
-            @endphp
-            @if($traits && count($traits) > 0)
-            <div class="cr-card">
-                <div class="cr-card-title">
-                    <div class="cr-card-icon">🔬</div>
-                    Detected Traits
-                </div>
-                <ul class="cr-trait-list">
-                    @foreach($traits as $trait)
-                        <li class="cr-trait-item">
-                            <div class="cr-trait-bullet"></div>
-                            <span>{{ $trait }}</span>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            {{-- Concerns ── --}}
-            @php
-                $concern_1 = is_array($consultation) ? ($consultation['concern_1'] ?? null) : ($consultation->concern_1 ?? null);
-                $concern_2 = is_array($consultation) ? ($consultation['concern_2'] ?? null) : ($consultation->concern_2 ?? null);
-            @endphp
-            @if($concern_1 || $concern_2)
-            <div class="cr-card">
-                <div class="cr-card-title">
-                    <div class="cr-card-icon">⚠️</div>
-                    Top Concerns
-                </div>
-                <ul class="cr-trait-list">
-                    @if($concern_1)
-                        <li class="cr-trait-item">
-                            <div class="cr-trait-bullet"></div>
-                            {{ str_replace('_', ' ', ucfirst($concern_1)) }}
-                        </li>
                     @endif
-                    @if($concern_2)
-                        <li class="cr-trait-item">
-                            <div class="cr-trait-bullet"></div>
-                            {{ str_replace('_', ' ', ucfirst($concern_2)) }}
-                        </li>
+                </div>
+
+                {{-- CENTER: Product Info --}}
+                <div class="cr-product-info">
+                    <div>
+                        <div class="cr-p-brand">{{ $heroProduct['brand'] ?? 'Premium Brand' }}</div>
+                        <h2 class="cr-p-title">{{ $heroProduct['product_name'] }}</h2>
+                        <p class="cr-p-subtitle">{{ $heroProduct['category'] ?? 'Skincare' }}</p>
+                    </div>
+
+                    <div class="cr-match-badge">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                        {{ round(($heroProduct['similarity_score'] ?? 0.95) * 100) }}% Match
+                    </div>
+
+                    {{-- AREA DESKRIPSI --}}
+                    <div class="cr-p-desc-wrapper">
+                        <div class="cr-p-desc-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            Deskripsi Produk
+                        </div>
+                        <p class="cr-expandable-text" id="mainDescText">{{ $heroProduct['description'] ?? 'Produk berkualitas premium yang dirancang khusus untuk kebutuhan kulitmu.' }}</p>
+                        @if(strlen($heroProduct['description'] ?? '') > 120)
+                            <button class="cr-text-toggle-btn" onclick="toggleTextExpand(this, 'mainDescText')">Lihat selengkapnya ▾</button>
+                        @endif
+                    </div>
+
+                    {{-- AREA KOMPOSISI LENGKAP --}}
+                    @if(!empty($heroProduct['ingredients']))
+                    <div class="cr-p-full-ingredients-wrapper">
+                        <div class="cr-p-desc-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                            </svg>
+                            Komposisi Lengkap
+                        </div>
+                        <p class="cr-p-full-ingredients-text" id="mainIngText">{{ $heroProduct['ingredients'] }}</p>
+                        @if(strlen($heroProduct['ingredients']) > 150)
+                            <button class="cr-text-toggle-btn" onclick="toggleTextExpand(this, 'mainIngText')">Lihat selengkapnya ▾</button>
+                        @endif
+                    </div>
                     @endif
-                </ul>
-            </div>
-            @endif
 
-            {{-- Preferences ── --}}
-            @php
-                $preferences = is_array($consultation) ? ($consultation['preferences'] ?? null) : ($consultation->preferences ?? null);
-            @endphp
-            @if($preferences && count($preferences) > 0)
-            <div class="cr-card">
-                <div class="cr-card-title">
-                    <div class="cr-card-icon">✓</div>
-                    Your Preferences
+                    {{-- Key Ingredients --}}
+                    @if(!empty($heroIngredientNames))
+                    <div class="cr-p-ingredients-wrapper">
+                        <div class="cr-p-ingredients-label">
+                            🧪 Key Ingredients
+                        </div>
+                        <div class="cr-p-ingredient-tags">
+                            @foreach($heroIngredientNames as $idx => $ingName)
+                                <span class="cr-p-ingredient-tag {{ $idx < 2 ? 'hero' : '' }}">{{ $ingName }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
-                <div class="cr-pref-tags">
-                    @foreach($preferences as $pref)
-                        <span class="cr-pref-tag">{{ str_replace('_', ' ', ucfirst($pref)) }}</span>
-                    @endforeach
-                </div>
-            </div>
-            @endif
 
-        </div>
-    </div>
+                {{-- RIGHT: Sidebar (MODIFIKASI URUTAN BARU) --}}
+                <div class="cr-right-sidebar">
+                    
+                    {{-- 1. Kotak Alasan Rekomendasi di Paling Atas --}}
+                    @php
+                        $reasonMeta = $heroProduct['reasoning_meta'] ?? null;
+                        $reasonText = '';
+                        if ($reasonMeta) {
+                            $kategoriText = implode(', ', $reasonMeta['matched_categories'] ?? ['Produk']);
+                            $kandunganText = implode(', ', $reasonMeta['matched_ingredients'] ?? []);
+                            if (($reasonMeta['reason_code'] ?? '') === 'MATCHED_INGREDIENTS') {
+                                $reasonText = "Sesuai dengan pencarianmu untuk tipe {$kategoriText}, dan mengandung {$kandunganText} yang relevan dengan kebutuhan kulitmu.";
+                            } else {
+                                $reasonText = "Sebagai {$kategoriText}, produk ini memiliki kecocokan tinggi dengan keseluruhan kata kunci pencarianmu.";
+                            }
+                        }
+                    @endphp
 
-    {{-- Skin Story ── --}}
-    <div class="cr-card" style="margin-bottom: 1.75rem;">
-        <div class="cr-card-title">
-            <div class="cr-card-icon">📝</div>
-            Your Skin Story
-        </div>
-        <div class="cr-story-text">
-            @php
-                $skin_story = is_array($consultation) ? ($consultation['skin_story'] ?? '—') : ($consultation->skin_story ?? '—');
-            @endphp
-            "{{ $skin_story }}"
-        </div>
-    </div>
+                    @if($reasonText)
+                    <div class="cr-reason-banner">
+                        <div class="cr-reason-icon">💡</div>
+                        <div>
+                            <div class="cr-reason-title-small">Mengapa Produk Ini?</div>
+                            <div class="cr-reason-text">{{ $reasonText }}</div>
+                        </div>
+                    </div>
+                    @endif
 
-    {{-- Recommended Products ── --}}
-    @if(isset($recommendedProducts) && $recommendedProducts->count() > 0)
-    <div class="cr-rec-section">
-        <div class="cr-rec-header">
-            <h2 class="cr-rec-title">Produk Rekomendasi</h2>
-            <span class="cr-rec-sub">Disesuaikan dengan kondisi kulit Anda (Max 5 produk)</span>
-        </div>
+                    {{-- 2. Kotak Diagnosis Sekarang di Tengah di bawah Alasan --}}
+                    <div class="cr-diagnosis-card">
+                        <h3 class="cr-diagnosis-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;">
+                                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                                <rect x="9" y="3" width="6" height="4" rx="2"/>
+                                <line x1="9" y1="12" x2="15" y2="12"/>
+                                <line x1="9" y1="16" x2="12" y2="16"/>
+                            </svg>
+                            Ringkasan Diagnosis
+                        </h3>
 
-        <div class="cr-rec-slider-wrapper" id="productSliderWrapper">
-            <div class="cr-rec-slider" id="productSlider">
-                @foreach($recommendedProducts->take(5) as $i => $prod)
-                    <div class="cr-rec-slider-item">
-                        <a href="{{ route('catalog.show', $prod->slug) }}" class="cr-rec-card">
-                            <div class="cr-rec-thumb">
-                                @if($prod->image)
-                                    <img src="{{ Storage::url($prod->image) }}" alt="{{ $prod->name }}">
-                                @else
-                                    💧
-                                @endif
-                                <div class="cr-rec-match-badge">{{ 95 - $i * 5 }}% match</div>
+                        <div class="cr-diagnosis-block">
+                            <div class="cr-diagnosis-label">Keluhan</div>
+                            <div class="cr-diagnosis-value" id="diagQueryText">"{{ $queryText }}"</div>
+                            @if(strlen($queryText) > 80)
+                            <button class="cr-diag-query-expand" onclick="toggleQueryExpand(this)">Lihat selengkapnya ▾</button>
+                            @endif
+                        </div>
+
+                        @if(!empty($skinConcern))
+                        <div class="cr-diagnosis-block">
+                            <div class="cr-diagnosis-label">Kondisi Kulit</div>
+                            <div class="cr-tag-group">
+                                @foreach($skinConcern as $concern)
+                                    <span class="cr-tag">{{ ucwords($concern) }}</span>
+                                @endforeach
                             </div>
-                            <div class="cr-rec-body">
-                                <div class="cr-rec-cat">{{ $prod->category ?? 'Product' }}</div>
-                                <div class="cr-rec-name">{{ $prod->name }}</div>
-                                <div class="cr-rec-price">Rp{{ number_format($prod->price, 0, ',', '.') }}</div>
+                        </div>
+                        @endif
+
+                        @if(!empty($constraints))
+                        <div class="cr-diagnosis-block">
+                            <div class="cr-diagnosis-label">Prioritas Bahan</div>
+                            <div class="cr-tag-group">
+                                @foreach($constraints as $constraint)
+                                    <span class="cr-tag danger">{{ ucwords($constraint) }}</span>
+                                @endforeach
                             </div>
+                        </div>
+                        @else
+                        <div class="cr-diagnosis-block">
+                            <div class="cr-diagnosis-label">Prioritas Bahan</div>
+                            <span class="cr-tag empty-state">✓ Bebas Prioritas Bahan</span>
+                        </div>
+                        @endif
+
+                        <div class="cr-diagnosis-block">
+                            <div class="cr-diagnosis-label">Hasil Analisis</div>
+                            <div style="display:flex;align-items:center;gap:0.4rem;">
+                                <span style="font-size:1.3rem;font-weight:800;color:#4A3728;">{{ count($products) }}</span>
+                                <span style="font-size:0.8rem;color:#A18269;">produk ditemukan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 3. Tombol Aksi Tetap Berada di Paling Bawah Sidebar Kanan --}}
+                    <div class="cr-btn-group">
+                        @if(!empty($heroProduct['link_produk']))
+                            <a href="{{ $heroProduct['link_produk'] }}" target="_blank" class="cr-btn">
+                                Lihat Produk
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                                </svg>
+                            </a>
+                        @endif
+                        <a href="{{ route('consultation.index') }}" class="cr-btn cr-btn-secondary">
+                            Mulai Baru
                         </a>
                     </div>
+                    
+                </div> </div>
+        </div>
+        @else
+        {{-- EMPTY STATE --}}
+        <div style="background: white; border-radius: 32px; padding: 4rem; text-align: center; border: 1px solid rgba(74, 55, 40, 0.08); margin-bottom: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+            <h2 style="font-family: 'Playfair Display', serif; color: #4A3728; margin-bottom: 0.5rem;">Tidak Ada Rekomendasi</h2>
+            <p style="color: #A18269; font-size: 1rem; max-width: 500px; margin: 0 auto;">
+                Data rekomendasi produk tidak tersedia untuk kueri spesifik ini. Cobalah menggunakan kata kunci atau keluhan kulit yang lebih umum.
+            </p>
+        </div>
+        @endif
+
+        {{-- ═══ KOMPOSISI BAHAN GLOBAL ═══ --}}
+        @if(!empty($ingredients) && count($ingredients) > 0)
+        <div class="cr-ingredients-section">
+            <h2 class="cr-ingredients-title">🧪 Komposisi Bahan Utama</h2>
+            <div class="cr-carousel-container">
+                @foreach($ingredients as $ingredient)
+                    <div class="cr-ingredient-card">
+                        <div class="cr-ingredient-emoji">{{ $ingredient['icon'] ?? '✨' }}</div>
+                        <h4 class="cr-ingredient-name">{{ $ingredient['name'] ?? 'Ingredient' }}</h4>
+                        <div class="cr-ingredient-label">{{ $ingredient['type'] ?? 'Active' }}</div>
+                        <p class="cr-ingredient-desc">{{ $ingredient['description'] ?? 'Bahan alami dengan manfaat maksimal untuk kulit.' }}</p>
+                    </div>
                 @endforeach
             </div>
-            <button class="cr-slider-nav cr-slider-nav-prev" id="sliderPrev" aria-label="Previous products">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </button>
-            <button class="cr-slider-nav cr-slider-nav-next" id="sliderNext" aria-label="Next products">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                </svg>
-            </button>
-        </div>
-
-        {{-- Slider Indicators ── --}}
-        @php $productCount = min($recommendedProducts->count(), 5); @endphp
-        @if($productCount > 1)
-        <div class="cr-slider-indicators" id="sliderIndicators">
-            <span id="sliderCount">1</span> / <span id="totalCount">{{ $productCount }}</span>
-            <div class="cr-slider-dots" id="sliderDots" style="display: flex; gap: 0.5rem; margin-left: 1rem;">
-                @for($i = 0; $i < $productCount; $i++)
-                    <div class="cr-slider-dot {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}"></div>
-                @endfor
-            </div>
-        </div>
-        @endif
-    </div>
-    @endif
-
-    {{-- CTA Buttons ── --}}
-    <div class="cr-cta-row">
-        <a href="{{ route('catalog.index') }}" class="cr-btn cr-btn-primary">
-            Explore Products
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-        </a>
-        <a href="{{ route('skin-guide.index') }}" class="cr-btn cr-btn-secondary">Read Skin Guide</a>
-        <a href="{{ route('consultation.index') }}" class="cr-btn cr-btn-secondary">New Consultation</a>
-    </div>
-
-    {{-- Feedback Form Section ── --}}
-    @auth
-    @php
-        $consultationId = is_array($consultation) ? ($consultation['id'] ?? null) : ($consultation->id ?? null);
-    @endphp
-    @if($consultationId)
-    <div style="background: #fff; border-radius: 20px; padding: 2rem; border: 1.5px solid rgba(108, 78, 49, 0.08); margin-top: 2.5rem;">
-        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: #603F26; margin-bottom: 0.5rem;">
-            📝 How Accurate Was Your Diagnosis?
-        </h3>
-        <p style="font-size: 0.85rem; color: rgba(96, 63, 38, 0.6); margin-bottom: 1.5rem; line-height: 1.6;">
-            Your feedback helps us improve our consultation process. Tell us how accurate the diagnosis was and whether the product recommendations suit your needs.
-        </p>
-
-        {{-- Success Message ── --}}
-        @if(session('feedback_success'))
-        <div style="background: rgba(29, 158, 117, 0.15); border: 1px solid rgba(29, 158, 117, 0.35); border-radius: 12px; padding: 12px 18px; margin-bottom: 1.5rem; font-size: 0.82rem; color: #5DCAA5; text-align: center;">
-            ✓ &nbsp;{{ session('feedback_success') }}
         </div>
         @endif
 
-        {{-- Form ── --}}
-        <form action="{{ route('consultation.feedback.store') }}" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
-            @csrf
+        {{-- ═══ ARTIKEL TERKAIT ═══ --}}
+        @php
+            $relatedArticles = $ingredientResult['related_articles'] ?? [];
+            $heroCategory = $heroProduct['category'] ?? 'Skincare';
+            $heroConcerns = !empty($skinConcern) ? implode(', ', array_slice($skinConcern, 0, 2)) : 'Perawatan Kulit';
+        @endphp
+        <div class="cr-articles-section">
+            <h2 class="cr-articles-title">📖 Artikel Terkait</h2>
 
-            {{-- Textarea ── --}}
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(96, 63, 38, 0.6);">
-                    Your Feedback
-                </label>
-                <textarea
-                    name="text"
-                    placeholder="How accurate was your skin diagnosis? Did the product recommendations suit your skin concern?"
-                    style="background: rgba(96, 63, 38, 0.03); border: 1.5px solid rgba(96, 63, 38, 0.12); border-radius: 12px; padding: 12px 16px; font-size: 0.875rem; color: #603F26; resize: vertical; min-height: 100px; font-family: inherit; outline: none;"
-                    required
-                    @error('text') aria-invalid="true" @enderror
-                >{{ old('text') }}</textarea>
-                @error('text')
-                <span style="font-size: 0.72rem; color: #E24B4A;">{{ $message }}</span>
-                @enderror
-            </div>
-
-            {{-- Hidden consultation_id ── --}}
-            <input type="hidden" name="consultation_id" value="{{ $consultationId }}">
-
-            {{-- Rating ── --}}
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(96, 63, 38, 0.6);">
-                    Overall Rating
-                </label>
-                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                    <div style="display: flex; gap: 8px;" id="consultRatingStars" role="group">
-                        @for($i = 1; $i <= 5; $i++)
-                        <button type="button"
-                                class="rating-star"
-                                data-value="{{ $i }}"
-                                style="font-size: 1.6rem; cursor: pointer; color: rgba(96, 63, 38, 0.2); border: none; background: none; padding: 0; transition: color 0.15s, transform 0.15s; line-height: 1;"
-                                aria-label="{{ $i }} star{{ $i > 1 ? 's' : '' }}">★</button>
-                        @endfor
-                    </div>
-                    <span id="consultRatingLabel" style="font-size: 0.75rem; color: rgba(96, 63, 38, 0.35); font-style: italic; transition: color 0.2s;">
-                        Tap a star to rate
-                    </span>
+            @if(!empty($relatedArticles))
+                <div class="cr-articles-grid">
+                    @foreach($relatedArticles as $article)
+                    <a
+                        href="{{ $article['url'] ?? '#' }}"
+                        class="cr-article-card"
+                        target="{{ !empty($article['url']) ? '_blank' : '_self' }}"
+                    >
+                        <div class="cr-article-cover">
+                            @if(!empty($article['cover_image']))
+                                <img src="{{ $article['cover_image'] }}" alt="{{ $article['title'] }}" loading="lazy">
+                            @else
+                                {{ $article['icon'] ?? '📝' }}
+                            @endif
+                            @if(!empty($article['tag']))
+                                <div class="cr-article-tag">{{ $article['tag'] }}</div>
+                            @endif
+                        </div>
+                        <div class="cr-article-body">
+                            <div class="cr-article-category">{{ $article['category'] ?? 'Skincare Tips' }}</div>
+                            <div class="cr-article-headline">{{ $article['title'] }}</div>
+                            @if(!empty($article['excerpt']))
+                                <div class="cr-article-excerpt">{{ $article['excerpt'] }}</div>
+                            @endif
+                            <div class="cr-article-meta">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ $article['published_at'] ?? 'Artikel Terpilih' }}
+                                @if(!empty($article['read_time']))
+                                    &nbsp;·&nbsp; {{ $article['read_time'] }} baca
+                                @endif
+                            </div>
+                        </div>
+                    </a>
+                    @endforeach
                 </div>
-                <input type="hidden" name="rating" id="consultRatingValue" value="{{ old('rating') }}">
-                @error('rating')
-                <span style="font-size: 0.72rem; color: #E24B4A; margin-top: 2px;">{{ $message }}</span>
-                @enderror
-            </div>
-
-            {{-- Submit ── --}}
-            <button type="submit"
-                    style="width: 100%; padding: 12px; border-radius: 999px; border: 1.5px solid rgba(96, 63, 38, 0.2); background: #603F26; color: #FFEAC5; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.22s, border-color 0.22s;">
-                Submit Feedback
-            </button>
-        </form>
+            @else
+                <div class="cr-articles-empty">
+                    <p>Artikel terkait <strong>{{ $heroCategory }}</strong> dan <strong>{{ $heroConcerns }}</strong> belum tersedia.<br>
+                    Tim kami sedang menyiapkan konten yang relevan untuk kulitmu.</p>
+                </div>
+            @endif
+        </div>
     </div>
-    @endif
-    @else
-    <div style="background: rgba(255, 219, 181, 0.08); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem;">
-        <p style="font-size: 0.9rem; color: #603F26; margin-bottom: 1rem;">
-            📝 Want to provide feedback on this consultation?
-        </p>
-        <a href="{{ route('login') }}" style="display: inline-block; padding: 10px 28px; background: #603F26; color: #FFEAC5; border-radius: 999px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">
-            Login to Share Feedback
-        </a>
-    </div>
-    @endauth
+</div>
 
-</div>
-</div>
+<script>
+    const altProductsData = @json($alternateProducts);
+</script>
+
 @endsection
 
 @push('scripts')
 <script>
-    // ═══════════════════════════════════════════════════════
-    // GAUGE ANIMATION
-    // ═══════════════════════════════════════════════════════
-    document.addEventListener('DOMContentLoaded', function() {
-        const gaugeFill = document.getElementById('gauge-fill');
-        const gaugeNumber = document.getElementById('gauge-number');
-        if (gaugeFill && gaugeNumber) {
-            setTimeout(() => {
-                gaugeFill.style.strokeDashoffset = '57';
-                gaugeNumber.textContent = '72';
-            }, 100);
+    function selectAltProduct(el, index) {
+        document.querySelectorAll('.cr-alt-thumb-item').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+
+        const prod = altProductsData[index];
+        if (!prod) return;
+
+        const panel = document.getElementById('altDetailPanel');
+        const matchScore = Math.round((prod.similarity_score ?? 0.8) * 100);
+
+        const imgEl = document.getElementById('altDetailImg');
+        if (prod.image_url) {
+            imgEl.innerHTML = `<img src="${prod.image_url}" alt="${prod.product_name}" loading="lazy" style="width:100%;height:100%;object-fit:contain;padding:0.3rem;">`;
+        } else {
+            imgEl.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">✨</div>`;
         }
 
-        // Progress bars animation
-        const progressFills = document.querySelectorAll('.cr-progress-fill');
-        progressFills.forEach((bar) => {
-            const width = bar.getAttribute('data-width') || '0';
-            setTimeout(() => {
-                bar.style.width = width + '%';
-            }, 100);
-        });
-    });
+        document.getElementById('altDetailBrand').textContent = prod.brand ?? 'Brand';
+        document.getElementById('altDetailName').textContent = prod.product_name ?? '';
+        document.getElementById('altDetailCat').textContent = prod.category ?? 'Skincare';
+        document.getElementById('altDetailMatch').textContent = `${matchScore}% Match`;
+        document.getElementById('altDetailDesc').textContent = prod.description ?? '';
 
-    // ═══════════════════════════════════════════════════════
-    // PRODUCT SLIDER FUNCTIONALITY
-    // ═══════════════════════════════════════════════════════
-    document.addEventListener('DOMContentLoaded', function() {
-        const slider = document.getElementById('productSlider');
-        const prevBtn = document.getElementById('sliderPrev');
-        const nextBtn = document.getElementById('sliderNext');
-        const sliderDots = document.querySelectorAll('#sliderDots .cr-slider-dot');
-        const sliderCount = document.getElementById('sliderCount');
-
-        if (!slider) return;
-
-        const itemWidth = slider.querySelector('.cr-rec-slider-item')?.offsetWidth || 0;
-        const gap = 20; // gap value from CSS
-        const scrollAmount = itemWidth + gap;
-        const totalItems = slider.querySelectorAll('.cr-rec-slider-item').length;
-
-        // Function to check scroll position and update button states
-        function updateButtonStates() {
-            const maxScroll = slider.scrollWidth - slider.clientWidth;
-            const isAtStart = slider.scrollLeft < 10;
-            const isAtEnd = slider.scrollLeft >= maxScroll - 10;
-
-            prevBtn.disabled = isAtStart;
-            nextBtn.disabled = isAtEnd;
-
-            // Update current item counter and dots
-            const currentIndex = Math.round(slider.scrollLeft / scrollAmount);
-            if (sliderCount) {
-                sliderCount.textContent = Math.min(currentIndex + 1, totalItems);
-            }
-            sliderDots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
-            });
+        const linkEl = document.getElementById('altDetailLink');
+        if (prod.link_produk) {
+            linkEl.href = prod.link_produk;
+            linkEl.style.display = 'inline-flex';
+        } else {
+            linkEl.style.display = 'none';
         }
 
-        // Event listeners
-        prevBtn.addEventListener('click', () => {
-            slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-            setTimeout(updateButtonStates, 300);
-        });
+        panel.classList.add('show');
+    }
 
-        nextBtn.addEventListener('click', () => {
-            slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-            setTimeout(updateButtonStates, 300);
-        });
-
-        slider.addEventListener('scroll', updateButtonStates);
-
-        // Dot navigation
-        sliderDots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                slider.scrollTo({
-                    left: index * scrollAmount,
-                    behavior: 'smooth'
-                });
-                setTimeout(updateButtonStates, 300);
-            });
-        });
-
-        // Initial state
-        updateButtonStates();
-
-        // Update on window resize
-        window.addEventListener('resize', updateButtonStates);
-    });
-
-    // ═══════════════════════════════════════════════════════
-    // STAR RATING - CONSULTATION FEEDBACK
-    // ═══════════════════════════════════════════════════════
-    const consultStars = document.querySelectorAll('#consultRatingStars .rating-star');
-    const consultHidden = document.getElementById('consultRatingValue');
-    const consultLabel = document.getElementById('consultRatingLabel');
-    const labels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
-    let consultSelected = 0;
-
-    if (consultStars.length > 0) {
-        consultStars.forEach(btn => {
-            btn.addEventListener('mouseenter', () => consultHighlight(+btn.dataset.value));
-            btn.addEventListener('mouseleave', () => consultHighlight(consultSelected));
-            btn.addEventListener('click', () => {
-                consultSelected = +btn.dataset.value;
-                consultHidden.value = consultSelected;
-                consultHighlight(consultSelected);
-                consultLabel.textContent = labels[consultSelected];
-                consultLabel.style.color = 'rgba(96, 63, 38, 0.65)';
-            });
-        });
-
-        function consultHighlight(n) {
-            consultStars.forEach(b => {
-                if (+b.dataset.value <= n) {
-                    b.style.color = '#f5c842';
-                    b.classList.add('active');
-                } else {
-                    b.style.color = 'rgba(96, 63, 38, 0.2)';
-                    b.classList.remove('active');
-                }
-            });
+    function toggleTextExpand(btn, targetId) {
+        const el = document.getElementById(targetId);
+        if (el.classList.contains('expanded')) {
+            el.classList.remove('expanded');
+            btn.textContent = 'Lihat selengkapnya ▾';
+        } else {
+            el.classList.add('expanded');
+            btn.textContent = 'Sembunyikan ▴';
         }
     }
+
+    function toggleQueryExpand(btn) {
+        const el = document.getElementById('diagQueryText');
+        if (el.style.webkitLineClamp === 'unset' || el.style.overflow === 'visible') {
+            el.style.webkitLineClamp = '3';
+            el.style.overflow = 'hidden';
+            btn.textContent = 'Lihat selengkapnya ▾';
+        } else {
+            el.style.webkitLineClamp = 'unset';
+            el.style.overflow = 'visible';
+            btn.textContent = 'Sembunyikan ▴';
+        }
+    }
+
+    document.querySelectorAll('.cr-carousel-container').forEach(carousel => {
+        let isDown = false, startX, scrollLeft;
+        carousel.addEventListener('mousedown', e => { isDown = true; startX = e.pageX - carousel.offsetLeft; scrollLeft = carousel.scrollLeft; });
+        carousel.addEventListener('mouseleave', () => isDown = false);
+        carousel.addEventListener('mouseup', () => isDown = false);
+        carousel.addEventListener('mousemove', e => {
+            if (!isDown) return;
+            e.preventDefault();
+            carousel.scrollLeft = scrollLeft - (e.pageX - carousel.offsetLeft - startX);
+        });
+    });
 </script>
 @endpush
