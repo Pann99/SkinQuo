@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beauty Consult AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF3E8;
+      --sand: #F0E4CC;
+      --warm-brown: #4A3728;
+      --mid-brown: #7C5C47;
+      --light-brown: #B89880;
+      --accent: #C4956A;
+      --accent-dark: #8B6245;
+      --white: #FFFDF8;
+      --text: #2E1F14;
+      --text-muted: #7C6355;
+      --border: rgba(74, 55, 40, 0.12);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ========================
+       SCREENS
+    ======================== */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+    }
+    .screen.exit-up {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-30px);
+    }
+
+    /* ========================
+       SCREEN 1: LANDING
+    ======================== */
+    #screen-landing {
+      background: var(--cream);
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .landing-eyebrow {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .landing-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--warm-brown);
+      margin-bottom: 20px;
+    }
+    .landing-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 300;
+      max-width: 500px;
+      line-height: 1.7;
+      margin: 0 auto 48px;
+    }
+    .input-card {
+      background: var(--sand);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 720px;
+      padding: 24px 24px 16px;
+      position: relative;
+    }
+    .input-card textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      color: var(--warm-brown);
+      line-height: 1.6;
+      min-height: 80px;
+      font-weight: 400;
+    }
+    .input-card textarea::placeholder {
+      color: var(--light-brown);
+    }
+    .input-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .input-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .input-tag {
+      background: rgba(74,55,40,0.08);
+      color: var(--mid-brown);
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 400;
+    }
+    .input-tag:hover { background: rgba(74,55,40,0.15); }
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--warm-brown);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { background: var(--accent-dark); transform: scale(1.05); }
+    .send-btn svg { color: white; }
+
+    /* ========================
+       SCREEN 2: AI LOADING
+    ======================== */
+    #screen-loading {
+      background: var(--warm-brown);
+      gap: 32px;
+    }
+    .loading-orb {
+      width: 80px;
+      height: 80px;
+      position: relative;
+    }
+    .orb-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--accent);
+      animation: spin 1.2s linear infinite;
+    }
+    .orb-ring:nth-child(2) {
+      inset: 8px;
+      border-top-color: var(--sand);
+      animation-duration: 1.8s;
+      animation-direction: reverse;
+    }
+    .orb-ring:nth-child(3) {
+      inset: 16px;
+      border-top-color: var(--light-brown);
+      animation-duration: 2.4s;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--cream);
+      font-weight: 700;
+    }
+    .loading-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 260px;
+    }
+    .loading-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0.3;
+      transition: opacity 0.5s;
+      font-size: 14px;
+      color: var(--sand);
+    }
+    .loading-step.active { opacity: 1; }
+    .loading-step.done { opacity: 0.6; }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--light-brown);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .loading-step.active .step-dot { background: var(--accent); }
+    .loading-step.done .step-dot { background: #7fc498; }
+
+    /* ========================
+       SCREEN 3: ANALYSIS DASHBOARD — LIVE READ-ONLY
+    ======================== */
+    #screen-analysis {
+      background: rgba(20, 11, 6, 0.72);
+      backdrop-filter: blur(6px);
+    }
+    .analysis-modal {
+      background: #3A2518;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 700px;
+      overflow: hidden;
+      animation: modalIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      border: 1px solid rgba(196,149,106,0.18);
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.88) translateY(16px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    /* Progress bar atas */
+    .analysis-progress {
+      height: 3px;
+      background: rgba(255,255,255,0.07);
+      overflow: hidden;
+    }
+    .analysis-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #e8b48a);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* Header */
+    .modal-header {
+      padding: 22px 28px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-step-label {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--cream);
+      font-weight: 700;
+    }
+    .modal-status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 1.2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .modal-status-dot.done { animation: none; background: #7fc498; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* Body: dua kolom */
+    .modal-body {
+      padding: 22px 28px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .analysis-panel {
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .panel-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 500;
+    }
+    .panel-icon { width: 14px; height: 14px; opacity: 0.85; }
+
+    /* Trait cards */
+    .detected-trait {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      margin-bottom: 7px;
+      border: 1px solid rgba(255,255,255,0.06);
+      opacity: 0;
+      transform: translateX(-12px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .detected-trait.visible { opacity: 1; transform: translateX(0); }
+    .trait-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(196,149,106,0.18);
+      border: 1px solid rgba(196,149,106,0.3);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    .trait-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+    .trait-source {
+      font-size: 11px;
+      color: rgba(240,228,204,0.45);
+      margin-top: 1px;
+    }
+
+    /* Summary panel kanan */
+    .summary-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      opacity: 0;
+      transform: translateX(10px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row.visible { opacity: 1; transform: translateX(0); }
+    .summary-label {
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(240,228,204,0.4);
+      min-width: 80px;
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+    .summary-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .summary-chip {
+      background: rgba(196,149,106,0.15);
+      border: 1px solid rgba(196,149,106,0.25);
+      color: var(--sand);
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 400;
+    }
+    .summary-chip.highlight {
+      background: rgba(196,149,106,0.28);
+      border-color: rgba(196,149,106,0.5);
+      color: var(--cream);
+      font-weight: 500;
+    }
+
+    /* Footer status */
+    .modal-footer-status {
+      padding: 14px 28px 18px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer-status-text {
+      font-size: 13px;
+      color: rgba(240,228,204,0.5);
+      transition: color 0.4s;
+    }
+    .footer-status-text.ready { color: #7fc498; }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ========================
+       SCREEN 4: PRODUCT RESULTS — Editorial Luxury
+    ======================== */
+    #screen-results {
+      background: var(--cream);
+      overflow-y: auto;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0;
+    }
+    .results-inner {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+    }
+
+    /* ── Gallery Strip ───────────────────────────── */
+    .gallery-strip {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 36px 0 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .gallery-strip::-webkit-scrollbar { display: none; }
+    .gallery-thumb {
+      border-radius: 16px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      background: var(--white);
+      border: 1px solid var(--border);
+    }
+    .gallery-thumb:hover { transform: translateY(-6px); box-shadow: 0 14px 32px rgba(74,55,40,0.13); }
+    .gallery-thumb.side {
+      width: 148px;
+      height: 170px;
+      padding: 10px;
+    }
+    .gallery-thumb.center {
+      width: 200px;
+      height: 230px;
+      border-radius: 20px;
+      padding: 14px;
+      background: #FFFCF7;
+    }
+    .gallery-thumb-rank {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--warm-brown);
+      opacity: 0.5;
+    }
+    .gallery-thumb-icon { opacity: 0.22; }
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+    .gallery-thumb:hover img { transform: scale(1.06); }
+    .gallery-thumb-label {
+      position: absolute;
+      bottom: 12px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--warm-brown);
+      opacity: 0;
+      transition: opacity 0.25s;
+      padding: 0 8px;
+      line-height: 1.3;
+    }
+    .gallery-thumb:hover .gallery-thumb-label { opacity: 0.65; }
+    .gallery-thumb.selected { box-shadow: 0 0 0 2.5px var(--accent); }
+
+    /* ── Divider ──────────────────────────────────── */
+    .results-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0 0;
+    }
+
+    /* ── Main Product Layout (2-col) ──────────────── */
+    .product-main {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 48px;
+      padding: 36px 0 0;
+      align-items: start;
+    }
+
+    /* ── LEFT: Product Hero ──────────────────────── */
+    .product-hero { }
+    .hero-img-wrap {
+      width: 100%;
+      height: 280px;
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 1px solid var(--border);
+      padding: 16px;
+    }
+    .hero-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .hero-img-wrap:hover img { transform: scale(1.03); }
+    .hero-img-placeholder {
+      opacity: 0.18;
+    }
+    .comp-card-img {
+      width: 100%;
+      height: 130px;
+      object-fit: contain;
+      border-radius: 10px;
+      display: block;
+      margin-bottom: 10px;
+      background: var(--white);
+      padding: 8px;
+      border: 1px solid rgba(74,55,40,0.07);
+    }
+    .comp-card-img-placeholder {
+      width: 100%;
+      height: 130px;
+      background: var(--sand);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .comp-card-img-placeholder svg { opacity: 0.2; }
+    .product-hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 4.5vw, 52px);
+      font-weight: 900;
+      line-height: 1.0;
+      color: var(--warm-brown);
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+      word-break: break-word;
+    }
+    .product-hero-meta {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+    .product-hero-score {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(74,55,40,0.07);
+      border-radius: 30px;
+      padding: 5px 14px 5px 5px;
+      margin-bottom: 18px;
+    }
+    .hero-score-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--warm-brown);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--cream);
+      flex-shrink: 0;
+    }
+    .hero-score-text {
+      font-size: 11px;
+      color: var(--mid-brown);
+      font-weight: 500;
+    }
+    .product-hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .hero-tag {
+      background: rgba(74,55,40,0.08);
+      color: var(--mid-brown);
+      font-size: 11px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .product-hero-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 20px;
+      font-weight: 300;
+    }
+
+    /* ── Alasan Rekomendasi ────────────────────── */
+    .hero-reasoning {
+      background: linear-gradient(135deg, rgba(196,149,106,0.09), rgba(74,55,40,0.05));
+      border: 1px solid rgba(196,149,106,0.22);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-reasoning::before {
+      content: '"';
+      position: absolute;
+      top: -6px;
+      left: 12px;
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      color: var(--accent);
+      opacity: 0.18;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .hero-reasoning-label {
+      font-size: 9.5px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-reasoning-label svg {
+      opacity: 0.85;
+      flex-shrink: 0;
+    }
+    .hero-reasoning-text {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.75;
+      font-weight: 400;
+      font-style: italic;
+    }
+    .hero-purchase-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 24px;
+      background: var(--warm-brown);
+      color: var(--cream);
+      border-radius: 50px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .hero-purchase-btn:hover { background: var(--accent-dark); transform: translateY(-2px); }
+    .hero-purchase-btn svg { transition: transform 0.2s; }
+    .hero-purchase-btn:hover svg { transform: translate(2px, -2px); }
+
+    /* ── RIGHT: Recommendation Composition ─────────── */
+    .composition-panel { }
+    .composition-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 21px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--warm-brown);
+      margin-bottom: 18px;
+      letter-spacing: -0.3px;
+    }
+    .composition-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .comp-card {
+      background: var(--white);
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+      border: 1px solid var(--border);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      animation: fadeUp 0.5s ease both;
+      cursor: default;
+    }
+    .comp-card:nth-child(2n) { background: var(--sand); }
+    .comp-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(74,55,40,0.09); }
+    .comp-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--warm-brown);
+      margin-bottom: 3px;
+      line-height: 1.25;
+    }
+    .comp-card-sub {
+      font-size: 9.5px;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+      font-weight: 600;
+      margin-bottom: 9px;
+    }
+    .comp-card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .comp-card-score-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+    }
+    .comp-score-bar {
+      flex: 1;
+      height: 3px;
+      background: rgba(74,55,40,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .comp-score-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+    }
+    .comp-score-num {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent-dark);
+      flex-shrink: 0;
+    }
+    .comp-card-link {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      padding: 7px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: 11.5px;
+      color: var(--mid-brown);
+      text-decoration: none;
+      transition: background 0.18s;
+      font-weight: 500;
+    }
+    .comp-card-link:hover { background: rgba(74,55,40,0.06); }
+
+    /* View all placeholder card */
+    .comp-card-viewall {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 130px;
+      text-align: center;
+    }
+    .viewall-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(74,55,40,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .viewall-text {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--mid-brown);
+      font-weight: 600;
+    }
+
+    /* ── Bottom action ────────────────────────────── */
+    .results-bottom {
+      padding: 32px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+      margin-top: 36px;
+    }
+    .new-search-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: transparent;
+      color: var(--mid-brown);
+      border: 1.5px solid rgba(74,55,40,0.2);
+      border-radius: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      font-weight: 500;
+    }
+    .new-search-btn:hover { border-color: var(--light-brown); color: var(--warm-brown); background: rgba(74,55,40,0.04); }
+    .results-query-pill {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 10px 18px;
+      background: rgba(74,55,40,0.05);
+      border-radius: 30px;
+      max-width: 320px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 720px) {
+      .results-inner { padding: 0 18px 60px; }
+      .gallery-strip { gap: 8px; justify-content: flex-start; padding: 24px 0 0; }
+      .gallery-thumb.side  { width: 110px; height: 120px; }
+      .gallery-thumb.center { width: 145px; height: 165px; }
+      .product-main {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 28px 0 0;
+      }
+      .product-hero-name { font-size: 36px; }
+      .composition-grid { grid-template-columns: 1fr; }
+      .results-bottom { flex-direction: column; align-items: center; padding: 24px 0 0; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ========================
+       VALIDATION POPUPS
+    ======================== */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 11, 6, 0.82);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .popup-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .popup-modal {
+      background: #3A2518;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 480px;
+      overflow: hidden;
+      border: 1px solid rgba(196,149,106,0.22);
+      transform: scale(0.88) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .popup-overlay.visible .popup-modal {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Rejection top bar */
+    .popup-topbar {
+      height: 4px;
+      background: linear-gradient(90deg, #c0392b, #e74c3c);
+    }
+    .popup-topbar.warn {
+      background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+    }
+    .popup-topbar.timeout {
+      background: linear-gradient(90deg, #1a1a2e, #6c3483);
+    }
+
+    .popup-body {
+      padding: 28px 28px 24px;
+    }
+    .popup-icon-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .popup-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+    }
+    .popup-icon.reject { background: rgba(192,57,43,0.22); border: 1px solid rgba(192,57,43,0.4); }
+    .popup-icon.timeout-icon { background: rgba(108,52,131,0.25); border: 1px solid rgba(108,52,131,0.5); }
+
+    .popup-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #e74c3c;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .popup-eyebrow.timeout { color: #a569bd; }
+
+    .popup-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--cream);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .popup-reason {
+      background: rgba(0,0,0,0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      border-left: 3px solid #e74c3c;
+    }
+    .popup-reason.timeout { border-left-color: #a569bd; }
+    .popup-reason p {
+      font-size: 14px;
+      color: rgba(240,228,204,0.85);
+      line-height: 1.6;
+    }
+
+    .popup-counter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .counter-label {
+      font-size: 12px;
+      color: rgba(240,228,204,0.4);
+      letter-spacing: 0.5px;
+    }
+    .counter-pips {
+      display: flex;
+      gap: 5px;
+    }
+    .counter-pip {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: background 0.3s;
+    }
+    .counter-pip.filled { background: #e74c3c; border-color: #c0392b; }
+    .counter-pip.filled.last { background: #c0392b; box-shadow: 0 0 6px rgba(192,57,43,0.6); }
+
+    .popup-footer {
+      padding: 0 28px 24px;
+      display: flex;
+      gap: 10px;
+    }
+    .popup-btn {
+      flex: 1;
+      padding: 13px 20px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .popup-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .popup-btn.primary {
+      background: var(--warm-brown);
+      color: var(--cream);
+    }
+    .popup-btn.secondary {
+      background: rgba(255,255,255,0.07);
+      color: rgba(240,228,204,0.65);
+    }
+    .popup-btn.timeout-btn {
+      background: linear-gradient(135deg, #2c1654, #6c3483);
+      color: #d7bde2;
+    }
+
+    /* Timeout countdown */
+    .timeout-countdown {
+      text-align: center;
+      padding: 20px 0 4px;
+    }
+    .countdown-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 900;
+      color: #a569bd;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .countdown-unit {
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(240,228,204,0.35);
+      margin-top: 4px;
+    }
+    .timeout-info {
+      font-size: 13px;
+      color: rgba(240,228,204,0.5);
+      text-align: center;
+      line-height: 1.6;
+      padding: 12px 0 0;
+    }
+    .input-blocked {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== SCREEN 1: LANDING ===== -->
+  <div class="screen" id="screen-landing">
+    <p class="landing-eyebrow">AI Skincare Consultant</p>
+    <h1 class="landing-title">LETS FIND YOUR<br>BEST PRODUCT MATCHES</h1>
+    <p class="landing-subtitle">Ceritakan kondisi kulitmu. Berminyak? Sensitif? Jerawat? Kami akan menganalisis dan merekomendasikan yang terbaik.</p>
+    <div class="input-card">
+      <textarea id="userQuery" placeholder="Contoh: kulit wajah saya berminyak di zona T, mudah jerawatan dan sering kemerahan…" rows="3"></textarea>
+      <div class="input-card-footer">
+        <div class="input-tags">
+          <span class="input-tag" onclick="appendTag('butuh serum jerawat')">Serum Jerawat</span>
+          <span class="input-tag" onclick="appendTag('kulit kering dan kusam')">Kulit Kering</span>
+          <span class="input-tag" onclick="appendTag('kulit sensitif bebas fragrance')">Kulit Sensitif</span>
+          <span class="input-tag" onclick="appendTag('rekomendasi toner untuk kulit berminyak')">Toner Berminyak</span>
+        </div>
+        <button class="send-btn" onclick="startFlow()" aria-label="Kirim">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 2: AI LOADING ===== -->
+  <div class="screen hidden" id="screen-loading">
+    <div class="loading-orb">
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+    </div>
+    <p class="loading-label">Menganalisis kulitmu…</p>
+    <div class="loading-steps">
+      <div class="loading-step active" id="step1">
+        <div class="step-dot"></div>
+        <span>Memproses deskripsi kulit</span>
+      </div>
+      <div class="loading-step" id="step2">
+        <div class="step-dot"></div>
+        <span>Mengekstrak kata kunci & concern</span>
+      </div>
+      <div class="loading-step" id="step3">
+        <div class="step-dot"></div>
+        <span>Mencocokkan database produk</span>
+      </div>
+      <div class="loading-step" id="step4">
+        <div class="step-dot"></div>
+        <span>Menyiapkan rekomendasi</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 3: ANALYSIS DASHBOARD — LIVE READ-ONLY ===== -->
+  <div class="screen hidden" id="screen-analysis">
+    <div class="analysis-modal">
+
+      <!-- Progress bar -->
+      <div class="analysis-progress">
+        <div class="analysis-progress-bar" id="analysisBar"></div>
+      </div>
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div>
+          <p class="modal-step-label">Analisis Sistem · Step 2 of 3</p>
+          <h2 class="modal-title">Confirming Your Skin Details</h2>
+        </div>
+        <div class="modal-status-dot" id="statusDot"></div>
+      </div>
+
+      <!-- Body: dua panel -->
+      <div class="modal-body">
+
+        <!-- Panel kiri: keyword yang diekstrak -->
+        <div class="analysis-panel">
+          <p class="panel-title">
+            <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)">
+              <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+            </svg>
+            AI Diagnosis
+          </p>
+          <p style="font-size:12px; color:rgba(240,228,204,0.45); margin-bottom:12px; letter-spacing:0.2px;">Terdeteksi dari teks kamu:</p>
+          <div id="traitsList"></div>
+        </div>
+
+        <!-- Panel kanan: ringkasan query -->
+        <div class="analysis-panel">
+          <p class="panel-title">
+            <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)">
+              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            Ringkasan Query
+          </p>
+          <div id="summaryPanel"></div>
+        </div>
+
+      </div>
+
+      <!-- Footer status -->
+      <div class="modal-footer-status">
+        <div class="modal-status-dot" id="footerDot"></div>
+        <p class="footer-status-text" id="footerStatus">Sistem sedang memproses…</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 4: PRODUCT RESULTS ===== -->
+  <div class="screen hidden" id="screen-results">
+    <div class="results-inner">
+
+      <!-- Gallery Strip -->
+      <div class="gallery-strip" id="galleryStrip"></div>
+
+      <!-- Divider -->
+      <div class="results-divider"></div>
+
+      <!-- Main 2-col -->
+      <div class="product-main">
+
+        <!-- LEFT: Product Hero -->
+        <div class="product-hero" id="productHero">
+          <!-- Hero image (diisi oleh updateHero()) -->
+          <div class="hero-img-wrap" id="heroImgWrap">
+            <svg class="hero-img-placeholder" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--warm-brown)" stroke-width="1.2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <p class="product-hero-name" id="heroName">—</p>
+          <p class="product-hero-meta" id="heroMeta"></p>
+          <div class="product-hero-score" id="heroScore"></div>
+          <div class="product-hero-tags" id="heroTags"></div>
+          <p class="product-hero-desc" id="heroDesc">Produk skincare dengan kesesuaian tertinggi berdasarkan analisis kebutuhan kulitmu.</p>
+          <div class="hero-reasoning" id="heroReasoning" style="display:none">
+            <p class="hero-reasoning-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/>
+                <path d="M12 8v4l3 3"/>
+              </svg>
+              Mengapa Produk Ini?
+            </p>
+            <p class="hero-reasoning-text" id="heroReasoningText"></p>
+          </div>
+          <a href="#" target="_blank" class="hero-purchase-btn" id="heroPurchaseBtn">
+            Lihat Produk
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- RIGHT: Composition Grid -->
+        <div class="composition-panel">
+          <p class="composition-title">Rekomendasi Untukmu</p>
+          <div class="composition-grid" id="compositionGrid"></div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Action -->
+      <div class="results-bottom">
+        <button class="new-search-btn" onclick="resetToLanding()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.78"/>
+          </svg>
+          Cari Produk Lain
+        </button>
+        <span class="results-query-pill" id="displayQuery"></span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== POPUP: REJECTION ===== -->
+  <div class="popup-overlay" id="popup-rejection">
+    <div class="popup-modal">
+      <div class="popup-topbar" id="rejection-topbar"></div>
+      <div class="popup-body">
+        <div class="popup-icon-row">
+          <div class="popup-icon reject" id="rejection-icon">🚫</div>
+          <div>
+            <p class="popup-eyebrow" id="rejection-eyebrow">Query Ditolak</p>
+            <p class="popup-title" id="rejection-title">Input Tidak Valid</p>
+          </div>
+        </div>
+        <div class="popup-reason">
+          <p id="rejection-reason">Alasan penolakan akan muncul di sini.</p>
+        </div>
+        <div class="popup-counter">
+          <span class="counter-label">Pelanggaran: <span id="counter-text">1 / 5</span></span>
+          <div class="counter-pips" id="counter-pips">
+            <div class="counter-pip"></div>
+            <div class="counter-pip"></div>
+            <div class="counter-pip"></div>
+            <div class="counter-pip"></div>
+            <div class="counter-pip"></div>
+          </div>
+        </div>
+      </div>
+      <div class="popup-footer">
+        <button class="popup-btn secondary" onclick="closeRejectionPopup()">Tutup</button>
+        <button class="popup-btn primary" onclick="closeRejectionPopup()">Coba Lagi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== POPUP: TIMEOUT ===== -->
+  <div class="popup-overlay" id="popup-timeout">
+    <div class="popup-modal">
+      <div class="popup-topbar timeout"></div>
+      <div class="popup-body">
+        <div class="popup-icon-row">
+          <div class="popup-icon timeout-icon">⏳</div>
+          <div>
+            <p class="popup-eyebrow timeout">Akses Dibatasi</p>
+            <p class="popup-title">Terlalu Banyak<br>Pelanggaran</p>
+          </div>
+        </div>
+        <div class="popup-reason timeout">
+          <p>Kamu telah melanggar batas input sebanyak <strong style="color:#d7bde2">5 kali</strong>. Sesi ini dikunci sementara. Silakan coba lagi setelah waktu habis.</p>
+        </div>
+        <div class="timeout-countdown">
+          <div class="countdown-number" id="countdown-display">10:00</div>
+          <div class="countdown-unit">menit tersisa</div>
+        </div>
+        <p class="timeout-info">Gunakan waktu ini untuk merumuskan pertanyaan seputar skincare yang lebih spesifik.</p>
+      </div>
+      <div class="popup-footer">
+        <button class="popup-btn timeout-btn" onclick="closeTimeoutPopup()">Mengerti</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ============================================
+  // STATE
+  // ============================================
+  let currentQuery = '';
+  let apiData = null;
+
+  // ============================================
+  // VIOLATION STATE
+  // ============================================
+  let violationCount = 0;
+  let timeoutUntil = null;     // timestamp (ms) kapan timeout berakhir
+  let countdownInterval = null;
+
+  // ============================================
+  // VALIDATION KEYWORDS — mirror dari Quality_querycontrol.py
+  // ============================================
+  const SKINCARE_KEYWORDS = [
+    // product
+    'toner','serum','moisturizer','sunscreen','cleanser','essence','exfoliant',
+    'mask','eye cream','face wash','pelembab','sabun','losion','lotion','ampoule',
+    'mist','primer','bb cream','cc cream',
+    // problem
+    'bruntusan','jerawat','acne','kusam','flek','hiperpigmentasi','pori-pori',
+    'kering','berminyak','sensitif','kemerahan','redness','kerutan','penuaan',
+    'aging','bekas luka','dark spot','komedo',
+    // constraint
+    'niacinamide','retinol','vitamin c','hyaluronic acid','aha','bha','pha',
+    'centella asiatica','salicylic acid','glycolic acid','ceramide','peptide',
+    'zinc','tea tree','kojic acid','arbutin','snail mucin','tranexamic acid',
+    'azelaic acid','bakuchiol',
+    // skin_type
+    'kulit kering','kulit berminyak','kulit kombinasi','kulit sensitif',
+    'kulit normal','dry skin','oily skin','combination skin','sensitive skin',
+    'normal skin','kulit','semua jenis kulit','all skin type'
+  ];
+
+  const DANGEROUS_PATTERN = /[<>{}]|(SELECT|DROP|DELETE|UPDATE|INSERT|EXEC)\b/i;
+
+  /**
+   * Validasi query sebelum dikirim ke backend.
+   * Mengembalikan { valid: bool, type: string, reason: string }
+   * Mirror dari query_schema.py + Quality_querycontrol.py
+   */
+  function validateInputClient(query) {
+    // 1. Terlalu pendek
+    if (query.length < 5) {
+      return {
+        valid: false,
+        type: 'schema',
+        icon: '📏',
+        title: 'Terlalu Pendek',
+        reason: `Query kamu hanya ${query.length} karakter. Minimal harus 5 karakter agar sistem bisa menganalisis dengan baik.`
+      };
+    }
+
+    // 2. Terlalu panjang
+    if (query.length > 200) {
+      return {
+        valid: false,
+        type: 'schema',
+        icon: '📏',
+        title: 'Terlalu Panjang',
+        reason: `Query kamu ${query.length} karakter, melebihi batas maksimal 200 karakter. Coba persingkat deskripsimu.`
+      };
+    }
+
+    // 3. Karakter berbahaya (XSS / SQL Injection) — dari query_schema.py
+    if (DANGEROUS_PATTERN.test(query)) {
+      return {
+        valid: false,
+        type: 'security',
+        icon: '🛡️',
+        title: 'Input Tidak Aman',
+        reason: 'Input mengandung karakter HTML (<, >, {, }) atau perintah sistem (SELECT, DROP, DELETE, dll.) yang tidak diizinkan. Tulis pertanyaanmu dalam bahasa natural.'
+      };
+    }
+
+    // 4. Tidak ada huruf sama sekali — dari query_schema.py
+    if (!/[a-zA-Z]/.test(query)) {
+      return {
+        valid: false,
+        type: 'schema',
+        icon: '🔤',
+        title: 'Harus Ada Huruf',
+        reason: 'Query hanya berisi angka atau karakter khusus. Deskripsikan kondisi kulitmu dengan kata-kata.'
+      };
+    }
+
+    // 5. Out of context — mirror dari Quality_querycontrol.py
+    const lower = query.toLowerCase();
+    const hasSkincareKeyword = SKINCARE_KEYWORDS.some(kw => lower.includes(kw));
+    if (!hasSkincareKeyword) {
+      return {
+        valid: false,
+        type: 'context',
+        icon: '🌿',
+        title: 'Di Luar Topik',
+        reason: 'Query tidak mengandung kata kunci seputar skincare. Sistem hanya bisa membantu rekomendasi produk perawatan kulit. Coba sebutkan jenis produk, masalah kulit, atau bahan aktif yang kamu cari.'
+      };
+    }
+
+    return { valid: true };
+  }
+
+  // ============================================
+  // POPUP: REJECTION
+  // ============================================
+  function showRejectionPopup(validationResult) {
+    violationCount++;
+
+    // Update isi popup
+    document.getElementById('rejection-eyebrow').textContent =
+      validationResult.type === 'security' ? 'Input Berbahaya' :
+      validationResult.type === 'context'  ? 'Di Luar Konteks' : 'Query Ditolak';
+
+    document.getElementById('rejection-title').textContent = validationResult.title;
+    document.getElementById('rejection-icon').textContent  = validationResult.icon;
+    document.getElementById('rejection-reason').textContent = validationResult.reason;
+    document.getElementById('counter-text').textContent = `${violationCount} / 5`;
+
+    // Update topbar color sesuai tipe
+    const topbar = document.getElementById('rejection-topbar');
+    topbar.className = 'popup-topbar';
+    if (validationResult.type === 'context') topbar.classList.add('warn');
+
+    // Update pips
+    const pips = document.querySelectorAll('.counter-pip');
+    pips.forEach((pip, i) => {
+      pip.classList.remove('filled', 'last');
+      if (i < violationCount) {
+        pip.classList.add('filled');
+        if (i === violationCount - 1) pip.classList.add('last');
+      }
+    });
+
+    document.getElementById('popup-rejection').classList.add('visible');
+  }
+
+  function closeRejectionPopup() {
+    document.getElementById('popup-rejection').classList.remove('visible');
+  }
+
+  // ============================================
+  // POPUP: TIMEOUT
+  // ============================================
+  function showTimeoutPopup() {
+    const TEN_MINUTES = 10 * 60 * 1000;
+    timeoutUntil = Date.now() + TEN_MINUTES;
+
+    // Kunci input textarea
+    document.getElementById('userQuery').classList.add('input-blocked');
+    document.querySelector('.send-btn').classList.add('input-blocked');
+
+    document.getElementById('popup-timeout').classList.add('visible');
+    startCountdown();
+  }
+
+  function closeTimeoutPopup() {
+    document.getElementById('popup-timeout').classList.remove('visible');
+  }
+
+  function startCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    updateCountdownDisplay();
+    countdownInterval = setInterval(() => {
+      const remaining = timeoutUntil - Date.now();
+      if (remaining <= 0) {
+        clearInterval(countdownInterval);
+        // Timeout selesai — unlock input
+        violationCount = 0;
+        timeoutUntil = null;
+        document.getElementById('userQuery').classList.remove('input-blocked');
+        document.querySelector('.send-btn').classList.remove('input-blocked');
+        document.getElementById('popup-timeout').classList.remove('visible');
+        return;
+      }
+      updateCountdownDisplay();
+    }, 1000);
+  }
+
+  function updateCountdownDisplay() {
+    const remaining = Math.max(0, timeoutUntil - Date.now());
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    document.getElementById('countdown-display').textContent =
+      `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  }
+
+  // ============================================
+  // CHECK TIMEOUT AKTIF
+  // ============================================
+  function isInTimeout() {
+    if (timeoutUntil && Date.now() < timeoutUntil) {
+      return true;
+    }
+    return false;
+  }
+
+  function appendTag(text) {
+    const ta = document.getElementById('userQuery');
+    ta.value = text;
+    ta.focus();
+  }
+
+  // ============================================
+  // FLOW CONTROLLER
+  // ============================================
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => {
+      if (s.id === id) {
+        s.classList.remove('hidden', 'exit-up');
+      } else {
+        if (!s.classList.contains('hidden')) {
+          s.classList.add('exit-up');
+          setTimeout(() => s.classList.add('hidden'), 600);
+        }
+      }
+    });
+  }
+
+  async function startFlow() {
+    const query = document.getElementById('userQuery').value.trim();
+
+    // Cek dulu apakah sedang dalam masa timeout
+    if (isInTimeout()) {
+      document.getElementById('popup-timeout').classList.add('visible');
+      if (!countdownInterval) startCountdown();
+      return;
+    }
+
+    if (!query) {
+      document.getElementById('userQuery').focus();
+      return;
+    }
+
+    // ── CLIENT-SIDE VALIDATION ──────────────────────────────────────────
+    const validation = validateInputClient(query);
+    if (!validation.valid) {
+      if (violationCount >= 4) {
+        // Pelanggaran ke-5 → tampilkan rejection dulu, lalu langsung timeout
+        showRejectionPopup(validation);
+        setTimeout(() => {
+          closeRejectionPopup();
+          showTimeoutPopup();
+        }, 1800);
+      } else {
+        showRejectionPopup(validation);
+      }
+      return; // STOP — tidak dikirim ke backend
+    }
+    // ───────────────────────────────────────────────────────────────────
+
+    currentQuery = query;
+
+    // Go to loading
+    showScreen('screen-loading');
+    runLoadingSteps();
+
+    // Hit API
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      apiData = await res.json();
+    } catch (e) {
+      // Fallback demo data jika backend tidak ada
+      apiData = getDemoData(query);
+    }
+
+    // Setelah minimal 2.5 detik loading, tampilkan analysis
+    setTimeout(() => {
+      buildAnalysisDashboard(apiData);
+      showScreen('screen-analysis');
+      // Auto-progress bar
+      requestAnimationFrame(() => {
+        document.getElementById('analysisBar').style.width = '100%';
+      });
+    }, 2600);
+  }
+
+  function runLoadingSteps() {
+    const steps = ['step1','step2','step3','step4'];
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i > 0) {
+        document.getElementById(steps[i-1]).classList.remove('active');
+        document.getElementById(steps[i-1]).classList.add('done');
+      }
+      if (i < steps.length) {
+        document.getElementById(steps[i]).classList.add('active');
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 600);
+  }
+
+  // ============================================
+  // BUILD ANALYSIS DASHBOARD — LIVE AUTO PLAY
+  // ============================================
+  function buildAnalysisDashboard(data) {
+    const traitsList = document.getElementById('traitsList');
+    const summaryPanel = document.getElementById('summaryPanel');
+    traitsList.innerHTML = '';
+    summaryPanel.innerHTML = '';
+
+    // Kumpulkan semua traits
+    const traits = [];
+    if (data.extracted_categories && data.extracted_categories.length > 0) {
+      data.extracted_categories.forEach(cat => {
+        traits.push({ icon: '💊', name: cat, source: 'Kategori produk' });
+      });
+    }
+    if (data.extracted_constraints && data.extracted_constraints.length > 0) {
+      data.extracted_constraints.forEach(c => {
+        traits.push({ icon: '🧴', name: c, source: 'Bahan aktif / constraint' });
+      });
+    }
+    if (traits.length === 0) {
+      const q = currentQuery.toLowerCase();
+      if (q.includes('jerawat') || q.includes('acne')) traits.push({ icon: '⚡', name: 'Acne Concern', source: 'Terdeteksi dari teks' });
+      if (q.includes('berminyak') || q.includes('oily')) traits.push({ icon: '💧', name: 'Oily Skin', source: 'Terdeteksi dari teks' });
+      if (q.includes('kering') || q.includes('dry')) traits.push({ icon: '🌿', name: 'Dry Skin', source: 'Terdeteksi dari teks' });
+      if (q.includes('sensitif')) traits.push({ icon: '🌸', name: 'Sensitive Skin', source: 'Terdeteksi dari teks' });
+      if (q.includes('serum')) traits.push({ icon: '✨', name: 'Serum', source: 'Jenis produk' });
+      if (q.includes('toner')) traits.push({ icon: '💦', name: 'Toner', source: 'Jenis produk' });
+      if (q.includes('moisturizer') || q.includes('pelembab')) traits.push({ icon: '🧴', name: 'Moisturizer', source: 'Jenis produk' });
+      if (traits.length === 0) traits.push({ icon: '✦', name: 'General Skin Concern', source: 'Detected from text' });
+    }
+
+    // Buat elemen trait — semula invisible, akan di-reveal satu per satu
+    const traitEls = [];
+    traits.slice(0, 5).forEach((t) => {
+      const el = document.createElement('div');
+      el.className = 'detected-trait';
+      el.innerHTML = `
+        <div class="trait-dot">${t.icon}</div>
+        <div>
+          <p class="trait-name">${t.name}</p>
+          <p class="trait-source">${t.source}</p>
+        </div>
+      `;
+      traitsList.appendChild(el);
+      traitEls.push(el);
+    });
+
+    // Buat summary rows — invisible awal
+    const cats = data.extracted_categories || [];
+    const cons = data.extracted_constraints || [];
+    const recCount = (data.recommendations || []).length;
+
+    const summaryRows = [
+      {
+        label: 'Produk',
+        chips: cats.map(c => ({ text: c, hl: true })),
+        fallback: 'Tidak terdeteksi'
+      },
+      {
+        label: 'Bahan',
+        chips: cons.map(c => ({ text: c, hl: false })),
+        fallback: 'Tidak terdeteksi'
+      },
+      {
+        label: 'Matches',
+        chips: [{ text: recCount + ' produk ditemukan', hl: true }],
+        fallback: null
+      }
+    ];
+
+    const summaryEls = [];
+    summaryRows.forEach(row => {
+      const el = document.createElement('div');
+      el.className = 'summary-row';
+      const chipsHTML = row.chips.length > 0
+        ? row.chips.map(c => `<span class="summary-chip ${c.hl ? 'highlight' : ''}">${c.text}</span>`).join('')
+        : `<span style="font-size:12px; color:rgba(240,228,204,0.35)">${row.fallback}</span>`;
+      el.innerHTML = `
+        <span class="summary-label">${row.label}</span>
+        <div class="summary-chips">${chipsHTML}</div>
+      `;
+      summaryPanel.appendChild(el);
+      summaryEls.push(el);
+    });
+
+    // ——— Animasi sekuensial ———
+    const TOTAL_DURATION = 3400; // ms total sebelum auto-lanjut
+    const allItems = [...traitEls, ...summaryEls];
+    const delay = Math.min(300, TOTAL_DURATION / (allItems.length + 3));
+
+    // Progress bar: selesai dalam TOTAL_DURATION
+    const bar = document.getElementById('analysisBar');
+    const statusText = document.getElementById('footerStatus');
+    const statusDot = document.getElementById('statusDot');
+    const footerDot = document.getElementById('footerDot');
+
+    // Mulai progress bar
+    requestAnimationFrame(() => {
+      bar.style.transition = `width ${TOTAL_DURATION}ms linear`;
+      bar.style.width = '100%';
+    });
+
+    // Reveal items satu per satu
+    allItems.forEach((el, i) => {
+      setTimeout(() => {
+        el.classList.add('visible');
+      }, 200 + i * delay);
+    });
+
+    // Status teks berubah di tengah
+    setTimeout(() => {
+      statusText.textContent = 'Mencocokkan produk dari database…';
+    }, TOTAL_DURATION * 0.45);
+
+    // Saat semua selesai → tandai done, lalu auto-lanjut
+    setTimeout(() => {
+      statusDot.classList.add('done');
+      footerDot.classList.add('done');
+      statusText.classList.add('ready');
+      statusText.textContent = 'Analisis selesai — menampilkan rekomendasi…';
+    }, TOTAL_DURATION - 400);
+
+    setTimeout(() => {
+      goToResults();
+    }, TOTAL_DURATION + 600);
+  }
+
+  // ============================================
+  // GO TO RESULTS — dipanggil otomatis
+  // ============================================
+  function goToResults() {
+    buildResultsPage(apiData);
+    showScreen('screen-results');
+  }
+
+  function buildResultsPage(data) {
+    document.getElementById('displayQuery').textContent = '"' + currentQuery + '"';
+
+    const recs = data.recommendations || [];
+    if (recs.length === 0) {
+      document.getElementById('heroName').textContent = 'Tidak ada produk ditemukan';
+      return;
+    }
+
+    // Pastel bg palette for gallery thumbs
+    const thumbBgs = [
+      'rgba(240,200,190,0.45)',
+      'rgba(200,195,185,0.45)',
+      'rgba(195,215,210,0.45)',
+      'rgba(200,195,175,0.45)',
+      'rgba(230,210,190,0.45)',
+    ];
+
+    // ── GALLERY STRIP ──────────────────────────────────
+    const strip = document.getElementById('galleryStrip');
+    strip.innerHTML = '';
+    const total = recs.slice(0, 5);
+    const centerIdx = 0; // top product always center-featured
+
+    // Reorder: put top in center visually [2,1,0,1,2] → [idx2,idx1,idx0,idx3,idx4]
+    const order = total.length >= 3
+      ? [2,1,0,3,4].filter(i => i < total.length)
+      : total.map((_,i) => i);
+
+    order.forEach((recIdx) => {
+      const item = total[recIdx];
+      const isCenter = recIdx === 0;
+      const thumb = document.createElement('div');
+      thumb.className = 'gallery-thumb' + (isCenter ? ' center selected' : ' side');
+
+      if (item.image_url) {
+        // Punya gambar — load async dengan fallback
+        thumb.style.background = 'linear-gradient(135deg, var(--sand) 0%, var(--white) 100%)';
+        const rankSpan = document.createElement('span');
+        rankSpan.className = 'gallery-thumb-rank';
+        rankSpan.textContent = '#' + (recIdx + 1);
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'gallery-thumb-label';
+        labelSpan.textContent = item.product_name;
+        const img = document.createElement('img');
+        img.alt = item.product_name;
+        img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:inherit;display:block;transition:opacity 0.3s ease;opacity:0;';
+        img.onload = function() {
+          thumb.style.background = '#FFFCF7';
+          this.style.opacity = '1';
+        };
+        img.onerror = function() {
+          thumb.style.background = thumbBgs[recIdx % thumbBgs.length];
+          this.remove();
+          const svgSize = isCenter ? 44 : 34;
+          thumb.insertAdjacentHTML('afterbegin', `<svg class="gallery-thumb-icon" width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="rgba(74,55,40,0.5)" stroke-width="1.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`);
+        };
+        img.src = item.image_url;
+        thumb.appendChild(img);
+        thumb.appendChild(rankSpan);
+        thumb.appendChild(labelSpan);
+      } else {
+        // Tidak ada gambar — pakai warna pastel + SVG placeholder
+        thumb.style.background = thumbBgs[recIdx % thumbBgs.length];
+        const svgSize = isCenter ? 44 : 34;
+        thumb.innerHTML = `
+          <span class="gallery-thumb-rank">#${recIdx + 1}</span>
+          <svg class="gallery-thumb-icon" width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="rgba(74,55,40,0.5)" stroke-width="1.3">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span class="gallery-thumb-label">${item.product_name}</span>
+        `;
+      }
+      // Click gallery thumb → update hero
+      thumb.addEventListener('click', () => {
+        document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('selected'));
+        thumb.classList.add('selected');
+        updateHero(item, data, recIdx);
+      });
+      strip.appendChild(thumb);
+    });
+
+    // ── HERO: top product ──────────────────────────────
+    updateHero(recs[0], data, 0);
+
+    // ── COMPOSITION GRID: products 2-5 ────────────────
+    const grid = document.getElementById('compositionGrid');
+    grid.innerHTML = '';
+
+    const others = recs.slice(1, 5);
+    others.forEach((item, idx) => {
+      const pct = Math.round((item.similarity_score || item.score || 0.8) * 100);
+      const card = document.createElement('div');
+      card.className = 'comp-card';
+      card.style.animationDelay = (idx * 0.1 + 0.2) + 's';
+
+      // Build card menggunakan DOM untuk image loading yang reliable
+      const placeholderSVG = '<div class="comp-card-img-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(74,55,40,0.3)" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>';
+
+      // Tulis dulu konten teks card
+      card.innerHTML = `
+        <div class="comp-card-img-wrap" style="width:100%;height:130px;margin-bottom:10px;position:relative;"></div>
+        <p class="comp-card-name">${item.product_name}</p>
+        <p class="comp-card-sub">${(item.brand || '').toUpperCase()}${item.category ? ' · ' + item.category : ''}</p>
+        <div class="comp-card-score-row">
+          <div class="comp-score-bar"><div class="comp-score-fill" style="width:${pct}%"></div></div>
+          <span class="comp-score-num">${pct}%</span>
+        </div>
+        <a href="${item.link_produk || '#'}" target="_blank" class="comp-card-link">Lihat Produk →</a>
+      `;
+
+      // Load gambar ke dalam wrap
+      const imgWrap = card.querySelector('.comp-card-img-wrap');
+      if (item.image_url) {
+        imgWrap.style.background = 'linear-gradient(135deg, var(--sand) 0%, var(--white) 100%)';
+        imgWrap.style.borderRadius = '10px';
+        const compImg = document.createElement('img');
+        compImg.className = 'comp-card-img';
+        compImg.alt = item.product_name;
+        compImg.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:10px;display:block;opacity:0;transition:opacity 0.3s ease;';
+        compImg.onload = function() {
+          imgWrap.style.background = '';
+          this.style.opacity = '1';
+        };
+        compImg.onerror = function() {
+          imgWrap.style.background = '';
+          imgWrap.outerHTML = placeholderSVG;
+        };
+        compImg.src = item.image_url;
+        imgWrap.appendChild(compImg);
+      } else {
+        imgWrap.outerHTML = placeholderSVG;
+      }
+      grid.appendChild(card);
+    });
+
+    // If < 4 others, pad with a "view all" placeholder card
+    if (others.length < 4) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'comp-card comp-card-viewall';
+      placeholder.innerHTML = `
+        <div class="viewall-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--mid-brown)" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <span class="viewall-text">Lihat Semua<br>Ingredien</span>
+      `;
+      grid.appendChild(placeholder);
+    }
+  }
+
+  // Update hero section saat thumbnail diklik
+  function updateHero(item, data, idx) {
+    const scorePercent = Math.round((item.similarity_score || item.score || 0.9) * 100);
+
+
+    // ── Hero image ──
+    const wrap = document.getElementById('heroImgWrap');
+    if (item.image_url) {
+      // Tampilkan loading state dulu, lalu load gambar secara async
+      wrap.innerHTML = '';
+      wrap.style.background = 'linear-gradient(135deg, var(--sand) 0%, var(--white) 100%)';
+      const img = document.createElement('img');
+      img.alt = item.product_name;
+      img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:10px;display:block;transition:transform 0.4s ease,opacity 0.35s ease;opacity:0;';
+      img.onload = function() { this.style.opacity = '1'; wrap.style.background = ''; };
+      img.onerror = function() {
+        wrap.style.background = '';
+        wrap.innerHTML = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(74,55,40,0.25)" stroke-width="1.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+      };
+      img.src = item.image_url;
+      wrap.appendChild(img);
+    } else {
+      wrap.style.background = '';
+      wrap.innerHTML = '<svg class="hero-img-placeholder" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--warm-brown)" stroke-width="1.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+    }
+    document.getElementById('heroName').textContent = item.product_name;
+    document.getElementById('heroMeta').textContent =
+      [item.brand, item.category].filter(Boolean).join('  ·  ');
+
+    document.getElementById('heroScore').innerHTML = `
+      <div class="hero-score-badge">${scorePercent}%</div>
+      <span class="hero-score-text">Similarity Match · Rank #${idx + 1}</span>
+    `;
+
+    const tagsEl = document.getElementById('heroTags');
+    tagsEl.innerHTML = '';
+    const tags = [...(data.extracted_categories || []), ...(data.extracted_constraints || [])];
+    tags.slice(0, 4).forEach(t => {
+      tagsEl.innerHTML += `<span class="hero-tag">${t}</span>`;
+    });
+
+    document.getElementById('heroPurchaseBtn').href = item.link_produk || '#';
+
+    // ── Reasoning block ──
+    const reasoningWrap = document.getElementById('heroReasoning');
+    const reasoningText  = document.getElementById('heroReasoningText');
+    if (item.alasan_rekomendasi) {
+      reasoningText.textContent = item.alasan_rekomendasi;
+      reasoningWrap.style.display = 'block';
+    } else {
+      reasoningWrap.style.display = 'none';
+    }
+  }
+
+  // ============================================
+  // RESET
+  // ============================================
+  function resetToLanding() {
+    document.getElementById('userQuery').value = '';
+    document.querySelectorAll('.loading-step').forEach((el, i) => {
+      el.classList.remove('active', 'done');
+      if (i === 0) el.classList.add('active');
+    });
+    const bar = document.getElementById('analysisBar');
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    document.getElementById('statusDot').classList.remove('done');
+    document.getElementById('footerDot').classList.remove('done');
+    document.getElementById('footerStatus').classList.remove('ready');
+    document.getElementById('footerStatus').textContent = 'Sistem sedang memproses…';
+    showScreen('screen-landing');
+  }
+
+  // ============================================
+  // DEMO DATA (fallback jika backend offline)
+  // ============================================
+  function getDemoData(query) {
+    const q = query.toLowerCase();
+    const cats = [];
+    if (q.includes('serum')) cats.push('Serum');
+    if (q.includes('toner')) cats.push('Toner');
+    if (q.includes('moisturizer') || q.includes('pelembab')) cats.push('Moisturizer');
+    if (cats.length === 0) cats.push('Serum');
+
+    const constraints = [];
+    if (q.includes('jerawat') || q.includes('acne')) constraints.push('Niacinamide', 'Salicylic Acid');
+    if (q.includes('kering')) constraints.push('Hyaluronic Acid', 'Ceramide');
+    if (q.includes('vitamin c') || q.includes('kusam')) constraints.push('Vitamin C');
+    if (constraints.length === 0) constraints.push('Niacinamide');
+
+    // Gambar demo produk skincare populer (hosted di CDN publik)
+    const demoImages = [
+      'https://images.tokopedia.net/img/cache/500-square/VqbcmM/2023/9/12/1f5ef1a0-1b10-4d3e-92f8-fc2e60a18ad8.jpg',
+      'https://images.tokopedia.net/img/cache/500-square/VqbcmM/2022/8/3/5ba0bae6-d4d5-4e4a-aca3-69f8e5b69ea4.jpg',
+      'https://images.tokopedia.net/img/cache/500-square/VqbcmM/2023/5/22/8f6e42b6-ed44-4c0e-a7ef-d3f0ae5ba40a.jpg',
+      'https://images.tokopedia.net/img/cache/500-square/VqbcmM/2022/10/7/7b5d1b9c-9cc0-4b1e-b53e-e6f0b5b1c8f0.jpg',
+      'https://images.tokopedia.net/img/cache/500-square/VqbcmM/2023/1/18/3d2a9c1e-8b7f-4a2c-b5e6-d4f3c2a1b9e8.jpg',
+    ];
+
+    return {
+      status: 'success',
+      extracted_categories: cats,
+      extracted_constraints: constraints,
+      recommendations: [
+        { product_name: 'Somethinc Niacinamide Serum', brand: 'Somethinc', category: cats[0], similarity_score: 0.94, link_produk: 'https://www.tokopedia.com/search?st=product&q=somethinc+niacinamide+serum', image_url: demoImages[0], alasan_rekomendasi: `Kami merekomendasikan produk ini karena sesuai dengan pencarianmu untuk tipe ${cats[0]}, dan terdeteksi memiliki kandungan ${constraints.join(', ')} yang relevan dengan spesifikasimu.` },
+        { product_name: 'COSRX Advanced Snail 96', brand: 'COSRX', category: cats[0], similarity_score: 0.88, link_produk: 'https://www.tokopedia.com/search?st=product&q=cosrx+advanced+snail+96', image_url: demoImages[1], alasan_rekomendasi: `Produk ini sangat direkomendasikan karena sebagai ${cats[0]}, profil fungsinya memiliki tingkat kecocokan yang sangat tinggi dengan keseluruhan kata kunci pencarianmu.` },
+        { product_name: 'The Ordinary Niacinamide 10%', brand: 'The Ordinary', category: cats[0], similarity_score: 0.85, link_produk: 'https://www.tokopedia.com/search?st=product&q=the+ordinary+niacinamide+10', image_url: demoImages[2], alasan_rekomendasi: `Kami merekomendasikan produk ini karena sesuai dengan pencarianmu untuk tipe ${cats[0]}, dan terdeteksi memiliki kandungan ${constraints[0]} yang relevan dengan spesifikasimu.` },
+        { product_name: 'Wardah C-Bright Serum', brand: 'Wardah', category: cats[0], similarity_score: 0.81, link_produk: 'https://www.tokopedia.com/search?st=product&q=wardah+c-bright+serum', image_url: demoImages[3], alasan_rekomendasi: `Produk ini sangat direkomendasikan karena sebagai ${cats[0]}, profil fungsinya memiliki tingkat kecocokan yang sangat tinggi dengan keseluruhan kata kunci pencarianmu.` },
+        { product_name: 'Azarine Hydrasoothe Serum', brand: 'Azarine', category: cats[0], similarity_score: 0.78, link_produk: 'https://www.tokopedia.com/search?st=product&q=azarine+hydrasoothe+serum', image_url: demoImages[4], alasan_rekomendasi: `Produk ini sangat direkomendasikan karena sebagai ${cats[0]}, profil fungsinya memiliki tingkat kecocokan yang sangat tinggi dengan keseluruhan kata kunci pencarianmu.` },
+      ]
+    };
+  }
+
+  // Enter key support
+  document.getElementById('userQuery').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      startFlow();
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,937 +1,885 @@
 @extends('layouts.app')
 
-@section('title', 'Consultation — SkinQuo')
+@section('title', 'SkinQuo Consultation')
 
 @push('styles')
+{{-- Preload fonts agar tidak blocking render --}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+{{-- ANTI-FOUC: sembunyikan seluruh konten sampai siap --}}
 <style>
-    /* ══════════════════════════════════════
-       CONSULTATION PAGE
-    ══════════════════════════════════════ */
-
-    .consult-hero {
-        min-height: calc(100vh - 0px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 8rem 1.5rem 5rem;
-        background: #FFEAC5;
-        text-align: center;
+    html { visibility: hidden; }
+</style>
+<style>
+    :root {
+        --cream: #FAF3E8;
+        --cream-dark: #F2E8D5;
+        --brown: #6C4E31;
+        --dark-brown: #3D2010;
+        --accent: #C17F4A;
+        --accent-light: #E8C89A;
+        --text-muted: rgba(61,32,16,0.5);
+        --border: rgba(108,78,49,0.18);
     }
 
-    /* ── Heading ── */
-    .consult-heading {
-        font-family: 'Playfair Display', serif;
-        font-size: clamp(2rem, 5.5vw, 3.5rem);
-        font-weight: 900;
-        line-height: 1.1;
-        letter-spacing: -0.01em;
-        color: #603F26;
-        text-transform: uppercase;
-        max-width: 820px;
-        margin-bottom: 1.25rem;
-    }
-    .consult-heading .accent { color: #6C4E31; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .consult-sub {
-        font-size: clamp(0.85rem, 1.5vw, 1rem);
-        color: rgba(96, 63, 38, 0.65);
-        max-width: 500px;
-        line-height: 1.7;
-        margin-bottom: 3.5rem;
-    }
-
-    /* ── Form wrapper untuk layout landscape ── */
-    #consult-form {
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-        box-sizing: border-box;
-    }
-
-    /* ── Input Box ── */
-    .consult-box {
-        width: 100%;
-        background: #FFDBB5;
-        border: 2px solid #6C4E31;
-        border-radius: 28px;
-        overflow: hidden;
-        transition: box-shadow 0.3s;
-        margin: 0;
-    }
-    .consult-box:focus-within {
-        box-shadow: 0 0 0 3px rgba(108, 78, 49, 0.25);
-        border-color: #603F26;
-        transform: translateY(-2px);
-    }
-
-    .consult-textarea {
-        width: 100%;
-        background: transparent;
-        border: none;
-        outline: none;
-        resize: vertical;
-        padding: 1.8rem 2.2rem 1.2rem;
-        font-family: 'Poppins', sans-serif;
-        font-size: 1rem;
-        color: #603F26;
-        line-height: 1.7;
-        min-height: 120px;
-        box-sizing: border-box;
-        font-weight: 500;
-    }
-    .consult-textarea::placeholder { 
-        color: rgba(96, 63, 38, 0.45); 
-        font-weight: 400;
-    }
-    .consult-textarea:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    /* ── Pills bar ── */
-    .consult-pills-bar {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 2.2rem 0.8rem;
-        border-top: 1.5px solid rgba(108, 78, 49, 0.22);
-        flex-wrap: wrap;
-    }
-
-    .pill-add-btn {
-        width: 28px; height: 28px;
-        border-radius: 50%;
-        border: 1.5px solid rgba(108, 78, 49, 0.4);
-        background: transparent;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        color: #6C4E31;
-        transition: background 0.2s;
-        flex-shrink: 0;
-    }
-    .pill-add-btn:hover { background: rgba(108, 78, 49, 0.1); }
-    .pill-add-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .pill-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        background: rgba(108, 78, 49, 0.12);
-        border: 1px solid rgba(108, 78, 49, 0.25);
-        border-radius: 999px;
-        padding: 0.28rem 0.85rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: #603F26;
-        cursor: default;
-        transition: background 0.18s;
-    }
-    .pill-tag .pill-remove {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: rgba(96, 63, 38, 0.5);
-        font-size: 0.9rem;
-        line-height: 1;
-        padding: 0;
-        margin-left: 2px;
-        transition: color 0.15s;
-    }
-    .pill-tag .pill-remove:hover { color: #603F26; }
-
-    /* pill suggestions dropdown */
-    .pill-suggestions {
-        position: absolute;
-        top: calc(100% + 6px);
-        left: 0;
-        background: #FFEAC5;
-        border: 1.5px solid #6C4E31;
-        border-radius: 12px;
-        padding: 0.5rem;
-        display: none;
-        flex-direction: column;
-        gap: 2px;
-        z-index: 50;
-        min-width: 160px;
-        box-shadow: 0 8px 24px rgba(96, 63, 38, 0.15);
-    }
-    .pill-suggestions.open { display: flex; }
-    .pill-suggestion-item {
-        padding: 0.45rem 0.85rem;
-        font-size: 0.78rem;
-        color: #603F26;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.15s;
-        text-align: left;
-        background: none;
-        border: none;
-        font-family: 'Poppins', sans-serif;
-    }
-    .pill-suggestion-item:hover { background: rgba(108, 78, 49, 0.1); }
-
-    /* ── Submit button ── */
-    .submit-row {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        padding: 0 2.2rem 0.8rem;
-    }
-    .submit-arrow-btn {
-        width: 38px; height: 38px;
-        border-radius: 50%;
-        background: #603F26;
-        border: none;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        color: #FFEAC5;
-        transition: opacity 0.2s, transform 0.15s;
-    }
-    .submit-arrow-btn:hover { opacity: 0.82; transform: translateY(-1px); }
-    .submit-arrow-btn:active { transform: translateY(0); }
-    .submit-arrow-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    .submit-arrow-btn.loading svg {
-        animation: spin 1s linear infinite;
-    }
-
-    /* ══════════════════════════════════════
-       MODAL OVERLAY
-    ══════════════════════════════════════ */
-    .modal-overlay {
+    /* ========================
+       PAGE LOADER & REVEAL
+    ======================== */
+    #page-loader {
         position: fixed;
         inset: 0;
-        background: rgba(96, 63, 38, 0.35);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        z-index: 900;
+        background: var(--cream);
+        z-index: 9999;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 1.5rem;
+        transition: opacity 0.4s ease;
+    }
+    #page-loader.fade-out {
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.3s ease;
     }
-    .modal-overlay.open {
-        opacity: 1;
-        pointer-events: all;
+    .loader-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
     }
-
-    /* ── Modal Card ── */
-    .modal-card {
-        width: 100%;
-        max-width: 820px;
-        background: #6C4E31;
-        border-radius: 24px;
-        padding: 2.25rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        transform: translateY(18px) scale(0.98);
-        transition: transform 0.3s ease;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-    .modal-overlay.open .modal-card {
-        transform: translateY(0) scale(1);
-    }
-
-    /* ── Modal step label ── */
-    .modal-step-label {
-        grid-column: 1 / -1;
-        text-align: center;
-    }
-    .modal-step-label p {
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: rgba(255, 219, 181, 0.55);
-        margin-bottom: 0.3rem;
-    }
-    .modal-step-label h2 {
+    .loader-brand {
         font-family: 'Playfair Display', serif;
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #FFDBB5;
+        font-size: 22px;
+        color: var(--dark-brown);
+        letter-spacing: -0.3px;
+        opacity: 0;
+        animation: loaderFadeUp 0.5s ease 0.1s forwards;
     }
-
-    /* ── Panel shared ── */
-    .modal-panel {
-        background: #FFDBB5;
-        border-radius: 16px;
-        padding: 1.5rem;
-    }
-
-    .modal-panel-title {
+    .loader-brand span { color: var(--accent); font-style: italic; }
+    .loader-dots {
         display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #603F26;
-        margin-bottom: 1.25rem;
+        gap: 7px;
+        opacity: 0;
+        animation: loaderFadeUp 0.5s ease 0.25s forwards;
     }
-    .modal-panel-icon {
-        width: 30px; height: 30px;
-        border-radius: 8px;
-        background: rgba(96, 63, 38, 0.12);
-        display: flex; align-items: center; justify-content: center;
-        color: #603F26;
-        flex-shrink: 0;
-    }
-
-    /* ── Diagnosis trait cards ── */
-    .trait-card {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        background: rgba(96, 63, 38, 0.08);
-        border-radius: 12px;
-        padding: 0.85rem 1rem;
-        margin-bottom: 0.65rem;
-        animation: slideInUp 0.3s ease forwards;
-    }
-    .trait-card:nth-child(1) { animation-delay: 0.05s; }
-    .trait-card:nth-child(2) { animation-delay: 0.1s; }
-    .trait-card:nth-child(3) { animation-delay: 0.15s; }
-    .trait-card:nth-child(4) { animation-delay: 0.2s; }
-
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .trait-icon {
-        width: 36px; height: 36px;
+    .loader-dots span {
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: rgba(96, 63, 38, 0.15);
-        display: flex; align-items: center; justify-content: center;
-        color: #603F26;
-        flex-shrink: 0;
-        font-size: 1rem;
+        background: var(--accent-light);
+        animation: dotPulse 1.4s ease infinite;
     }
-    .trait-info strong {
-        display: block;
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: #603F26;
+    .loader-dots span:nth-child(2) { animation-delay: 0.18s; }
+    .loader-dots span:nth-child(3) { animation-delay: 0.36s; }
+
+    @keyframes loaderFadeUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
-    .trait-info small {
-        font-size: 0.72rem;
-        color: rgba(96, 63, 38, 0.55);
+    @keyframes dotPulse {
+        0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+        40%            { transform: scale(1.2); opacity: 1; }
     }
 
-    /* ── Confirm btn ── */
-    .confirm-btn-wrap {
-        grid-column: 1 / -1;
+    /* Konten halaman utama dimulai invisible, reveal setelah loader pergi */
+    #app-content {
+        opacity: 0;
+        transition: opacity 0.45s ease;
+    }
+    #app-content.visible {
+        opacity: 1;
+    }
+
+    body {
+        background: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--dark-brown);
+        min-height: 100vh;
+    }
+
+    /* ========================
+       SCREEN SYSTEM
+    ======================== */
+    .screen {
+        position: fixed;
+        inset: 0;
         display: flex;
+        flex-direction: column;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+        z-index: 10;
+    }
+    .screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(16px);
+    }
+    .screen.exit-up {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-20px);
+    }
+
+    /* ========================
+       SCREEN 1: LANDING (Claude-chat style)
+    ======================== */
+    #screen-landing {
+        background: var(--cream);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
-        padding-top: 0.5rem;
-    }
-    .confirm-btn {
-        background: transparent;
-        border: 1.5px solid #FFDBB5;
-        border-radius: 999px;
-        padding: 0.72rem 2.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        font-family: 'Poppins', sans-serif;
-        color: #FFDBB5;
-        cursor: pointer;
-        transition: background 0.2s, color 0.2s;
-    }
-    .confirm-btn:hover {
-        background: #FFDBB5;
-        color: #603F26;
-    }
-    .confirm-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+        padding: 100px 20px 40px;
     }
 
-    /* ── Refine: TOP CONCERNS ── */
-    .concerns-label {
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: rgba(96, 63, 38, 0.5);
-        margin-bottom: 0.6rem;
-    }
-
-    .concerns-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        margin-bottom: 1.1rem;
-    }
-
-    .concern-select {
-        background: rgba(96, 63, 38, 0.1);
-        border: 1px solid rgba(96, 63, 38, 0.18);
-        border-radius: 999px;
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-        font-family: 'Poppins', sans-serif;
-        color: #603F26;
-        outline: none;
-        appearance: none;
-        -webkit-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23603F26' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.85rem center;
-        background-color: rgba(96, 63, 38, 0.1);
-        cursor: pointer;
+    /* Center content */
+    .landing-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 20px;
+        text-align: center;
         width: 100%;
+        margin-buttom: 40px;
     }
-    .concern-select:focus {
-        box-shadow: 0 0 0 2px rgba(96, 63, 38, 0.2);
+    .landing-eyebrow {
+        font-size: 11px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 20px;
+        background: rgba(193,127,74,0.1);
+        padding: 6px 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(193,127,74,0.2);
+    }
+    .landing-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(32px, 5vw, 60px);
+        color: var(--dark-brown);
+        line-height: 1.1;
+        margin-bottom: 16px;
+        max-width: 720px;
+        letter-spacing: -0.5px;
+    }
+    .landing-title span {
+        color: var(--accent);
+        font-style: italic;
+    }
+    .landing-desc {
+        font-size: 15px;
+        color: var(--text-muted);
+        max-width: 460px;
+        line-height: 1.65;
+        font-weight: 400;
     }
 
-    .concern-static {
-        background: rgba(96, 63, 38, 0.07);
-        border: 1px solid rgba(96, 63, 38, 0.14);
-        border-radius: 999px;
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-        color: rgba(96, 63, 38, 0.6);
-        display: flex; align-items: center; justify-content: center;
+    /* Bottom input area — anchored to bottom like Claude */
+    .landing-bottom {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Suggestion chips */
+    .suggestion-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 4px;
+    }
+    .chip {
+        background: #FFF;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 7px 16px;
+        font-size: 13px;
+        color: var(--brown);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 400;
+        white-space: nowrap;
+    }
+    .chip:hover {
+        background: var(--dark-brown);
+        color: var(--cream);
+        border-color: var(--dark-brown);
+    }
+
+    /* Input box */
+    .input-box {
+        width: 100%;
+        max-width: 680px;
+        margin: 0 auto;
+        background: #FFF;
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(61,32,16,0.06), 0 1px 3px rgba(61,32,16,0.04);
+        transition: border-color 0.25s, box-shadow 0.25s;
+        overflow: hidden;
+    }
+    .input-box:focus-within {
+        border-color: var(--brown);
+        box-shadow: 0 4px 24px rgba(108,78,49,0.12);
+    }
+    .input-box textarea {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        color: var(--dark-brown);
+        background: transparent;
+        padding: 18px 20px 8px;
+        resize: none;
+        min-height: 56px;
+        max-height: 220px;
+        line-height: 1.55;
+        display: block;
+        overflow-y: hidden;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+        word-break: break-word;
+        white-space: pre-wrap;
+    }
+    .input-box textarea::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+    .input-box textarea::placeholder {
+        color: rgba(108,78,49,0.38);
+    }
+    .input-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px 12px;
+    }
+    .toolbar-left {
+        display: flex;
+        gap: 6px;
+    }
+    .toolbar-tag {
+        font-size: 11px;
+        color: var(--text-muted);
+        background: var(--cream-dark);
+        padding: 4px 10px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    .btn-send {
+        width: 36px;
+        height: 36px;
+        background: var(--dark-brown);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, transform 0.15s;
+        flex-shrink: 0;
+    }
+    .btn-send:hover {
+        background: var(--accent);
+        transform: scale(1.05);
+    }
+    .btn-send:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .btn-send svg {
+        fill: none;
+        stroke: #FFF;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .input-hint {
+        font-size: 12px;
+        color: var(--text-muted);
         text-align: center;
     }
 
-    /* ── Must-have / Avoid ── */
-    .musthave-label {
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: rgba(96, 63, 38, 0.5);
-        display: block;
-        margin-bottom: 0.75rem;
+    /* ========================
+       SCREEN 2: ANALYSIS
+    ======================== */
+    #screen-analysis {
+        background: linear-gradient(145deg, #7A5C3E 0%, #5C3D22 60%, #4A2E14 100%);
+        color: #FFEAC5;
+        display: flex;
+        flex-direction: column;
     }
 
-    .pref-check-item {
-        display: inline-flex;
+    .analysis-nav {
+        padding: 24px 40px;
+        display: flex;
         align-items: center;
-        gap: 0.5rem;
-        background: rgba(96, 63, 38, 0.1);
-        border-radius: 999px;
-        padding: 0.4rem 1rem 0.4rem 0.6rem;
-        font-size: 0.8rem;
-        color: #603F26;
-        cursor: pointer;
-        user-select: none;
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
+        justify-content: space-between;
+        flex-shrink: 0;
     }
-    .pref-check-item input[type="checkbox"] {
-        width: 15px; height: 15px;
-        accent-color: #603F26;
+    .analysis-nav .nav-brand { color: #FFEAC5; }
+    .analysis-nav .nav-brand-icon {
+        background: rgba(255,234,197,0.15);
+        color: #FFEAC5;
+    }
+    .btn-cancel {
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255,234,197,0.6);
+        background: transparent;
+        border: 1px solid rgba(255,234,197,0.15);
+        border-radius: 20px;
+        padding: 7px 18px;
         cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .btn-cancel:hover {
+        color: #FFEAC5;
+        border-color: rgba(255,234,197,0.4);
     }
 
-    /* ── Error display ── */
-    .error-alert {
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        color: #721c24;
-        display: none;
+    .analysis-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
     }
-    .error-alert.show {
+    .analysis-inner {
+        width: 100%;
+        max-width: 480px;
+    }
+
+    /* Query preview bubble */
+    .query-bubble {
+        background: rgba(255,234,197,0.08);
+        border: 1px solid rgba(255,234,197,0.12);
+        border-radius: 16px;
+        padding: 14px 18px;
+        font-size: 14px;
+        color: rgba(255,234,197,0.7);
+        margin-bottom: 40px;
+        font-style: italic;
+        line-height: 1.55;
+        position: relative;
+    }
+    .query-bubble::before {
+        content: '"';
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        color: rgba(255,234,197,0.2);
+        position: absolute;
+        top: 6px;
+        left: 12px;
+        line-height: 1;
+    }
+    .query-bubble span {
+        padding-left: 18px;
         display: block;
     }
 
-    /* ── Responsive ── */
-    @media (max-width: 640px) {
-        .modal-card {
-            grid-template-columns: 1fr;
-            padding: 1.5rem 1.25rem;
-        }
-        .modal-step-label { grid-column: 1; }
-        .confirm-btn-wrap { grid-column: 1; }
-        .consult-heading { font-size: 1.85rem; }
+    .analysis-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        margin-bottom: 32px;
+        line-height: 1.3;
+        color: #FFEAC5;
     }
+
+    .loading-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 36px;
+    }
+    .loading-step {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .loading-step.visible { opacity: 0.4; transform: translateY(0); }
+    .loading-step.active { opacity: 1; transform: translateY(0); }
+    .loading-step.done { opacity: 0.6; transform: translateY(0); }
+
+    .step-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: rgba(255,234,197,0.12);
+        border: 1px solid rgba(255,234,197,0.22);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.3s;
+    }
+    .loading-step.active .step-icon {
+        background: rgba(255,234,197,0.22);
+        border-color: rgba(255,234,197,0.45);
+    }
+    .loading-step.done .step-icon {
+        background: rgba(127,229,163,0.2);
+        border-color: rgba(127,229,163,0.4);
+    }
+    .step-icon svg {
+        width: 14px;
+        height: 14px;
+        stroke: rgba(255,234,197,0.5);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .loading-step.done .step-icon svg { stroke: #7FE5A3; }
+    .loading-step.active .step-icon svg { stroke: #FFEAC5; }
+
+    .step-info { flex: 1; }
+    .step-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #FFEAC5;
+        margin-bottom: 2px;
+    }
+    .loading-step.done .step-label {
+        text-decoration: line-through;
+        color: rgba(255,234,197,0.4);
+    }
+    .step-sub {
+        font-size: 11px;
+        color: rgba(255,234,197,0.55);
+        font-weight: 400;
+    }
+
+    /* Animated dot for active */
+    .step-pulse {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255,234,197,0.6);
+        flex-shrink: 0;
+        opacity: 0;
+    }
+    .loading-step.active .step-pulse {
+        opacity: 1;
+        animation: blink 1.2s ease infinite;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 1; }
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+        height: 2px;
+        background: rgba(255,234,197,0.15);
+        border-radius: 1px;
+        overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-light), #FFEAC5);
+        transition: width 0.6s ease;
+        width: 0%;
+    }
+
+    /* Error state */
+    .error-state { display: none; margin-top: 24px; }
+    .error-state.show { display: block; }
+    .error-box {
+        background: rgba(255,80,80,0.1);
+        border: 1px solid rgba(255,80,80,0.2);
+        border-radius: 14px;
+        padding: 16px 20px;
+        font-size: 14px;
+        color: rgba(255,234,197,0.8);
+        line-height: 1.55;
+        margin-bottom: 14px;
+    }
+    .btn-retry {
+        background: #FFEAC5;
+        color: var(--dark-brown);
+        border: none;
+        border-radius: 20px;
+        padding: 10px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        transition: opacity 0.2s;
+    }
+    .btn-retry:hover { opacity: 0.85; }
+
+    /* Noise texture overlay */
+    #screen-landing::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.4;
+    }
+    #screen-landing > * { position: relative; z-index: 1; }
 </style>
 @endpush
 
-@section('content')
-
-{{-- ════════════════════════════════════════
-     ERROR ALERT
-════════════════════════════════════════ --}}
-@if ($errors->any())
-    <div class="error-alert show" id="error-alert">
-        <strong>⚠️ Terjadi kesalahan:</strong>
-        <ul style="margin-top: 0.5rem; margin-bottom: 0;">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+    {{-- ========================
+         PAGE LOADER (anti-FOUC)
+    ======================== --}}
+    <div id="page-loader">
+        <div class="loader-inner">
+            <div class="loader-brand">Skin<span>Quo</span></div>
+            <div class="loader-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
     </div>
-@endif
 
-{{-- ════════════════════════════════════════
-     STEP 1: CONSULTATION INPUT PAGE
-════════════════════════════════════════ --}}
-<section class="consult-hero" id="consult-hero">
+    <div id="app-content">
+    <div class="relative w-full h-screen overflow-hidden">
 
-    <h1 class="consult-heading">
-        LETS FIND YOUR <span class="accent">BEST</span><br>PRODUCT MATCHES
-    </h1>
-    <p class="consult-sub">
-        Forget rigid quizzes. Tell us your skin story. Where is it oily? Does it sting? Do you have specific concerns?
-    </p>
+    {{-- ========================
+         SCREEN 1: LANDING
+        ======================== --}}
+    <div id="screen-landing" class="screen">
+        
+        {{-- HAPUS BAGIAN <nav class="landing-nav"> DI SINI --}}
 
-    {{-- Input Box --}}
-    <form id="consult-form" method="POST" action="{{ route('consultation.store') }}">
-        @csrf
+        {{-- Center Hero --}}
+        <div class="landing-center">
+            <div class="landing-eyebrow">SkinQuo Intelligence Engine</div>
+            <h1 class="landing-title">
+               Let's Discover  <span> What Your</span><br>Skin Needs.
+            </h1>
+            <p class="landing-desc">
+                Forget rigid quizzes. Tell us your skin story. Where is it oily? Does it sting? Do you have specific concerns?
+            </p>
+        </div>
 
-        <div class="consult-box">
+        {{-- Bottom Input Area --}}
+        <br class="landing-bottom">
 
-            {{-- Textarea --}}
-            <textarea
-                name="skin_story"
-                id="skin_story"
-                class="consult-textarea"
-                placeholder="My skin is oily in the T-zone but cheeks feel dry. I get red easily and Vitamin C serums sting ..."
-                rows="4"
-                maxlength="2000"
-                required
-            >{{ old('skin_story') }}</textarea>
+            <br></br>
 
-            {{-- Pills bar --}}
-            <div class="consult-pills-bar" id="pills-bar">
-
-                {{-- Add pill button --}}
-                <div style="position:relative;" id="pill-add-wrap">
-                    <button type="button" class="pill-add-btn" id="pill-add-btn" title="Add tag" aria-label="Add tag">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            {{-- Input Box --}}
+            <div class="input-box" style="width:100%;max-width:680px;">
+                <textarea
+                    id="userQuery"
+                    placeholder="My skin is oily in the T-zone but cheeks feel dry. I get red easily and Vitamin C serums sting..."
+                    autocomplete="off"
+                    maxlength="500"
+                    rows="2"
+                    oninput="autoResize(this)"></textarea>
+                <div class="input-toolbar">
+                    <div class="toolbar-left">
+                        <span class="toolbar-tag" id="charCount">0 / 500</span>
+                                    {{-- Suggestion chips --}}
+                    <div class="suggestion-chips">
+                        <button class="chip" onclick="fillChip('Kulit kering dan kusam')">Kulit Kering</button>
+                        <button class="chip" onclick="fillChip('Kulit berminyak dengan pori besar')">Kulit Berminyak</button>
+                        <button class="chip" onclick="fillChip('Kulit sensitif mudah kemerahan')">Sensitive Skin</button>
+                        <button class="chip" onclick="fillChip('Jerawat aktif dan bekas jerawat')">Acne-Prone</button>
+                    </div>
+                    </div>
+                    <button class="btn-send" id="btnSubmit" onclick="startFlow()" title="Analisis">
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <line x1="12" y1="19" x2="12" y2="5"/>
+                            <polyline points="5 12 12 5 19 12"/>
                         </svg>
                     </button>
+                </div>
+            </div>
+            <div>
+                <br>
+            </div>
+            <p class="input-hint">SkinQuo menggunakan AI dan dapat melakukan kesalahan.</p>
+        </div>
+    </div>
 
-                    {{-- Suggestions Dropdown --}}
-                    <div class="pill-suggestions" id="pill-suggestions">
-                        @php
-                            $suggestions = [
-                                'Oily T-Zone','Dry Cheeks','Redness','Sensitive','Acne-Prone',
-                                'Dark Spots','Hyperpigmentation','Fine Lines','Dehydrated',
-                                'Enlarged Pores','Dull Skin','Uneven Texture','S3 Stinger',
-                                'Vegan Only','Fragrance-Free','No Retinol'
-                            ];
-                        @endphp
-                        @foreach ($suggestions as $s)
-                            <button type="button"
-                                    class="pill-suggestion-item"
-                                    onclick="addPill('{{ addslashes($s) }}')">
-                                {{ $s }}
-                            </button>
-                        @endforeach
+    {{-- ========================
+         SCREEN 2: ANALYSIS
+    ======================== --}}
+    <div id="screen-analysis" class="screen hidden">
+
+
+
+        <div class="analysis-body">
+            <div class="analysis-inner">
+                <h2 class="analysis-title">Menjalankan Pipeline<br>Rekomendasi...</h2>
+
+                <div class="loading-steps">
+                    <div class="loading-step" id="step-0">
+                        <div class="step-icon">
+                            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-label">Membaca keluhan kulitmu...</div>
+                            <div class="step-sub">Kami menyimak setiap detail yang kamu ceritakan</div>
+                        </div>
+                        <div class="step-pulse"></div>
+                    </div>
+                    <div class="loading-step" id="step-1">
+                        <div class="step-icon">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-label">Mengenali jenis &amp; kondisi kulitmu</div>
+                            <div class="step-sub">Menganalisis karakteristik kulit dari deskripsimu</div>
+                        </div>
+                        <div class="step-pulse"></div>
+                    </div>
+                    <div class="loading-step" id="step-2">
+                        <div class="step-icon">
+                            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-label">Mencocokkan produk yang paling sesuai</div>
+                            <div class="step-sub">Menelusuri ribuan produk dari database kami</div>
+                        </div>
+                        <div class="step-pulse"></div>
+                    </div>
+                    <div class="loading-step" id="step-3">
+                        <div class="step-icon">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-label">Menyusun rekomendasi untukmu</div>
+                            <div class="step-sub">Sebentar lagi hasil analisismu siap!</div>
+                        </div>
+                        <div class="step-pulse"></div>
                     </div>
                 </div>
 
-                {{-- Dynamic pills container --}}
-                <div id="pills-container" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                    {{-- Pre-filled pills from old() if re-submitting --}}
-                    @if(old('tags'))
-                        @foreach(json_decode(old('tags'), true) ?? [] as $tag)
-                            <span class="pill-tag">
-                                {{ htmlspecialchars($tag) }}
-                                <button type="button" class="pill-remove" onclick="removePill(this)">×</button>
-                            </span>
-                        @endforeach
-                    @endif
+                <div class="progress-wrap">
+                    <div id="analysisBar" class="progress-fill"></div>
                 </div>
 
-                {{-- Hidden input to carry tags to backend --}}
-                <input type="hidden" name="tags" id="tags-input" value="{{ old('tags', '[]') }}">
-
-            </div>
-
-            {{-- Submit arrow --}}
-            <div class="submit-row">
-                <button type="submit" class="submit-arrow-btn" id="submit-btn" title="Analyze my skin">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </button>
-            </div>
-
-        </div>
-
-    </form>
-
-</section>
-
-
-{{-- ════════════════════════════════════════
-     STEP 2: DIAGNOSIS MODAL (shown after AI processes the input)
-════════════════════════════════════════ --}}
-<div class="modal-overlay" id="diagnosis-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-card">
-
-        {{-- Step label --}}
-        <div class="modal-step-label">
-            <p>STEP 2 OF 3</p>
-            <h2 id="modal-title">Confirming Your Skin Details</h2>
-        </div>
-
-        {{-- LEFT: AI Diagnosis panel --}}
-        <div class="modal-panel">
-            <div class="modal-panel-title">
-                <div class="modal-panel-icon">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
+                {{-- Error State --}}
+                <div class="error-state" id="errorState">
+                    <div class="error-box" id="errorMessage">Terjadi kesalahan. Silakan coba lagi.</div>
+                    <button class="btn-retry" onclick="resetToLanding()">↩ Coba Lagi</button>
                 </div>
-                AI Diagnosis
-            </div>
 
-            <p style="font-size:0.78rem; color:rgba(96,63,38,0.6); margin-bottom:1rem; line-height:1.6;">
-                Based on your story, we've identified these key traits:
-            </p>
-
-            {{-- Traits — populated by JS --}}
-            <div id="diagnosis-traits" style="min-height: 120px;">
-                {{-- JS will inject trait cards here --}}
-            </div>
-
-        </div>
-
-        {{-- RIGHT: Refine Preferences panel --}}
-        <div class="modal-panel">
-            <div class="modal-panel-title">
-                <div class="modal-panel-icon">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                    </svg>
-                </div>
-                Refine Preferences
-            </div>
-
-            {{-- TOP CONCERNS --}}
-            <p class="concerns-label">TOP CONCERNS</p>
-            <div class="concerns-grid">
-                <select name="concern_1" class="concern-select" id="concern-select-1">
-                    <option value="">Select concern</option>
-                    <option value="acne">Acne</option>
-                    <option value="dark_spots">Dark Spots</option>
-                    <option value="redness">Redness</option>
-                    <option value="fine_lines">Fine Lines</option>
-                    <option value="dehydration">Dehydration</option>
-                    <option value="hyperpigmentation">Hyperpigmentation</option>
-                    <option value="pores">Enlarged Pores</option>
-                    <option value="dullness">Dull Skin</option>
-                </select>
-
-                <select name="concern_2" class="concern-select" id="concern-select-2">
-                    <option value="">Select concern</option>
-                    <option value="acne">Acne</option>
-                    <option value="dark_spots">Dark Spots</option>
-                    <option value="redness">Redness</option>
-                    <option value="fine_lines">Fine Lines</option>
-                    <option value="dehydration">Dehydration</option>
-                    <option value="hyperpigmentation">Hyperpigmentation</option>
-                    <option value="pores">Enlarged Pores</option>
-                    <option value="dullness">Dull Skin</option>
-                </select>
-            </div>
-
-            {{-- MUST-HAVE / AVOID --}}
-            <label class="musthave-label">MUST-HAVE / AVOID</label>
-
-            <div style="display:flex; flex-wrap:wrap;">
-                <label class="pref-check-item">
-                    <input type="checkbox" name="preferences[]" value="vegan">
-                    Vegan
-                </label>
-                <label class="pref-check-item">
-                    <input type="checkbox" name="preferences[]" value="fragrance_free">
-                    Fragrance-Free
-                </label>
-                <label class="pref-check-item">
-                    <input type="checkbox" name="preferences[]" value="no_retinol">
-                    No Retinol
-                </label>
-                <label class="pref-check-item">
-                    <input type="checkbox" name="preferences[]" value="cruelty_free">
-                    Cruelty-Free
-                </label>
             </div>
         </div>
-
-        {{-- Confirm button --}}
-        <div class="confirm-btn-wrap">
-            <button type="button" class="confirm-btn" id="confirm-btn">
-                Confirm &amp; Continue
-            </button>
-        </div>
-
     </div>
-</div>
 
-@endsection
-
+</div>{{-- /app-content --}}
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    // ---- Anti-FOUC: reveal halaman setelah font + DOM siap ----
+    (function() {
+        function revealPage() {
+            document.documentElement.style.visibility = 'visible';
+            var loader = document.getElementById('page-loader');
+            var content = document.getElementById('app-content');
+            var minWait = 450;
+            var start = Date.now();
 
-    /* ══════════════════════
-       PILL TAG MANAGEMENT
-    ══════════════════════ */
-    const pillsContainer = document.getElementById('pills-container');
-    const tagsInput      = document.getElementById('tags-input');
-    const pillAddBtn     = document.getElementById('pill-add-btn');
-    const pillSuggestions= document.getElementById('pill-suggestions');
-    const skinStoryField = document.getElementById('skin_story');
-    const submitBtn      = document.getElementById('submit-btn');
-    const consultForm    = document.getElementById('consult-form');
-    const modal          = document.getElementById('diagnosis-modal');
+            function doReveal() {
+                var elapsed = Date.now() - start;
+                var remaining = Math.max(0, minWait - elapsed);
+                setTimeout(function() {
+                    if (loader) loader.classList.add('fade-out');
+                    if (content) content.classList.add('visible');
+                    setTimeout(function() {
+                        if (loader) loader.style.display = 'none';
+                    }, 450);
+                }, remaining);
+            }
 
-    let activeTags = [];
-    let analysisResult = null;
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(doReveal);
+            } else {
+                doReveal();
+            }
+        }
 
-    // Try to restore tags from old()
-    try {
-        activeTags = JSON.parse(tagsInput.value) || [];
-    } catch(e) { activeTags = []; }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', revealPage);
+        } else {
+            revealPage();
+        }
+    })();
 
-    function syncTagsInput() {
-        tagsInput.value = JSON.stringify(activeTags);
+    // ---- Utility ----
+    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => {
+            s.classList.add('hidden');
+            s.classList.remove('exit-up');
+        });
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
     }
 
-    window.addPill = function(label) {
-        if (activeTags.includes(label)) return;
-        activeTags.push(label);
-
-        const span = document.createElement('span');
-        span.className = 'pill-tag';
-        span.dataset.tag = label;
-        span.innerHTML = `${escHtml(label)}<button type="button" class="pill-remove" onclick="removePill(this)">×</button>`;
-        pillsContainer.appendChild(span);
-        syncTagsInput();
-        pillSuggestions.classList.remove('open');
-    };
-
-    window.removePill = function(btn) {
-        const span = btn.closest('.pill-tag');
-        const tag  = span.dataset.tag;
-        activeTags = activeTags.filter(t => t !== tag);
-        span.remove();
-        syncTagsInput();
-    };
-
-    // Toggle suggestions dropdown
-    pillAddBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        pillSuggestions.classList.toggle('open');
-    });
-
-    document.addEventListener('click', function() {
-        pillSuggestions.classList.remove('open');
-    });
-
-    pillSuggestions.addEventListener('click', e => e.stopPropagation());
-
-    function escHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+    function updateProgress(stepIndex, percent) {
+        document.querySelectorAll('.loading-step').forEach((el, i) => {
+            el.classList.remove('active');
+            if (i <= stepIndex) el.classList.add('visible');
+            if (i < stepIndex) el.classList.add('done');
+            else if (i > stepIndex) el.classList.remove('done');
+            if (i === stepIndex) el.classList.add('active');
+        });
+        const bar = document.getElementById('analysisBar');
+        if (bar) bar.style.width = percent + '%';
     }
 
-    /* ══════════════════════
-       AI INFERENCE
-    ══════════════════════ */
-    const TRAIT_ICONS = {
-        'Oily T-Zone':        { emoji: '💧', sub: 'Detected from text' },
-        'Dry Cheeks':         { emoji: '🌵', sub: 'Detected from text' },
-        'Redness':            { emoji: '🔴', sub: 'Detected from text' },
-        'Sensitive (S3 Stinger)': { emoji: '⚡', sub: 'High priority alert' },
-        'Acne-Prone':         { emoji: '🔬', sub: 'Detected from text' },
-        'Dark Spots':         { emoji: '🌑', sub: 'Detected from text' },
-        'Dehydrated':         { emoji: '💦', sub: 'Detected from text' },
-        'Fine Lines':         { emoji: '〰️', sub: 'Detected from text' },
-        'Enlarged Pores':     { emoji: '🔍', sub: 'Detected from text' },
-        'Dull Skin':          { emoji: '✨', sub: 'Detected from text' },
-        'Hyperpigmentation':  { emoji: '🌈', sub: 'Detected from text' },
-        'Uneven Texture':     { emoji: '⚪', sub: 'Detected from text' },
-        'General Skin Concern': { emoji: '✦',  sub: 'Detected from text' },
-    };
+    // MODIFIED: showError dengan Dynamic Styling untuk Peringatan Hacking/Spam
+    function showError(msg) {
+        const es = document.getElementById('errorState');
+        const em = document.getElementById('errorMessage');
+        
+        if (em) {
+            em.textContent = msg || 'Terjadi kesalahan. Silakan coba lagi.';
+            
+            // Visual dinamis: Jika terindikasi hacking/spam, buat box error lebih agresif/merah
+            if (msg && (msg.includes('Peringatan') || msg.includes('Spam') || msg.includes('Hacking'))) {
+                em.style.backgroundColor = 'rgba(255, 40, 40, 0.2)';
+                em.style.borderColor = 'rgba(255, 40, 40, 0.5)';
+                em.style.color = '#ff8888';
+            } else {
+                // Kembalikan ke styling error standar bawaan SkinQuo
+                em.style.backgroundColor = '';
+                em.style.borderColor = '';
+                em.style.color = '';
+            }
+        }
 
-    function renderTraitCards(traits) {
-        const container = document.getElementById('diagnosis-traits');
-        container.innerHTML = '';
-        if (!traits || traits.length === 0) {
-            container.innerHTML = '<p style="color: rgba(96,63,38,0.5);">No traits detected. Please provide more details.</p>';
+        if (es) es.classList.add('show');
+        document.querySelectorAll('.loading-step').forEach(el => el.classList.remove('active', 'done', 'visible'));
+        const bar = document.getElementById('analysisBar');
+        if (bar) bar.style.width = '0%';
+    }
+
+    // ---- Auto-resize textarea ----
+    function autoResize(el) {
+        el.style.height = 'auto';
+        const newHeight = Math.min(el.scrollHeight, 220);
+        el.style.height = newHeight + 'px';
+        el.style.overflowY = el.scrollHeight > 220 ? 'auto' : 'hidden';
+        
+        const cc = document.getElementById('charCount');
+        if (cc) cc.textContent = el.value.length + ' / 500';
+    }
+
+    // ---- Suggestion chips ----
+    function fillChip(text) {
+        const ta = document.getElementById('userQuery');
+        if (ta) {
+            ta.value = text;
+            autoResize(ta);
+            ta.focus();
+        }
+    }
+
+    // ---- Main flow ----
+    async function startFlow() {
+        const ta = document.getElementById('userQuery');
+        const btn = document.getElementById('btnSubmit');
+        const query = ta ? ta.value.trim() : '';
+
+        if (query.length < 5) {
+            ta.focus();
+            ta.style.borderBottom = '2px solid rgba(255,100,100,0.5)';
+            setTimeout(() => ta.style.borderBottom = '', 1200);
             return;
         }
-        traits.forEach(trait => {
-            const info = TRAIT_ICONS[trait] || TRAIT_ICONS['General Skin Concern'];
-            container.innerHTML += `
-                <div class="trait-card">
-                    <div class="trait-icon">${info.emoji}</div>
-                    <div class="trait-info">
-                        <strong>${escHtml(trait)}</strong>
-                        <small>${info.sub}</small>
-                    </div>
-                </div>
-            `;
-        });
-    }
 
-    /* ══════════════════════
-       FORM SUBMIT → ANALYZE & SHOW MODAL
-    ══════════════════════ */
+        if (btn) btn.disabled = true;
 
-    consultForm.addEventListener('submit', async function(e) {
-        const story = skinStoryField.value.trim();
-        
-        if (!story) return;
-        
-        e.preventDefault();
-        
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.classList.add('loading');
-        skinStoryField.disabled = true;
-        pillAddBtn.disabled = true;
+        const es = document.getElementById('errorState');
+        if (es) es.classList.remove('show');
+
+        // MASUK KE LOADING SCREEN SEPERTI BIASA
+        showScreen('screen-analysis');
+        updateProgress(0, 10);
 
         try {
-            // AJAX call to /consultation/analyze
-            const response = await fetch('/consultation/analyze', {
+            await delay(600); // Simulasi mikir awal
+            updateProgress(1, 30);
+
+            const response = await fetch('/api/recommend', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({
-                    skin_story: story,
-                    tags: tagsInput.value,
-                }),
+                body: JSON.stringify({ query })
             });
 
-            const data = await response.json();
+            updateProgress(2, 65);
 
-            if (!response.ok || !data.success) {
-                throw new Error(data.message || 'Gagal menganalisis');
+            let data;
+            try { 
+                data = await response.json(); 
+            } catch (e) { 
+                throw new Error('Respons server tidak valid. Coba beberapa saat lagi.'); 
             }
 
-            analysisResult = data.traits;
-            renderTraitCards(analysisResult);
+            if (!response.ok) {
+                // MODIFIED: Tangkap detail error spesifik dari FastAPI/Pydantic (422 Unprocessable Entity)
+                if (response.status === 422 && data.detail && Array.isArray(data.detail)) {
+                    let errorMessage = data.detail[0].msg;
+                    // Bersihkan awalan "Value error, " yang biasanya di-generate oleh Pydantic
+                    errorMessage = errorMessage.replace('Value error, ', '');
+                    throw new Error(errorMessage);
+                }
+                
+                throw new Error(data.message || 'Terjadi kesalahan pada sistem rekomendasi.');
+            }
 
-            // Open modal
-            modal.classList.add('open');
-            document.body.style.overflow = 'hidden';
+            if (!data.success) {
+                throw new Error(data.message || 'Terjadi kesalahan pada sistem rekomendasi.');
+            }
 
-        } catch (error) {
-            console.error('Error:', error);
-            alert('⚠️ ' + (error.message || 'Gagal menganalisis. Coba lagi.'));
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('loading');
-            skinStoryField.disabled = false;
-            pillAddBtn.disabled = false;
+            updateProgress(3, 90);
+            await delay(500);
+            updateProgress(3, 100);
+            await delay(300);
+
+            window.location.href = `/consultation/${data.consultation_id}/result`;
+
+        } catch (err) {
+            showError(err.message);
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    function resetToLanding() {
+        const ta = document.getElementById('userQuery');
+        const btn = document.getElementById('btnSubmit');
+        const es = document.getElementById('errorState');
+        if (ta) { ta.value = ''; autoResize(ta); }
+        if (btn) btn.disabled = false;
+        if (es) es.classList.remove('show');
+        document.querySelectorAll('.loading-step').forEach(el => el.classList.remove('active', 'done', 'visible'));
+        const bar = document.getElementById('analysisBar');
+        if (bar) bar.style.width = '0%';
+        showScreen('screen-landing');
+    }
+
+    // Enter key (Shift+Enter = new line)
+    document.getElementById('userQuery').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            startFlow();
         }
     });
-
-    /* ══════════════════════
-       CONFIRM BTN → CAPTURE DATA & SUBMIT
-    ══════════════════════ */
-    document.getElementById('confirm-btn').addEventListener('click', function() {
-        // Capture refinement data
-        const concern1 = document.querySelector('select[name="concern_1"]').value;
-        const concern2 = document.querySelector('select[name="concern_2"]').value;
-        const preferences = Array.from(
-            document.querySelectorAll('input[name="preferences[]"]:checked')
-        ).map(cb => cb.value);
-
-        // Remove old hidden inputs if any
-        consultForm.querySelectorAll('input[name="traits"]').forEach(el => el.remove());
-        consultForm.querySelectorAll('input[name="concern_1"]').forEach(el => el.remove());
-        consultForm.querySelectorAll('input[name="concern_2"]').forEach(el => el.remove());
-        consultForm.querySelectorAll('input[name="preferences"]').forEach(el => el.remove());
-
-        // Add new hidden inputs
-        const traitsInput = document.createElement('input');
-        traitsInput.type = 'hidden';
-        traitsInput.name = 'traits';
-        traitsInput.value = JSON.stringify(analysisResult);
-        consultForm.appendChild(traitsInput);
-
-        if (concern1) {
-            const c1Input = document.createElement('input');
-            c1Input.type = 'hidden';
-            c1Input.name = 'concern_1';
-            c1Input.value = concern1;
-            consultForm.appendChild(c1Input);
-        }
-
-        if (concern2) {
-            const c2Input = document.createElement('input');
-            c2Input.type = 'hidden';
-            c2Input.name = 'concern_2';
-            c2Input.value = concern2;
-            consultForm.appendChild(c2Input);
-        }
-
-        preferences.forEach(pref => {
-            const prefInput = document.createElement('input');
-            prefInput.type = 'hidden';
-            prefInput.name = 'preferences[]';
-            prefInput.value = pref;
-            consultForm.appendChild(prefInput);
-        });
-
-        // Close modal
-        modal.classList.remove('open');
-        document.body.style.overflow = '';
-        
-        // Submit form
-        consultForm.submit();
-    });
-
-    // Close modal on overlay click
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-    });
-
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('open')) {
-            modal.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-    });
-
-});
 </script>
 @endpush

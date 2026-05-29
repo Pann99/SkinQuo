@@ -6,44 +6,37 @@ from app.utils.Database_processing import (
     extract_description,
     extract_ingredients,
     extract_category,
+    extract_usage,
+    create_content_feature,   
     print_summary,
 )
 
 
 def run_pipeline_supabase() -> pd.DataFrame:
-
     print("[API] Menarik data produk dari Supabase...")
 
     # =====================================================
     # FETCH DATA
     # =====================================================
-
     response = (
         supabase
         .table("products")
         .select("*")
         .execute()
     )
-
     if not response.data:
-
         print("Error: Tidak ada data ditemukan di Supabase.")
-
         return pd.DataFrame()
 
     # =====================================================
     # RAW DATAFRAME
     # =====================================================
-
     df = pd.DataFrame(response.data)
-
-    # NORMALISASI NAMA KOLOM
     df.columns = (
         df.columns
         .str.strip()
         .str.lower()
     )
-
     print("\n========== RAW DF ==========")
     print(df.head(2))
     print("\nCOLUMNS:")
@@ -53,7 +46,6 @@ def run_pipeline_supabase() -> pd.DataFrame:
     # =====================================================
     # DESCRIPTION CLEANING
     # =====================================================
-
     df = extract_description(df)
 
     print("\n========== AFTER DESCRIPTION ==========")
@@ -63,7 +55,6 @@ def run_pipeline_supabase() -> pd.DataFrame:
     # =====================================================
     # INGREDIENT CLEANING
     # =====================================================
-
     df = extract_ingredients(df)
 
     print("\n========== AFTER INGREDIENT ==========")
@@ -73,7 +64,6 @@ def run_pipeline_supabase() -> pd.DataFrame:
     # =====================================================
     # CATEGORY CLEANING
     # =====================================================
-
     df = extract_category(df)
 
     print("\n========== AFTER CATEGORY ==========")
@@ -81,15 +71,35 @@ def run_pipeline_supabase() -> pd.DataFrame:
     print("====================================")
 
     # =====================================================
+    # CARA PAKAI CLEANING (KUNCI PERBAIKAN)
+    # =====================================================
+    # Fungsi ini wajib dieksekusi agar kolom 'cara_pakai_clean' terbentuk!
+    df = extract_usage(df)
+
+    print("\n========== AFTER CARA PAKAI ==========")
+    print(df.columns.tolist())
+    print("======================================")
+
+    # =====================================================
+    # CONTENT METADATA — Bag of Words untuk TF-IDF
+    # =====================================================
+    df = create_content_feature(df)
+
+    print("\n========== AFTER CONTENT METADATA ==========")
+    print(df.columns.tolist())
+    print("=============================================")
+
+    # =====================================================
     # VALIDASI FINAL
     # =====================================================
-
     required_columns = [
         "nama_produk",
         "nama_brand",
         "deskripsi_clean",
         "kandungan_clean",
-        "kategori_clean"
+        "kategori_clean",
+        "cara_pakai_clean",  # <-- Sekarang validasi ini akan lolos dengan aman
+        "content_metadata",   
     ]
 
     missing_columns = [
@@ -99,14 +109,11 @@ def run_pipeline_supabase() -> pd.DataFrame:
     ]
 
     if missing_columns:
-
         raise ValueError(
-            f"Missing columns after pipeline: "
-            f"{missing_columns}"
+            f"Missing columns after pipeline: {missing_columns}"
         )
 
     print_summary(df)
-
     print("\n========== FINAL DF ==========")
     print(df.head(2))
     print(df.columns.tolist())
