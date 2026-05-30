@@ -117,6 +117,19 @@
     .cr-reason-title-small { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.35rem; }
     .cr-reason-text { font-size: 0.82rem; color: rgba(255,253,248,0.9); line-height: 1.5; }
 
+    /* ─ Precaution Notes / Edukasi Medis ─ */
+    .cr-precaution-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        width: 100%;
+    }
+    .cr-precaution-box { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.9rem 1rem; border-radius: 14px; font-size: 0.79rem; line-height: 1.55; border: 1px solid; }
+    .cr-precaution-box.warning { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
+    .cr-precaution-box.info { background: #F0F9FF; border-color: #BAE6FD; color: #075985; }
+    .cr-precaution-box-icon { flex-shrink: 0; font-size: 1.1rem; margin-top: 0.05rem; }
+    .cr-precaution-content strong { display: block; margin-bottom: 0.2rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.9; font-weight: 700; }
+
     /* Layout untuk Button di Sidebar Kanan */
     .cr-btn-group { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
     .cr-btn { display: inline-flex; justify-content: center; align-items: center; gap: 0.6rem; width: 100%; background: #4A3728; color: #FFFDF8; padding: 0.85rem 1.6rem; border: none; border-radius: 50px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; font-family: 'DM Sans', sans-serif; }
@@ -199,7 +212,9 @@
                 ? json_decode($consultation->ingredient_result, true)
                 : ($consultation->ingredient_result ?? []);
 
-            $queryText = $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
+            // PERUBAHAN: Tampilkan Original Query jika tersedia
+            $queryText = $ingredientResult['original_query'] ?? $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
+            
             $constraints = $ingredientResult['constraints'] ?? [];
             $products = $ingredientResult['all_products'] ?? [];
             $ingredients = $ingredientResult['ingredients'] ?? [];
@@ -228,6 +243,20 @@
 
         {{-- ═══ MAIN SHOWCASE ═══ --}}
         @if($heroProduct)
+        {{-- Pre-compute reasonMeta di sini agar tersedia di semua kolom --}}
+        @php
+            $reasonMeta = $heroProduct['reasoning_meta'] ?? null;
+            $reasonText = $reasonMeta['reasoning_text'] ?? '';
+            if (empty($reasonText) && $reasonMeta) {
+                $kategoriText = implode(', ', $reasonMeta['matched_categories'] ?? ['Produk']);
+                $kandunganText = implode(', ', $reasonMeta['matched_ingredients'] ?? []);
+                if (($reasonMeta['reason_code'] ?? '') === 'MATCHED_INGREDIENTS') {
+                    $reasonText = "Sesuai dengan pencarianmu untuk tipe {$kategoriText}, dan mengandung {$kandunganText} yang relevan dengan kebutuhan kulitmu.";
+                } else {
+                    $reasonText = "Sebagai {$kategoriText}, produk ini memiliki kecocokan tinggi dengan keseluruhan kata kunci pencarianmu.";
+                }
+            }
+        @endphp
         <div class="cr-main-grid">
             <div class="cr-showcase-section">
 
@@ -255,7 +284,7 @@
                                     @if(!empty($prod['image_url']))
                                         <img src="{{ $prod['image_url'] }}" alt="{{ $prod['product_name'] }}" loading="lazy">
                                     @else
-                                        ✨
+                                        
                                     @endif
                                 </div>
                                 <div class="cr-alt-thumb-score">{{ round(($prod['similarity_score'] ?? 0.8) * 100) }}%</div>
@@ -278,6 +307,24 @@
                                 </a>
                             </div>
                         </div>
+                    </div>
+                    @endif
+
+                    {{-- Edukasi Kandungan & Peringatan Medis — di bawah thumbnail alternatif --}}
+                    @if(!empty($reasonMeta['precaution_notes']))
+                    <div class="cr-precaution-wrapper" style="margin-top: 0.8rem;">
+                        @foreach($reasonMeta['precaution_notes'] as $note)
+                            @php
+                                $isWarning = \Illuminate\Support\Str::contains(strtolower($note), ['retinol', 'eksfoliasi', 'sensitivitas', 'wajib', 'sinar matahari', 'iritasi']);
+                            @endphp
+                            <div class="cr-precaution-box {{ $isWarning ? 'warning' : 'info' }}">
+                                <div class="cr-precaution-box-icon">{{ $isWarning ? '⚠️' : '💡' }}</div>
+                                <div class="cr-precaution-content">
+                                    <strong>{{ $isWarning ? 'Peringatan Medis' : 'Edukasi Kandungan' }}</strong>
+                                    {{ $note }}
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                     @endif
                 </div>
@@ -344,25 +391,13 @@
                         </div>
                     </div>
                     @endif
+
                 </div>
 
                 {{-- RIGHT: Sidebar (MODIFIKASI URUTAN BARU) --}}
                 <div class="cr-right-sidebar">
                     
-                    {{-- 1. Kotak Alasan Rekomendasi di Paling Atas --}}
-                    @php
-                        $reasonMeta = $heroProduct['reasoning_meta'] ?? null;
-                        $reasonText = '';
-                        if ($reasonMeta) {
-                            $kategoriText = implode(', ', $reasonMeta['matched_categories'] ?? ['Produk']);
-                            $kandunganText = implode(', ', $reasonMeta['matched_ingredients'] ?? []);
-                            if (($reasonMeta['reason_code'] ?? '') === 'MATCHED_INGREDIENTS') {
-                                $reasonText = "Sesuai dengan pencarianmu untuk tipe {$kategoriText}, dan mengandung {$kandunganText} yang relevan dengan kebutuhan kulitmu.";
-                            } else {
-                                $reasonText = "Sebagai {$kategoriText}, produk ini memiliki kecocokan tinggi dengan keseluruhan kata kunci pencarianmu.";
-                            }
-                        }
-                    @endphp
+                    {{-- 1. Kotak Alasan Rekomendasi --}}
 
                     @if($reasonText)
                     <div class="cr-reason-banner">
@@ -374,7 +409,7 @@
                     </div>
                     @endif
 
-                    {{-- 2. Kotak Diagnosis Sekarang di Tengah di bawah Alasan --}}
+                    {{-- 2. Kotak Diagnosis Sekarang di Tengah --}}
                     <div class="cr-diagnosis-card">
                         <h3 class="cr-diagnosis-title">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;">
@@ -461,7 +496,7 @@
         {{-- ═══ KOMPOSISI BAHAN GLOBAL ═══ --}}
         @if(!empty($ingredients) && count($ingredients) > 0)
         <div class="cr-ingredients-section">
-            <h2 class="cr-ingredients-title">🧪 Komposisi Bahan Utama</h2>
+            <h2 class="cr-ingredients-title">Komposisi Bahan Utama</h2>
             <div class="cr-carousel-container">
                 @foreach($ingredients as $ingredient)
                     <div class="cr-ingredient-card">
@@ -482,7 +517,7 @@
             $heroConcerns = !empty($skinConcern) ? implode(', ', array_slice($skinConcern, 0, 2)) : 'Perawatan Kulit';
         @endphp
         <div class="cr-articles-section">
-            <h2 class="cr-articles-title">📖 Artikel Terkait</h2>
+            <h2 class="cr-articles-title">Artikel Terkait</h2>
 
             @if(!empty($relatedArticles))
                 <div class="cr-articles-grid">

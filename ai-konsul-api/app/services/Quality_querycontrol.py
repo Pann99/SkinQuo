@@ -18,36 +18,12 @@ Tidak boleh dilakukan di sini:
 """
 
 from __future__ import annotations
-
 from rapidfuzz import fuzz
+from app.services.keyword_manager import keyword_manager  # IMPORT INI
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Keyword repository
 # ─────────────────────────────────────────────────────────────────────────────
-
-VALIDATION_KEYWORDS: dict[str, list[str]] = {
-    "product": [
-        "toner", "serum", "moisturizer", "sunscreen", "cleanser", "essence",
-        "exfoliant", "mask", "eye cream", "face wash", "pelembab", "sabun",
-        "losion", "lotion", "ampoule", "mist", "primer", "bb cream", "cc cream",
-    ],
-    "problem": [
-        "bruntusan", "jerawat", "acne", "kusam", "flek", "hiperpigmentasi",
-        "pori-pori", "kering", "berminyak", "sensitif", "kemerahan", "redness",
-        "kerutan", "penuaan", "aging", "bekas luka", "dark spot", "komedo",
-    ],
-    "constraint": [
-        "niacinamide", "retinol", "vitamin c", "hyaluronic acid", "aha", "bha",
-        "pha", "centella asiatica", "salicylic acid", "glycolic acid", "ceramide",
-        "peptide", "zinc", "tea tree", "kojic acid", "arbutin", "snail mucin",
-        "tranexamic acid", "azelaic acid", "bakuchiol",
-    ],
-    "skin_type": [
-        "kulit kering", "kulit berminyak", "kulit kombinasi", "kulit sensitif",
-        "kulit normal", "dry skin", "oily skin", "combination skin",
-        "sensitive skin", "normal skin", "kulit", "semua jenis kulit", "all skin type",
-    ],
-}
 
 LABEL_MAP: dict[str, str] = {
     "product":    "[Product] Jenis produk",
@@ -62,7 +38,6 @@ LABEL_MAP: dict[str, str] = {
 
 DETECT_THRESHOLD_SINGLE: int = 78   # 1 kata 
 DETECT_THRESHOLD_PHRASE: int = 85   # frasa   — ketat, cegah false positive frasa
-
 # Keyword terlalu pendek/umum — skip fuzzy detection agar tidak noise
 FUZZY_SKIP_KEYWORDS: frozenset[str] = frozenset({"kulit"})
 
@@ -137,7 +112,7 @@ def _match_category(
 
 def validate_query(text: str) -> dict:
     """
-    Validasi query terhadap keyword repository.
+    Validasi query terhadap keyword repository secara dinamis dari KeywordManager.
     """
     text_lower = text.lower()
 
@@ -145,7 +120,8 @@ def validate_query(text: str) -> dict:
     missing:           list[str]       = []
     fixable_keywords:  dict[str, list] = {}
 
-    for category, keywords in VALIDATION_KEYWORDS.items():
+    # ✔️ MENGGUNAKAN KEYWORD MANAGER DI SINI
+    for category, keywords in keyword_manager.VALIDATION_KEYWORDS.items():
         exact_found, fixable_found = _match_category(text_lower, keywords)
 
         if exact_found or fixable_found:
@@ -181,3 +157,4 @@ def validate_query(text: str) -> dict:
         "missing":          missing,
         "fixable_keywords": fixable_keywords,
     }
+

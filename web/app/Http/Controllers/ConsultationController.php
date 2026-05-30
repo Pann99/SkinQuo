@@ -43,7 +43,7 @@ class ConsultationController extends Controller
                 'query' => ['required', 'string', 'min:5', 'max:200']
             ]);
 
-            $userId = Auth::id() ?? 5;
+            $userId = Auth::id() ?? 5; // id masih statis bikinkan agar dinamis menyesuaian user yang login  dan buatkan agar si tamu bisa tetap query tapi gak kesimpan di db gpp dan di limit aja 3 request per hari
 
             return DB::transaction(function () use ($validated, $userId) {
                 

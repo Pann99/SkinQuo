@@ -1,7 +1,7 @@
 import re
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
-from app.services.Quality_querycontrol import VALIDATION_KEYWORDS
+from app.services.keyword_manager import keyword_manager  # ✔️ IMPORT INI, HAPUS VALIDATION_KEYWORDS LAMA
 
 # ── Initialize Sastrawi ──────────────────────────────────────────
 stopword_factory = StopWordRemoverFactory()
@@ -10,26 +10,20 @@ stopword_remover  = stopword_factory.create_stop_word_remover()
 stemmer_factory = StemmerFactory()
 stemmer          = stemmer_factory.create_stemmer()
 
-# ── Protected keywords agar tidak rusak saat stemming ────────────
-PROTECTED_KEYWORDS = set()
-for keywords in VALIDATION_KEYWORDS.values():
-    for kw in keywords:
-        PROTECTED_KEYWORDS.add(kw.lower())  
-
-# Urutkan dari yang terpanjang agar multi-word phrase di-mask duluan
-SORTED_PROTECTED = sorted(PROTECTED_KEYWORDS, key=len, reverse=True)
-
+# Cache untuk mempercepat proses stemming kata non-keyword
+STEM_CACHE = {}
 
 # ── Internal helpers ─────────────────────────────────────────────
 
 def _mask_protected(text: str) -> tuple[str, dict]:
-    """Ganti protected keywords dengan placeholder __KW_i__."""
+    """Ganti protected keywords dengan placeholder __KW_i__ secara dinamis dari KeywordManager."""
     mapping = {}
-    for i, keyword in enumerate(SORTED_PROTECTED):
+    
+    # ✔️ Ambil list keyword yang sudah diurutkan dari yang terpanjang secara dinamis dari RAM
+    for i, keyword in enumerate(keyword_manager.SORTED_PROTECTED):
         placeholder = f"__KW_{i}__"
         if keyword in text:
-            # Menggunakan regex agar hanya mengganti kata utuh (word boundary)
-            # Ini mencegah 'serum' tidak sengaja merusak kata lain yang mengandung string tersebut
+            # Menggunakan regex word boundary (\b) agar hanya mengganti kata utuh
             text = re.sub(r'\b' + re.escape(keyword) + r'\b', placeholder, text)
             mapping[placeholder] = keyword
     return text, mapping
@@ -52,17 +46,15 @@ def _safe_remove_stopwords(text: str) -> str:
     return " ".join(filtered_words)
 
 
-# Tambahkan cache di luar fungsi
-STEM_CACHE = {}
-
 def _safe_stemming(text: str) -> str:
+    """Proses stemming aman yang melewati token placeholder."""
     words = text.split()
     stemmed_words = []
     for word in words:
         if "__KW_" in word:
             stemmed_words.append(word)
         else:
-            # Gunakan cache 
+            # Gunakan cache biar performa tracking kata tidak lambat
             if word not in STEM_CACHE:
                 STEM_CACHE[word] = stemmer.stem(word)
             stemmed_words.append(STEM_CACHE[word])
@@ -72,8 +64,8 @@ def _safe_stemming(text: str) -> str:
 # ── Public API ───────────────────────────────────────────────────
 
 def preprocess_text(text: str) -> str:
- 
-    # 1. Lowercase dan  whitespace
+    """Pipeline pembersihan text utama untuk query konsultasi."""
+    # 1. Lowercase dan whitespace
     text = text.lower().strip()
 
     # 2. Hapus karakter spesial 
@@ -96,8 +88,9 @@ def preprocess_text(text: str) -> str:
 
     return text
 
+
 def preprocess_ingredients(text: str) -> str:
-    """Pipeline khusus untuk komposisi/ingredients. TANPA Sastrawi."""
+    """Pipeline khusus untuk komposisi/ingredients data produk tanpa Sastrawi."""
     text = text.lower().strip()
     
     # Hapus karakter spesial (koma dll)
