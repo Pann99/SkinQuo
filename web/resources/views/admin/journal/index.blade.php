@@ -33,14 +33,14 @@
   </div>
 
   <section class="journal-card">
-    <div class="journal-card-header">
-      <form class="journal-search-row" action="#" method="GET">
-        <label class="journal-search-field">
+    <div class="journal-card-header" style="align-items: center;">
+      <form class="journal-search-row" action="#" method="GET" style="flex: 1; margin-bottom: 0; max-width: 560px;">
+        <label class="search-wrapper" style="width: 100%;">
           <i class="bi bi-search"></i>
-          <input type="text" name="q" placeholder="Cari pesan atau nama..." />
+          <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari artikel atau penulis..." aria-label="Cari artikel atau penulis" />
         </label>
       </form>
-      <a href="{{ route('admin.journal.create') }}" class="btn-primary-admin">
+      <a href="{{ route('admin.journal.create') }}" class="btn-primary-admin" style="flex-shrink: 0;">
         <i class="bi bi-pencil-square"></i>
         Create Article
       </a>

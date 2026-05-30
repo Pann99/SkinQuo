@@ -40,11 +40,24 @@ Route::get('/products', function () {
 Route::get('/catalog', [ProductController::class, 'index'])->name('catalog.index');
 Route::get('/catalog/{product_id}', [ProductController::class, 'show'])->name('products.show');
 
-// ── Public Konsultasi (Form & AJAX Analysis) ───────────────
+// ── Web Consultation Modul (Integrasi Jembatan FastAPI & Supabase) ───────────
+
+// 1. Tampilan utama halaman konsultasi
 Route::get('/consultation', [ConsultationController::class, 'index'])->name('consultation.index');
-Route::post('/consultation/analyze', [ConsultationController::class, 'analyze']); // AJAX endpoint
-Route::post('/consultation', [ConsultationController::class, 'store'])->name('consultation.store'); // Guest dapat submit
-Route::get('/consultation/{id}', [ConsultationController::class, 'result'])->name('consultation.result'); // Guest dapat view hasil
+// 2. Endpoint API utama yang ditembak oleh fetch() Javascript (Jembatan ke Python FastAPI)
+Route::post('/api/recommend', [ConsultationController::class, 'sendConsultation'])->name('consultation.recommend');
+// 3. Tampilan halaman hasil (URL disesuaikan persis dengan window.location.href di JS)
+Route::get('/consultation/{id}/result', [ConsultationController::class, 'result'])->name('consultation.result');
+// (Opsional) Jika endpoint rule-based lama masih dipakai sebagai cadangan
+Route::post('/consultation/analyze', [ConsultationController::class, 'analyze']);
+
+/**
+ * KUNCI PERBAIKAN STUCK LOADING (Opsi 1):
+ * Route internal jembatan dari AJAX Blade menuju Python FastAPI.
+ * Endpoint ini didaftarkan sebagai '/api/recommend' karena di javascript 
+ * halaman consultation.blade.php kamu menembak URL path '/api/recommend'.
+ */
+Route::post('/api/recommend', [ConsultationController::class, 'sendConsultation'])->name('consultation.recommend');
 
 // ── Public Feedback (Guest & Auth) ─────────────────────────
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store'); // Homepage feedback
@@ -88,7 +101,7 @@ Route::view('/admin/profile-preview/change-password', 'admin.profile.change-pass
 Route::view('/admin/journal-preview', 'admin.journal.index')->name('admin.journal.preview');
 Route::view('/admin/journal-preview/create', 'admin.journal.create')->name('admin.journal.preview.create');
 Route::view('/admin/journal-preview/edit', 'admin.journal.edit')->name('admin.journal.preview.edit');
-Route::view('/admin/feedback-preview', 'admin.feedback.monitor')->name('admin.feedback.preview');
+Route::get('/admin/feedback-preview', [AdminFeedbackController::class, 'monitor'])->name('admin.feedback.preview');
 // TODO [DEV]: Remove preview routes after admin auth is implemented.
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -201,6 +214,8 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::get('/feedback/{id}', [AdminFeedbackController::class, 'show'])->name('feedback.show');
     Route::post('/feedback/{id}/mark-reviewed', [AdminFeedbackController::class, 'markAsReviewed'])->name('feedback.mark-reviewed');
     Route::delete('/feedback/{id}', [AdminFeedbackController::class, 'destroy'])->name('feedback.destroy');
+    Route::get('/feedback/export/csv', [AdminFeedbackController::class, 'exportCsv'])->name('feedback.export.csv');
+    Route::get('/feedback/export/pdf', [AdminFeedbackController::class, 'exportPdf'])->name('feedback.export.pdf');
 
 });
 
