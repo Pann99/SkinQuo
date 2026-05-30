@@ -7,6 +7,7 @@ use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSkinGuideController;
 use App\Http\Controllers\AdminFeedbackController;
@@ -137,14 +138,13 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     // ── Admin Dashboard ────────────────────────────
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // ── Admin Profile (Frontend preview only) ──────
-    Route::view('/profile', 'admin.profile.profile')->name('profile');
-    Route::view('/profile/change-password', 'admin.profile.change-password')
+    // ── Admin Profile Management ────────────────────
+    Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile');
+    Route::get('/profile/change-password', [AdminProfileController::class, 'showChangePassword'])
          ->name('profile.change-password');
-    Route::patch('/profile/update-password', function () {
-        return redirect()->route('admin.profile');
-    })->name('profile.update-password');
-    // TODO [BACKEND]: Replace these view routes with real controller actions later.
+    Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])
+         ->name('profile.update-password');
+    Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
 
     // ── Admin placeholder pages for navigation links ──
     Route::view('/inventory', 'admin.inventory.index')->name('inventory');

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
@@ -24,62 +25,72 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // LANGKAH 1: VALIDASI INPUT
+        // STEP 1: RATE LIMITING - Check if too many attempts
+        $throttleKey = 'login.' . $request->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, $max = 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->withErrors([
+                'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
+            ])->onlyInput('email');
+        }
+
+        // STEP 2: VALIDATE INPUT
         $request->validate([
             'email' => 'required|email|max:255',
-            'password' => 'required|string|min:6|max:255'
+            'password' => 'required|string|min:8|max:255'
         ], [
-            'email.required' => 'Email tidak boleh kosong.',
-            'email.email' => 'Format email tidak valid.',
-            'email.max' => 'Email terlalu panjang (maksimal 255 karakter).',
-            'password.required' => 'Password tidak boleh kosong.',
-            'password.min' => 'Password minimal 6 karakter.',
-            'password.max' => 'Password terlalu panjang (maksimal 255 karakter).',
+            'email.required' => 'Please enter your email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.max' => 'Email address is too long (maximum 255 characters).',
+            'password.required' => 'Please enter your password.',
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.max' => 'Password is too long (maximum 255 characters).',
         ]);
 
-        // LANGKAH 2: AUTENTIKASI MENGGUNAKAN AUTH::ATTEMPT()
-        // Hanya gunakan field email karena kolom mobile_number tidak tersedia di database Supabase.
+        // STEP 3: AUTHENTICATE USING AUTH::ATTEMPT()
         $credentials = [
             'email' => $request->email,
             'password' => $request->password
         ];
 
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            RateLimiter::hit($throttleKey);
             return back()->withErrors([
-                'email' => 'Email atau password salah.',
+                'email' => 'The provided credentials are incorrect.',
             ])->onlyInput('email');
         }
 
-        // LANGKAH 3: LOGIN BERHASIL - REGENERATE SESSION
+        // STEP 4: LOGIN SUCCESSFUL - REGENERATE SESSION
         $request->session()->regenerate();
+        RateLimiter::clear($throttleKey);
 
-        // LANGKAH 4: LOAD USER DENGAN RELASI ROLE (EAGER LOADING)
-       $user = User::with('role')->find(Auth::id());
+        // STEP 5: LOAD USER WITH ROLE RELATION (EAGER LOADING)
+        $user = User::with('role')->find(Auth::id());
 
         if ($user->role === null) {
             Log::warning('User logged in but role not found. User ID: ' . $user->user_id);
             return redirect()->route('home')
-                ->with('warning', 'Role tidak ditemukan. Hubungi administrator.');
+                ->with('warning', 'Role not found. Please contact an administrator.');
         }
 
         $roleName = $user->role->role_name ?? null;
 
         try {
             if ($roleName === 'admin') {
-                return redirect()->route('dashboard')
-                    ->with('status', 'Selamat datang, Admin! Login berhasil.');
+                return redirect()->route('admin.dashboard')
+                    ->with('status', 'Welcome, Admin! Login successful.');
             } elseif ($roleName === 'user') {
                 return redirect()->route('profile.show')
-                    ->with('status', 'Login berhasil! Selamat datang di SkinQuo.');
+                    ->with('status', 'Login successful. Welcome back to SkinQuo!');
             } else {
                 Log::warning('Unknown role detected. Role name: ' . $roleName . ', User ID: ' . $user->user_id);
                 return redirect()->route('home')
-                    ->with('warning', 'Role tidak dikenali. Silakan hubungi administrator.');
+                    ->with('warning', 'Unknown role. Please contact an administrator.');
             }
         } catch (\Exception $e) {
             Log::error('Redirect error after login: ' . $e->getMessage());
             return redirect()->route('home')
-                ->with('status', 'Login berhasil!');
+                ->with('status', 'Login successful!');
         }
     }
 
@@ -120,47 +131,62 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // Validate input dengan sanitasi ketat
+        // STEP 1: VALIDATE INPUT WITH STRICT SANITIZATION
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|max:255',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'max:255',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
+            'password_confirmation' => 'required|string|min:8|max:255',
             'date_birth' => 'required|date|before:today|after:1940-01-01',
             'gender' => 'required|in:male,female',
         ], [
-            'name.required' => 'Nama depan tidak boleh kosong.',
-            'name.string' => 'Nama depan harus berupa teks.',
-            'name.max' => 'Nama depan terlalu panjang (maksimal 255 karakter).',
-            'surname.required' => 'Nama belakang tidak boleh kosong.',
-            'surname.string' => 'Nama belakang harus berupa teks.',
-            'surname.max' => 'Nama belakang terlalu panjang (maksimal 255 karakter).',
-            'email.required' => 'Email tidak boleh kosong.',
-            'email.email' => 'Format email tidak valid.',
-            'email.max' => 'Email terlalu panjang (maksimal 255 karakter).',
-            'email.unique' => 'Email sudah terdaftar. Gunakan email lain.',
-            'password.required' => 'Password tidak boleh kosong.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'password.max' => 'Password terlalu panjang (maksimal 255 karakter).',
-            'date_birth.required' => 'Tanggal lahir tidak boleh kosong.',
-            'date_birth.date' => 'Format tanggal lahir tidak valid.',
-            'date_birth.before' => 'Tanggal lahir harus sebelum hari ini.',
-            'date_birth.after' => 'Tahun lahir harus setelah 1940.',
-            'gender.required' => 'Jenis kelamin tidak boleh kosong.',
-            'gender.in' => 'Jenis kelamin tidak valid.',
+            'name.required' => 'First name is required.',
+            'name.string' => 'First name must be text.',
+            'name.max' => 'First name is too long (maximum 255 characters).',
+            'surname.required' => 'Last name is required.',
+            'surname.string' => 'Last name must be text.',
+            'surname.max' => 'Last name is too long (maximum 255 characters).',
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.max' => 'Email address is too long (maximum 255 characters).',
+            'email.unique' => 'This email address is already registered. Please use a different email or sign in.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.max' => 'Password is too long (maximum 255 characters).',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.mixed_case' => 'Password must contain both uppercase and lowercase letters.',
+            'password.numbers' => 'Password must contain at least one number.',
+            'password.symbols' => 'Password must contain at least one special character.',
+            'password_confirmation.required' => 'Password confirmation is required.',
+            'date_birth.required' => 'Date of birth is required.',
+            'date_birth.date' => 'Please enter a valid date.',
+            'date_birth.before' => 'Date of birth must be in the past.',
+            'date_birth.after' => 'Date of birth must be after January 1, 1940.',
+            'gender.required' => 'Please select your gender.',
+            'gender.in' => 'Invalid gender selection.',
         ]);
 
-        // Gabungkan name dan surname menjadi username
-        $username = $validated['name'] . ' ' . $validated['surname'];
+        // STEP 2: SANITIZE AND PREPARE DATA
+        $name = trim($validated['name']);
+        $surname = trim($validated['surname']);
+        $username = "{$name} {$surname}";
+        $email = strtolower(trim($validated['email']));
         
-        // Map gender ke sex_id (male = 1, female = 2)
+        // Map gender to sex_id (male = 1, female = 2)
         $sexId = $validated['gender'] === 'male' ? 1 : 2;
         
-        // Sanitasi email untuk keamanan
-        $email = strtolower(trim($request->input('email')));
-        
-        // Cegah SQL injection dengan menggunakan parameterized queries
-        // (Laravel Eloquent sudah menghandle ini secara default)
+        // STEP 3: CREATE USER (PARAMETERIZED QUERIES via Eloquent)
         try {
             $user = User::create([
                 'username' => $username,
@@ -172,23 +198,22 @@ class AuthController extends Controller
                 'created_at' => now(),
             ]);
 
-            // Login otomatis setelah register
+            // STEP 4: AUTO LOGIN AFTER REGISTRATION
             try {
                 Auth::login($user);
                 $request->session()->regenerate();
-                return redirect(route('home'))->with('status', 'Pendaftaran berhasil! Selamat datang di SkinQuo.');
+                return redirect(route('home'))->with('status', 'Account created successfully. Welcome to SkinQuo!');
             } catch (\Exception $e) {
                 Log::error('Auto login after register failed: ' . $e->getMessage());
                 return back()->withErrors([
-                    'error' => 'Terjadi kesalahan saat login otomatis. Silakan login manual.',
+                    'error' => 'An error occurred during login. Please sign in manually.',
                 ])->withInput();
             }
         } catch (\Exception $e) {
-            // Log error untuk debugging (jangan tampilkan detail error ke user)
             Log::error('Registration error: ' . $e->getMessage());
             
             return back()->withErrors([
-                'error' => 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.',
+                'error' => 'An error occurred. Please try again.',
             ])->withInput();
         }
     }
@@ -202,6 +227,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect(route('home'))->with('status', 'Logout berhasil!');
+        return redirect(route('home'))->with('status', 'Logged out successfully.');
     }
 }
