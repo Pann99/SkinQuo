@@ -1,0 +1,4 @@
+{
+    "github.copilot.chat.githubMcpServer.lockdown": true,
+    "github.copilot.chat.agent.autoFix": false
+}

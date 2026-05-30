@@ -40,12 +40,14 @@
         ═══════════════════════════════ */
         .navbar-wrap {
             position: fixed;
-            top: 20px;
+            top: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
             max-width: 800px;
-            z-index: 1000;
+            z-index: 9999;
+            padding-top: 20px;
+            pointer-events: none;
         }
 
         .navbar-pill {
@@ -54,28 +56,29 @@
             justify-content: space-between;
             padding: 11px 30px;
             border-radius: 999px;
-            background: rgba(255, 219, 181, 0.78);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.60);
+            background: rgba(255, 218, 185, 0.97);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            pointer-events: auto;
             /* 4 layer shadow = efek timbul premium */
             box-shadow:
-                0 1px 2px   rgba(96, 63, 38, 0.05),
-                0 4px 12px  rgba(96, 63, 38, 0.10),
-                0 16px 40px rgba(96, 63, 38, 0.13),
+                0 1px 2px   rgba(96, 63, 38, 0.08),
+                0 4px 12px  rgba(96, 63, 38, 0.12),
+                0 16px 40px rgba(96, 63, 38, 0.16),
                 inset 0 1px 0 rgba(255, 255, 255, 0.75);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Lebih solid & lebih terangkat saat scroll */
+        /* Lebih solid saat scroll */
         .navbar-pill.is-scrolled {
-            background: rgba(255, 219, 181, 0.97);
+            background: rgba(255, 218, 185, 0.98);
             padding: 13px 30px;
             box-shadow:
-                0 2px 4px   rgba(96, 63, 38, 0.08),
-                0 8px 24px  rgba(96, 63, 38, 0.15),
-                0 28px 56px rgba(96, 63, 38, 0.16),
-                inset 0 1px 0 rgba(255, 255, 255, 0.85);
+                0 2px 4px   rgba(96, 63, 38, 0.10),
+                0 8px 24px  rgba(96, 63, 38, 0.18),
+                0 28px 56px rgba(96, 63, 38, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.88);
         }
 
         .nav-link {

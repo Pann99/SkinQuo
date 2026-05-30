@@ -198,9 +198,9 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
 
     // ── Feedback Monitoring & Management ───────────
     Route::get('/feedback/monitor', [AdminFeedbackController::class, 'monitor'])->name('feedback.monitor');
-    Route::post('/feedback/{id}/approve', [AdminFeedbackController::class, 'approve'])->name('feedback.approve');
-    Route::post('/feedback/{id}/reject', [AdminFeedbackController::class, 'reject'])->name('feedback.reject');
-    Route::post('/feedback/{id}/helpful', [AdminFeedbackController::class, 'markHelpful'])->name('feedback.helpful');
+    Route::get('/feedback/{id}', [AdminFeedbackController::class, 'show'])->name('feedback.show');
+    Route::post('/feedback/{id}/mark-reviewed', [AdminFeedbackController::class, 'markAsReviewed'])->name('feedback.mark-reviewed');
+    Route::delete('/feedback/{id}', [AdminFeedbackController::class, 'destroy'])->name('feedback.destroy');
 
 });
 
