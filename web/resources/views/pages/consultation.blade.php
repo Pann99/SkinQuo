@@ -8,10 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-{{-- ANTI-FOUC: sembunyikan seluruh konten sampai siap --}}
-<style>
-    html { visibility: hidden; }
-</style>
 <style>
     :root {
         --cream: #FAF3E8;
@@ -26,77 +22,12 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ========================
-       PAGE LOADER & REVEAL
-    ======================== */
-    #page-loader {
-        position: fixed;
-        inset: 0;
-        background: var(--cream);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.4s ease;
-    }
-    #page-loader.fade-out {
-        opacity: 0;
-        pointer-events: none;
-    }
-    .loader-inner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-    }
-    .loader-brand {
-        font-family: 'Playfair Display', serif;
-        font-size: 22px;
-        color: var(--dark-brown);
-        letter-spacing: -0.3px;
-        opacity: 0;
-        animation: loaderFadeUp 0.5s ease 0.1s forwards;
-    }
-    .loader-brand span { color: var(--accent); font-style: italic; }
-    .loader-dots {
-        display: flex;
-        gap: 7px;
-        opacity: 0;
-        animation: loaderFadeUp 0.5s ease 0.25s forwards;
-    }
-    .loader-dots span {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--accent-light);
-        animation: dotPulse 1.4s ease infinite;
-    }
-    .loader-dots span:nth-child(2) { animation-delay: 0.18s; }
-    .loader-dots span:nth-child(3) { animation-delay: 0.36s; }
-
-    @keyframes loaderFadeUp {
-        from { opacity: 0; transform: translateY(8px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes dotPulse {
-        0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
-        40%            { transform: scale(1.2); opacity: 1; }
-    }
-
-    /* Konten halaman utama dimulai invisible, reveal setelah loader pergi */
-    #app-content {
-        opacity: 0;
-        transition: opacity 0.45s ease;
-    }
-    #app-content.visible {
-        opacity: 1;
-    }
-
-    body {
+    html, body {
         background: var(--cream);
         font-family: 'DM Sans', sans-serif;
         color: var(--dark-brown);
-        min-height: 100vh;
+        height: 100%;
+        overflow: hidden;
     }
 
     /* ========================
@@ -131,6 +62,7 @@
         align-items: center;
         justify-content: center;
         padding: 100px 20px 40px;
+        overflow: hidden;
     }
 
     /* Center content */
@@ -142,7 +74,7 @@
         padding: 0 20px;
         text-align: center;
         width: 100%;
-        margin-buttom: 40px;
+        margin-bottom: 40px;
     }
     .landing-eyebrow {
         font-size: 11px;
@@ -536,28 +468,12 @@
 </style>
 @endpush
 
-    {{-- ========================
-         PAGE LOADER (anti-FOUC)
-    ======================== --}}
-    <div id="page-loader">
-        <div class="loader-inner">
-            <div class="loader-brand">Skin<span>Quo</span></div>
-            <div class="loader-dots">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-content">
-    <div class="relative w-full h-screen overflow-hidden">
-
+@section('content')
     {{-- ========================
          SCREEN 1: LANDING
         ======================== --}}
     <div id="screen-landing" class="screen">
         
-        {{-- HAPUS BAGIAN <nav class="landing-nav"> DI SINI --}}
-
         {{-- Center Hero --}}
         <div class="landing-center">
             <div class="landing-eyebrow">SkinQuo Intelligence Engine</div>
@@ -570,9 +486,7 @@
         </div>
 
         {{-- Bottom Input Area --}}
-        <br class="landing-bottom">
-
-            <br></br>
+        <div class="landing-bottom">
 
             {{-- Input Box --}}
             <div class="input-box" style="width:100%;max-width:680px;">
@@ -586,13 +500,13 @@
                 <div class="input-toolbar">
                     <div class="toolbar-left">
                         <span class="toolbar-tag" id="charCount">0 / 500</span>
-                                    {{-- Suggestion chips --}}
-                    <div class="suggestion-chips">
-                        <button class="chip" onclick="fillChip('Kulit kering dan kusam')">Kulit Kering</button>
-                        <button class="chip" onclick="fillChip('Kulit berminyak dengan pori besar')">Kulit Berminyak</button>
-                        <button class="chip" onclick="fillChip('Kulit sensitif mudah kemerahan')">Sensitive Skin</button>
-                        <button class="chip" onclick="fillChip('Jerawat aktif dan bekas jerawat')">Acne-Prone</button>
-                    </div>
+                        {{-- Suggestion chips --}}
+                        <div class="suggestion-chips">
+                            <button class="chip" onclick="fillChip('Kulit kering dan kusam')">Kulit Kering</button>
+                            <button class="chip" onclick="fillChip('Kulit berminyak dengan pori besar')">Kulit Berminyak</button>
+                            <button class="chip" onclick="fillChip('Kulit sensitif mudah kemerahan')">Sensitive Skin</button>
+                            <button class="chip" onclick="fillChip('Jerawat aktif dan bekas jerawat')">Acne-Prone</button>
+                        </div>
                     </div>
                     <button class="btn-send" id="btnSubmit" onclick="startFlow()" title="Analisis">
                         <svg width="16" height="16" viewBox="0 0 24 24">
@@ -602,20 +516,14 @@
                     </button>
                 </div>
             </div>
-            <div>
-                <br>
-            </div>
             <p class="input-hint">SkinQuo menggunakan AI dan dapat melakukan kesalahan.</p>
-        </div>
-    </div>
+        </div>{{-- /landing-bottom --}}
+    </div>{{-- /screen-landing --}}
 
     {{-- ========================
          SCREEN 2: ANALYSIS
     ======================== --}}
     <div id="screen-analysis" class="screen hidden">
-
-
-
         <div class="analysis-body">
             <div class="analysis-inner">
                 <h2 class="analysis-title">Menjalankan Pipeline<br>Rekomendasi...</h2>
@@ -676,45 +584,14 @@
             </div>
         </div>
     </div>
-
-</div>{{-- /app-content --}}
+@endsection
 
 @push('scripts')
 <script>
-    // ---- Anti-FOUC: reveal halaman setelah font + DOM siap ----
-    (function() {
-        function revealPage() {
-            document.documentElement.style.visibility = 'visible';
-            var loader = document.getElementById('page-loader');
-            var content = document.getElementById('app-content');
-            var minWait = 450;
-            var start = Date.now();
-
-            function doReveal() {
-                var elapsed = Date.now() - start;
-                var remaining = Math.max(0, minWait - elapsed);
-                setTimeout(function() {
-                    if (loader) loader.classList.add('fade-out');
-                    if (content) content.classList.add('visible');
-                    setTimeout(function() {
-                        if (loader) loader.style.display = 'none';
-                    }, 450);
-                }, remaining);
-            }
-
-            if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(doReveal);
-            } else {
-                doReveal();
-            }
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', revealPage);
-        } else {
-            revealPage();
-        }
-    })();
+    // Lock scroll khusus halaman consultation
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('no-scroll');
+    });
 
     // ---- Utility ----
     function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -740,7 +617,7 @@
         if (bar) bar.style.width = percent + '%';
     }
 
-    // MODIFIED: showError dengan Dynamic Styling untuk Peringatan Hacking/Spam
+    // showError dengan Dynamic Styling untuk Peringatan Hacking/Spam
     function showError(msg) {
         const es = document.getElementById('errorState');
         const em = document.getElementById('errorMessage');
@@ -833,10 +710,8 @@
             }
 
             if (!response.ok) {
-                // MODIFIED: Tangkap detail error spesifik dari FastAPI/Pydantic (422 Unprocessable Entity)
                 if (response.status === 422 && data.detail && Array.isArray(data.detail)) {
                     let errorMessage = data.detail[0].msg;
-                    // Bersihkan awalan "Value error, " yang biasanya di-generate oleh Pydantic
                     errorMessage = errorMessage.replace('Value error, ', '');
                     throw new Error(errorMessage);
                 }

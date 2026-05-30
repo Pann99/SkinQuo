@@ -58,15 +58,32 @@ class QueryPipelineService:
         # Ekstraksi yang AMAN dan JELAS
         matched = query_check["matched"]
         
-        # Ekstrak jenis produk (toner, serum, dll)
+        # Ekstrak jenis produk
         product_exact = matched.get("product", {}).get("exact", [])
         
-        # Ekstrak keluhan kulit (jerawat, berminyak, dll) dengan menggabungkan problem + skin_type
+        # ─── PERBAIKAN 3b: LOGIKA FILTERING TAG KONDISI KULIT ───
         problem_exact = matched.get("problem", {}).get("exact", [])
         skin_type_exact = matched.get("skin_type", {}).get("exact", [])
-        extracted_concerns = problem_exact + skin_type_exact
+        raw_concerns = problem_exact + skin_type_exact
         
-        # Ekstrak bahan aktif (niacinamide, dll)
+        # 1. Hapus kata yang terlalu umum dan tidak punya makna jika berdiri sendiri
+        ignore_words = {"kulit", "skin", "semua jenis kulit", "all skin type"}
+        raw_concerns = [c for c in raw_concerns if c not in ignore_words]
+        
+        # 2. Hapus kata (subset) yang sudah terwakili oleh frasa yang lebih spesifik
+        # Contoh: Jika ada "kulit berminyak", maka kata "berminyak" dibuang.
+        extracted_concerns = []
+        for c1 in raw_concerns:
+            is_subset = False
+            for c2 in raw_concerns:
+                # Jika c1 adalah bagian dari c2 (contoh: "jerawat" bagian dari "bekas jerawat")
+                if c1 != c2 and c1 in c2:
+                    is_subset = True
+                    break
+            if not is_subset and c1 not in extracted_concerns:
+                extracted_concerns.append(c1)
+        
+        # Ekstrak bahan aktif
         constraint_exact = matched.get("constraint", {}).get("exact", [])
 
         return {
@@ -74,7 +91,7 @@ class QueryPipelineService:
             "status":         current_status,
             "matched_points": matched,
             "extracted_products": product_exact,
-            "extracted_concerns": extracted_concerns,
+            "extracted_concerns": extracted_concerns, # <-- Tag sekarang bersih (hanya 1 frasa yang paling tepat)
             "extracted_constraints": constraint_exact,
             "query_fixing":   fix_result,
         }
