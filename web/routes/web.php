@@ -101,7 +101,7 @@ Route::view('/admin/profile-preview/change-password', 'admin.profile.change-pass
 Route::view('/admin/journal-preview', 'admin.journal.index')->name('admin.journal.preview');
 Route::view('/admin/journal-preview/create', 'admin.journal.create')->name('admin.journal.preview.create');
 Route::view('/admin/journal-preview/edit', 'admin.journal.edit')->name('admin.journal.preview.edit');
-Route::view('/admin/feedback-preview', 'admin.feedback.monitor')->name('admin.feedback.preview');
+Route::get('/admin/feedback-preview', [AdminFeedbackController::class, 'monitor'])->name('admin.feedback.preview');
 // TODO [DEV]: Remove preview routes after admin auth is implemented.
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -214,6 +214,8 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::post('/feedback/{id}/approve', [AdminFeedbackController::class, 'approve'])->name('feedback.approve');
     Route::post('/feedback/{id}/reject', [AdminFeedbackController::class, 'reject'])->name('feedback.reject');
     Route::post('/feedback/{id}/helpful', [AdminFeedbackController::class, 'markHelpful'])->name('feedback.helpful');
+    Route::get('/feedback/export/csv', [AdminFeedbackController::class, 'exportCsv'])->name('feedback.export.csv');
+    Route::get('/feedback/export/pdf', [AdminFeedbackController::class, 'exportPdf'])->name('feedback.export.pdf');
 
 });
 

@@ -126,7 +126,7 @@ class AdminFeedbackController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        if (!class_exists(\Dompdf\Dompdf::class) && !class_exists(\Barryvdh\DomPDF\Facade::class)) {
+        if (!class_exists(\Dompdf\Dompdf::class) && !class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
             return back()->with('error', 'PDF export requires barryvdh/laravel-dompdf. Run: composer require barryvdh/laravel-dompdf');
         }
 
@@ -135,8 +135,8 @@ class AdminFeedbackController extends Controller
 
         $html = view('admin.feedback.pdf', compact('feedback'))->render();
 
-        if (class_exists(\Barryvdh\DomPDF\Facade::class)) {
-            $pdf = \Barryvdh\DomPDF\Facade::loadHTML($html);
+        if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
             return $pdf->download('feedback_export_' . date('Ymd_His') . '.pdf');
         }
 
