@@ -30,7 +30,7 @@ class AdminProductController extends Controller
             ->orderBy('product_id', 'desc')
             ->paginate(15);
 
-        return view('admin.products.index', compact('products'));
+        return view('admin.inventory.index', compact('products'));
     }
 
     /**
