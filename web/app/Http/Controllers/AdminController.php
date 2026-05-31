@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\Article;
+use App\Models\Feedback;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
@@ -16,39 +20,55 @@ use Carbon\Carbon;
 class AdminController extends Controller
 {
     /**
-     * Show admin dashboard
+     * Show admin dashboard with real-time statistics from Supabase
      * 
      * @return \Illuminate\View\View
      */
     public function dashboard()
     {
-        // TODO: Fetch dashboard statistics
-        // - Total products count
-        // - Total articles count
-        // - Pending feedback count
-        // - Total users count
-        // - Recent products list
-        // - Recent articles list
-        
-        // Provide a small demo set of recent feedback so the dashboard can show real-like data
-        $feedbacks = collect([
-            [
-                'name' => 'Anisa Pratiwi',
-                'message' => 'Konsultasi skincare SkinQuo sangat membantu! Hasilnya akurat dan rekomendasi produknya cocok untuk kulit kombinasi saya.',
-                'created_at' => Carbon::parse('2025-01-12'),
-            ],
-            [
-                'name' => 'Dina Kusuma',
-                'message' => 'User interface-nya sangat user-friendly. Proses konsultasi cepat dan hasilnya detail.',
-                'created_at' => Carbon::parse('2025-01-10'),
-            ],
-            [
-                'name' => 'Budi Santoso',
-                'message' => 'Fitur artikel skincare sangat informatif. Saya jadi lebih paham tentang rutinitas perawatan saya.',
-                'created_at' => Carbon::parse('2025-01-08'),
-            ],
-        ]);
+        try {
+            // Fetch dashboard statistics from Supabase
+            $totalProducts = Product::count();
+            $totalArticles = Article::where('is_published', true)->count();
+            $totalFeedback = Feedback::count();
+            $totalUsers = User::count();
+            
+            // Fetch latest 3 feedbacks with user information
+            $feedbacks = Feedback::with('user')
+                ->orderByDesc('id')  // Assuming newest records have highest ID, adjust if table has created_at
+                ->limit(3)
+                ->get()
+                ->map(function ($fb) {
+                    return [
+                        'name' => $fb->user?->username ?? 'Anonymous',
+                        'text' => $fb->text ?? '-',
+                        'rating' => $fb->rating ?? null,
+                        'created_at' => $fb->created_at ?? null,
+                        'id' => $fb->id,
+                    ];
+                });
+            
+            // Reverse to show newest first
+            $feedbacks = $feedbacks->reverse();
+            
+        } catch (\Exception $e) {
+            // Fallback if queries fail - prevent dashboard from crashing
+            $totalProducts = 0;
+            $totalArticles = 0;
+            $totalFeedback = 0;
+            $totalUsers = 0;
+            $feedbacks = collect([]);
+            
+            // Log error for debugging
+            \Log::error('Dashboard data fetch failed: ' . $e->getMessage());
+        }
 
-        return view('admin.dashboard', compact('feedbacks'));
+        return view('admin.dashboard', compact(
+            'totalProducts',
+            'totalArticles',
+            'totalFeedback',
+            'totalUsers',
+            'feedbacks'
+        ));
     }
 }

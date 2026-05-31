@@ -18,31 +18,35 @@
 
     <div class="dashboard-metrics-grid">
         <article class="dashboard-stat-card">
-            <div class="stat-card-icon">🛍️</div>
             <p class="stat-card-label">Total Products</p>
-            <strong class="stat-card-value">0</strong>
-            <p class="stat-card-meta">Active products in catalog</p>
+            <div class="stat-card-bottom">
+                <strong class="stat-card-value">{{ $totalProducts ?? 0 }}</strong>
+                <img src="{{ asset('images/product.png') }}" alt="Products" class="stat-card-icon">
+            </div>
         </article>
 
         <article class="dashboard-stat-card">
-            <div class="stat-card-icon">📚</div>
             <p class="stat-card-label">Skin Guide Articles</p>
-            <strong class="stat-card-value">0</strong>
-            <p class="stat-card-meta">Published articles</p>
+            <div class="stat-card-bottom">
+                <strong class="stat-card-value">{{ $totalArticles ?? 0 }}</strong>
+                <img src="{{ asset('images/skinguide.png') }}" alt="Skin Guide" class="stat-card-icon">
+            </div>
         </article>
 
         <article class="dashboard-stat-card">
-            <div class="stat-card-icon">💬</div>
             <p class="stat-card-label">Pending Feedback</p>
-            <strong class="stat-card-value">0</strong>
-            <p class="stat-card-meta">Awaiting review</p>
+            <div class="stat-card-bottom">
+                <strong class="stat-card-value">{{ $totalFeedback ?? 0 }}</strong>
+                <img src="{{ asset('images/feedback.png') }}" alt="Feedback" class="stat-card-icon">
+            </div>
         </article>
 
         <article class="dashboard-stat-card">
-            <div class="stat-card-icon">👥</div>
             <p class="stat-card-label">Total Users</p>
-            <strong class="stat-card-value">0</strong>
-            <p class="stat-card-meta">Registered users</p>
+            <div class="stat-card-bottom">
+                <strong class="stat-card-value">{{ $totalUsers ?? 0 }}</strong>
+                <img src="{{ asset('images/users.png') }}" alt="Users" class="stat-card-icon">
+            </div>
         </article>
     </div>
 
@@ -56,20 +60,31 @@
 
         <div class="spotlight-visual">
             <div class="spotlight-image-placeholder feedback-list">
-                @if(isset($feedbacks) && $feedbacks->count())
+                @if(isset($feedbacks) && $feedbacks->count() > 0)
                     <div class="feedback-list-scroll">
                         @foreach($feedbacks as $fb)
                             <div class="feedback-list-item">
                                 <div class="feedback-meta">
-                                    <strong class="feedback-author">{{ $fb->name ?? $fb->user_name ?? 'Anonymous' }}</strong>
-                                    <span class="feedback-date">{{ isset($fb->created_at) ? $fb->created_at->format('M d, Y') : '' }}</span>
+                                    <strong class="feedback-author">{{ $fb['name'] ?? 'Anonymous' }}</strong>
+                                    @if($fb['created_at'])
+                                        <span class="feedback-date">{{ \Carbon\Carbon::parse($fb['created_at'])->format('M d, Y') }}</span>
+                                    @endif
                                 </div>
-                                <div class="feedback-body">{{ \Illuminate\Support\Str::limit($fb->message ?? $fb->feedback ?? $fb->content ?? '-', 220) }}</div>
+                                <div class="feedback-body">
+                                    {{ \Illuminate\Support\Str::limit($fb['text'] ?? '-', 220, '...') }}
+                                </div>
+                                @if(isset($fb['rating']) && $fb['rating'])
+                                    <div class="feedback-rating">
+                                        <span class="rating-badge">★ {{ $fb['rating'] }}/5</span>
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
                 @else
-                    <div class="no-feedback">No feedback available yet.</div>
+                    <div class="no-feedback">
+                        <p style="margin: 0; color: #8B6C50; font-size: 13px;">No feedback available yet.</p>
+                    </div>
                 @endif
             </div>
         </div>

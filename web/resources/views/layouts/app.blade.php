@@ -118,7 +118,9 @@
             transform: translateX(-50%);
             width: 90%;
             max-width: 800px;
-            z-index: 1000;
+            z-index: 9999;
+            padding-top: 20px;
+            pointer-events: none;
         }
 
         .navbar-pill {
@@ -126,6 +128,7 @@
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
+            pointer-events: auto;
             
             padding: 11px 30px;
             border-radius: 999px;

@@ -19,6 +19,7 @@ class Feedback extends Model
         'user_id',
         'text',
         'rating',
+        'is_reviewed',
     ];
 
     /**
@@ -29,6 +30,7 @@ class Feedback extends Model
 
     protected $casts = [
         'rating' => 'float',
+        'is_reviewed' => 'boolean',
     ];
 
     /**
