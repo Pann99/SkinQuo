@@ -15,22 +15,18 @@ class AdminSkinGuideController extends Controller
     {
         $query = Article::query();
 
-        // Search title & category
         if ($request->filled('search')) {
             $search = strtolower($request->search);
-
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(category) LIKE ?', ["%{$search}%"]);
+                ->orWhereRaw('LOWER(category) LIKE ?', ["%{$search}%"]);
             });
         }
 
-        // Filter category
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
 
-        // Filter publish status
         if ($request->has('is_published')) {
             $query->where('is_published', filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN));
         }
@@ -39,11 +35,7 @@ class AdminSkinGuideController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data articles berhasil diambil',
-            'data' => $articles
-        ]);
+        return view('admin.skin-guide.index', compact('articles'));
     }
 
     /**
