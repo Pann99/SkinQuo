@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Admin - SkinQuo')</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-  @vite(['resources/css/admin.css'])
+  @vite(['resources/css/app.css', 'resources/css/admin.css'])
+  @stack('styles')
 </head>
 <body>
 
@@ -36,15 +37,15 @@
       </a>
 
       <a href="{{ route('admin.inventory') }}"
-         class="nav-item-admin @if(request()->routeIs('admin.inventory')) active @endif">
+         class="nav-item-admin @if(request()->routeIs('admin.inventory') || request()->routeIs('admin.products.*')) active @endif">
         <i class="bi bi-stars" style="font-size:16px;"></i>
         <span>Inventory</span>
       </a>
 
-      <a href="{{ route('admin.journal') }}"
-         class="nav-item-admin @if(request()->routeIs('admin.journal')) active @endif">
+      <a href="{{ route('admin.skin-guide.index') }}"
+         class="nav-item-admin @if(request()->routeIs('admin.skin-guide.*')) active @endif">
         <i class="bi bi-book" style="font-size:16px;"></i>
-        <span>Journal</span>
+        <span>Skin Guide</span>
       </a>
 
       <a href="{{ route('admin.feedback') }}"

@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class AdminSkinGuideController extends Controller
 {
     /**
-     * Display all articles
+     * Display all articles with stats
      */
     public function index(Request $request)
     {
@@ -19,40 +20,52 @@ class AdminSkinGuideController extends Controller
             $search = strtolower($request->search);
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"])
-                ->orWhereRaw('LOWER(category) LIKE ?', ["%{$search}%"]);
+                    ->orWhereRaw('LOWER(category) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(content) LIKE ?', ["%{$search}%"]);
             });
-        }
-
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
-
-        if ($request->has('is_published')) {
-            $query->where('is_published', filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN));
         }
 
         $articles = $query
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('admin.skin-guide.index', compact('articles'));
+        // Calculate stats
+        $totalArticles = Article::count();
+        $publishedArticles = Article::where('is_published', true)->count();
+        $draftCount = Article::where('is_published', false)->count();
+        $totalTags = Tag::count();
+
+        return view('admin.skin-guide.index', compact('articles', 'totalArticles', 'publishedArticles', 'draftCount', 'totalTags'));
     }
 
     /**
-     * Store article
+     * Show create form
+     */
+    public function create()
+    {
+        $tags = Tag::all();
+        return view('admin.skin-guide.create', compact('tags'));
+    }
+
+    /**
+     * Store new article with tags
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:articles,slug',
+            'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
-            'image_url' => 'nullable|string',
+            'image_url' => 'nullable|url',
             'category' => 'required|string|max:255',
             'is_published' => 'required|boolean',
+            'tags' => 'nullable|array',
+            'tags.*' => 'integer|exists:tags,id',
         ]);
 
-        // Generate slug unik
-        $slug = Str::slug($validated['title']);
+        // Generate slug unik jika duplikat
+        $slug = $validated['slug'];
         $originalSlug = $slug;
         $count = 1;
 
@@ -62,104 +75,85 @@ class AdminSkinGuideController extends Controller
 
         $validated['slug'] = $slug;
 
+        // Simpan artikel
         $article = Article::create($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Article berhasil ditambahkan',
-            'data' => $article
-        ], 201);
-    }
-
-    /**
-     * Show detail article
-     */
-    public function show(Article $article)
-    {
-        return response()->json([
-            'success' => true,
-            'data' => $article
-        ]);
-    }
-
-    /**
-     * Update article
-     */
-   public function update(Request $request, $id)
-{
-    // Cari article berdasarkan ID
-    $article = Article::find($id);
-
-    // Jika article tidak ditemukan
-    if (!$article) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Article tidak ditemukan'
-        ], 404);
-    }
-
-    // Validasi request
-    $validated = $request->validate([
-        'title' => 'sometimes|required|string|max:255',
-        'content' => 'sometimes|required|string',
-        'image_url' => 'nullable|string',
-        'category' => 'sometimes|required|string|max:255',
-        'is_published' => 'sometimes|required|boolean',
-    ]);
-
-    // Update slug jika title berubah
-    if (isset($validated['title'])) {
-
-        $slug = Str::slug($validated['title']);
-        $originalSlug = $slug;
-        $count = 1;
-
-        while (
-            Article::where('slug', $slug)
-                ->where('id', '!=', $article->id)
-                ->exists()
-        ) {
-            $slug = $originalSlug . '-' . $count++;
+        // Simpan tags
+        $tagIds = $validated['tags'] ?? [];
+        if (!empty($tagIds)) {
+            $article->tags()->attach($tagIds);
         }
 
-        $validated['slug'] = $slug;
+        return redirect()
+            ->route('admin.skin-guide.index')
+            ->with('success', 'Skin Guide berhasil dibuat!');
     }
-
-    // Update data
-    $article->update($validated);
-
-    // Refresh data terbaru
-    $article->refresh();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Article berhasil diupdate',
-        'data' => $article
-    ], 200);
-}
 
     /**
-     * Delete article
+     * Show edit form
      */
-    public function destroy($id)
-{
-    // Cari article berdasarkan ID
-    $article = Article::find($id);
-
-    // Jika tidak ditemukan
-    if (!$article) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Article tidak ditemukan'
-        ], 404);
+    public function edit(Article $article)
+    {
+        $tags = Tag::all();
+        $selectedTagIds = $article->tags->pluck('id')->toArray();
+        return view('admin.skin-guide.edit', compact('article', 'tags', 'selectedTagIds'));
     }
 
-    // Hapus article
-    $article->delete();
+    /**
+     * Update article with tags
+     */
+    public function update(Request $request, Article $article)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:articles,slug,' . $article->id,
+            'excerpt' => 'nullable|string|max:500',
+            'content' => 'required|string',
+            'image_url' => 'nullable|url',
+            'category' => 'required|string|max:255',
+            'is_published' => 'required|boolean',
+            'tags' => 'nullable|array',
+            'tags.*' => 'integer|exists:tags,id',
+        ]);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Article berhasil dihapus'
-    ], 200);
-}
+        // Update slug jika berubah
+        if ($validated['slug'] !== $article->slug) {
+            $slug = $validated['slug'];
+            $originalSlug = $slug;
+            $count = 1;
+
+            while (Article::where('slug', $slug)->where('id', '!=', $article->id)->exists()) {
+                $slug = $originalSlug . '-' . $count++;
+            }
+
+            $validated['slug'] = $slug;
+        }
+
+        // Update article
+        $article->update($validated);
+
+        // Update tags
+        $tagIds = $validated['tags'] ?? [];
+        $article->tags()->sync($tagIds);
+
+        return redirect()
+            ->route('admin.skin-guide.index')
+            ->with('success', 'Skin Guide berhasil diperbarui!');
+    }
+
+    /**
+     * Delete article and related tags
+     */
+    public function destroy(Article $article)
+    {
+        // Detach all tags (cascade handled by database if configured, but explicit here)
+        $article->tags()->detach();
+
+        // Delete article
+        $article->delete();
+
+        return redirect()
+            ->route('admin.skin-guide.index')
+            ->with('success', 'Skin Guide berhasil dihapus!');
+    }
 }

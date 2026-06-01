@@ -1,495 +1,759 @@
 @extends('layouts.admin.admin')
-@section('title', 'Skin Guide - The Sanctuary')
+@section('title', 'Skin Guide Management — SkinQuo Admin')
+
+@push('styles')
+<style>
+/* ===== SKIN GUIDE PAGE STYLES ===== */
+
+.skin-guide-page {
+  width: 100%;
+  padding: 28px 40px 40px 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  max-width: 100%;
+}
+
+/* Header Section */
+.skin-guide-header-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 34px;
+  align-items: flex-start;
+  margin-bottom: 34px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.skin-guide-page .eyebrow {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #7A5030;
+  font-weight: 700;
+}
+
+.skin-guide-page h1 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 3vw, 4.2rem);
+  line-height: 0.95;
+  color: var(--brown-dark);
+}
+
+.skin-guide-page .page-description {
+  margin: 14px 0 0;
+  font-size: 15px;
+  color: #7C5940;
+  max-width: 720px;
+}
+
+/* Stats Cards */
+.skin-guide-page .stats-cards-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: auto;
+  min-width: 320px;
+  flex-shrink: 0;
+}
+
+.skin-guide-page .stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  padding: 16px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 110px;
+  box-shadow: 0 18px 40px rgba(61, 35, 20, 0.06);
+}
+
+.skin-guide-page .stat-card-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: #FFF5EA;
+  display: grid;
+  place-items: center;
+  color: var(--brown-dark);
+  font-size: 24px;
+  box-shadow: inset 0 8px 18px rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+}
+
+.skin-guide-page .stat-card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.skin-guide-page .stat-card-content strong {
+  display: block;
+  font-size: 1.75rem;
+  color: var(--brown-dark);
+  line-height: 1;
+}
+
+.skin-guide-page .stat-card-content span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7A5C43;
+  font-weight: 700;
+}
+
+/* Panel / Card */
+.skin-guide-panel {
+  width: 100%;
+  padding: 22px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Toolbar */
+.skin-guide-toolbar {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.skin-guide-page .search-wrapper {
+  flex: 1 1 auto;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 14px 22px;
+  box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.skin-guide-page .search-wrapper i {
+  color: #7A5C43;
+  font-size: 18px;
+}
+
+.skin-guide-page .search-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--brown-dark);
+  font-family: 'Jost', sans-serif;
+}
+
+.skin-guide-page .search-wrapper svg {
+  color: #7A5C43;
+  flex-shrink: 0;
+}
+
+/* Search Input */
+.skin-guide-search {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--brown-dark);
+  font-family: 'Jost', sans-serif;
+}
+
+/* Button Styles */
+.skin-guide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.skin-guide-btn--primary {
+  background: var(--brown-dark);
+  color: white;
+}
+
+.skin-guide-btn--primary:hover {
+  background: #2C1808;
+}
+
+/* Table Section */
+.skin-guide-table-card {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+.skin-guide-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 300px;
+  max-height: 450px;
+}
+
+.skin-guide-table {
+  width: 100%;
+  min-width: 1100px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.skin-guide-table thead {
+  background: #FBF1E5;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.skin-guide-table th,
+.skin-guide-table td {
+  padding: 16px 12px;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.skin-guide-table thead th {
+  color: #805F44;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-align: left;
+}
+
+.skin-guide-table tbody tr {
+  background: #FFFFFF;
+  border-bottom: 1px solid #F2E3D4;
+}
+
+.skin-guide-table tbody tr:hover {
+  background: #FFFAF4;
+}
+
+.skin-guide-table tbody td {
+  color: #5E402C;
+  font-size: 13px;
+  text-align: left;
+}
+
+.skin-guide-table th.center,
+.skin-guide-table td.center {
+  text-align: center;
+}
+
+/* Article Detail Cell */
+.skin-guide-art-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 3px;
+  color: var(--brown-dark);
+}
+
+.skin-guide-art-slug {
+  font-size: 11px;
+  color: #7A5C43;
+  font-family: monospace;
+}
+
+/* Category Badge */
+.skin-guide-cat {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: #F5EFE6;
+  color: #7A5030;
+  border: 1px solid #E8D5C4;
+}
+
+/* Tags Cell */
+.skin-guide-tags-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.skin-guide-tag-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #E8EAF6;
+  color: #5C5FB0;
+  border: 1px solid #D1C4E9;
+}
+
+/* Status Badge */
+.skin-guide-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.skin-guide-status--pub {
+  background: #E8F5E9;
+  color: #4CAF50;
+}
+
+.skin-guide-status--draft {
+  background: #FDF0E0;
+  color: #D4841C;
+}
+
+/* Date */
+.skin-guide-date {
+  font-size: 12px;
+  color: #7A5C43;
+  white-space: nowrap;
+}
+
+/* Action Buttons */
+.skin-guide-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.skin-guide-action,
+.skin-guide-action--edit,
+.skin-guide-action--del {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 12px;
+  border: 1px solid #E8D5C4 !important;
+  background: #F7EFE6 !important;
+  font-family: 'Jost', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color: #7A5030;
+}
+
+.skin-guide-action--edit:hover,
+.skin-guide-action--edit:focus {
+  background: #7A5030 !important;
+  color: #fff;
+  border-color: #7A5030 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(122, 80, 48, 0.2) !important;
+}
+
+.skin-guide-action--del {
+  color: #B8614F;
+}
+
+.skin-guide-action--del:hover,
+.skin-guide-action--del:focus {
+  background: #B8614F !important;
+  color: #fff;
+  border-color: #B8614F !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 97, 79, 0.2) !important;
+}
+
+/* Table Footer / Pagination */
+.skin-guide-table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+  color: #8B6B52;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.skin-guide-table-info {
+  flex: 1;
+  text-align: left;
+}
+
+.skin-guide-page .pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.skin-guide-page .page-btn {
+  border: 1px solid #E8D5C4;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--brown-dark);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.skin-guide-page .page-btn:hover:not(.active):not(.disabled) {
+  background: #F5EFE6;
+  border-color: #D4C4B0;
+  transform: translateY(-2px);
+}
+
+.skin-guide-page .page-btn.active {
+  background: var(--brown-dark);
+  color: var(--white);
+  border-color: var(--brown-dark);
+}
+
+.skin-guide-page .page-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Empty State */
+.skin-guide-empty-state {
+  padding: 80px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.skin-guide-empty-state-icon {
+  font-size: 64px;
+  color: rgba(122, 80, 48, 0.2);
+}
+
+.skin-guide-empty-state h3 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--brown-dark);
+  font-family: 'Jost', sans-serif;
+}
+
+.skin-guide-empty-state p {
+  margin: 0;
+  font-size: 14px;
+  color: #7A5C43;
+}
+
+.skin-guide-empty-state-btn {
+  margin-top: 12px;
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--brown-dark);
+  color: white;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.skin-guide-empty-state-btn:hover {
+  background: #2C1808;
+  text-decoration: none;
+}
+
+/* Alerts */
+.skin-guide-alert {
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skin-guide-alert--success {
+  background: #E8F5E9;
+  color: #4CAF50;
+  border: 1px solid #C8E6C9;
+}
+
+.skin-guide-alert--error {
+  background: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #FFCDD2;
+}
+
+.skin-guide-alert svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+/* Cell overflow handling */
+.skin-guide-page .cell-ellipsis {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>
+@endpush
 
 @section('content')
 
-<style>
-  :root {
-    --cream-bg:   #FEF3E2;
-    --cream-card: #FFF8EE;
-    --brown-dark: #3B1F0E;
-    --brown-mid:  #7A4B2A;
-    --brown-light:#C4906A;
-    --brown-border:#E8D5BE;
-  }
-  .sg-page {
-    background: var(--cream-bg);
-    min-height: 100vh;
-    padding: 48px 48px;
-    font-family: 'Jost', sans-serif;
-  }
-  .sg-header { margin-bottom: 32px; }
-  .sg-header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 52px;
-    font-weight: 400;
-    color: var(--brown-dark);
-    line-height: 1.1;
-    margin: 0 0 12px;
-  }
-  .sg-header h1 em { font-style: italic; font-weight: 400; }
-  .sg-header p {
-    font-size: 14px;
-    color: var(--brown-mid);
-    max-width: 500px;
-    line-height: 1.6;
-    margin: 0;
-  }
-  .sg-tabs {
-    display: inline-flex;
-    background: #F5E8D0;
-    border-radius: 999px;
-    padding: 5px;
-    gap: 4px;
-    margin-bottom: 36px;
-  }
-  .sg-tab {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 22px;
-    border-radius: 999px;
-    font-family: 'Jost', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--brown-mid);
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-  }
-  .sg-tab.active, .sg-tab:hover {
-    background: #fff;
-    color: var(--brown-dark);
-    text-decoration: none;
-  }
-  .sg-tab i { font-size: 15px; }
-  .sg-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 32px;
-  }
-  .sg-upload-card {
-    background: var(--cream-card);
-    border-radius: 20px;
-    padding: 24px;
-  }
-  .sg-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .sg-card-header-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .sg-card-icon {
-    width: 44px;
-    height: 44px;
-    background: #F0DFC8;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: var(--brown-mid);
-    flex-shrink: 0;
-  }
-  .sg-card-title {
-    font-family: 'Jost', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--brown-dark);
-    margin: 0 0 3px;
-  }
-  .sg-card-updated {
-    font-size: 12px;
-    color: var(--brown-light);
-    margin: 0;
-  }
-  .sg-badge-csv {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    background: #F0DFC8;
-    color: var(--brown-mid);
-    padding: 4px 10px;
-    border-radius: 999px;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .sg-dropzone {
-    border: 2px dashed var(--brown-border);
-    border-radius: 14px;
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    position: relative;
-    background: transparent;
-  }
-  .sg-dropzone:hover, .sg-dropzone.dragover {
-    border-color: var(--brown-mid);
-    background: #FFF3E5;
-  }
-  .sg-dropzone input[type=file] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-  .sg-dropzone-icon {
-    width: 52px;
-    height: 52px;
-    background: #F0DFC8;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: var(--brown-mid);
-    margin: 0 auto 14px;
-  }
-  .sg-dropzone-title {
-    font-family: 'Jost', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--brown-dark);
-    margin: 0 0 4px;
-  }
-  .sg-dropzone-sub {
-    font-size: 12px;
-    color: var(--brown-light);
-    margin: 0;
-  }
-  .sg-upload-progress {
-    background: #F5EAD8;
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    position: relative;
-  }
-  .sg-progress-icon {
-    width: 36px;
-    height: 36px;
-    background: var(--brown-dark);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .sg-progress-info { flex: 1; min-width: 0; }
-  .sg-progress-filename {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--brown-dark);
-    margin: 0 0 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .sg-progress-meta {
-    font-size: 11px;
-    color: var(--brown-light);
-    margin: 0 0 8px;
-  }
-  .sg-progress-bar-wrap {
-    background: #E8D5BE;
-    border-radius: 999px;
-    height: 4px;
-    width: 100%;
-    margin-bottom: 6px;
-  }
-  .sg-progress-bar {
-    background: var(--brown-dark);
-    border-radius: 999px;
-    height: 4px;
-    width: 0%;
-    transition: width 0.3s;
-  }
-  .sg-progress-status {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: var(--brown-light);
-    text-align: right;
-  }
-  .sg-progress-close {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    background: none;
-    border: none;
-    font-size: 14px;
-    color: var(--brown-light);
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-  }
-  .sg-progress-close:hover { color: var(--brown-dark); }
-  .sg-bottom-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 14px;
-    align-items: center;
-  }
-  .btn-download-tpl {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #fff;
-    color: var(--brown-dark);
-    border: 1.5px solid var(--brown-border);
-    border-radius: 999px;
-    padding: 12px 24px;
-    font-family: 'Jost', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-download-tpl:hover { background: #F5E8D0; color: var(--brown-dark); text-decoration: none; }
-  .btn-process-all {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--brown-dark);
-    color: #fff;
-    border: none;
-    border-radius: 999px;
-    padding: 12px 28px;
-    font-family: 'Jost', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s;
-  }
-  .btn-process-all:hover { background: var(--brown-mid); transform: translateY(-1px); }
-  .sg-dot {
-    width: 8px;
-    height: 8px;
-    background: #E74C3C;
-    border-radius: 50%;
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    z-index: 1;
-  }
-  @media (max-width: 900px) {
-    .sg-grid { grid-template-columns: 1fr; }
-    .sg-page { padding: 32px 24px; }
-    .sg-header h1 { font-size: 36px; }
-  }
-</style>
+<div class="skin-guide-page">
 
-<div class="sg-page">
+  {{-- Flash Messages --}}
+  @if(session('success'))
+    <div class="skin-guide-alert skin-guide-alert--success">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      {{ session('success') }}
+    </div>
+  @endif
+  @if(session('error'))
+    <div class="skin-guide-alert skin-guide-alert--error">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      {{ session('error') }}
+    </div>
+  @endif
 
-  {{-- HEADER --}}
-  <div class="sg-header">
-    <h1>Upload <em>Dictionary File</em></h1>
-    <p>Drag and drop CSV files to update system dictionaries. Ensure
-       formats match the required schema to maintain data integrity.</p>
+  {{-- Header Section --}}
+  <div class="skin-guide-header-grid">
+    <div>
+      <h1>Skin Guide Management</h1>
+      <p class="page-description">Kelola konten edukasi perawatan kulit Anda dengan presisi</p>
+    </div>
+
+    {{-- Stats Cards --}}
+    <div class="stats-cards-wrapper">
+      <!-- Total Skin Guides Card -->
+      <div class="stat-card">
+        <div class="stat-card-icon">
+          <i class="bi bi-book"></i>
+        </div>
+        <div class="stat-card-content">
+          <strong>{{ $totalArticles ?? 0 }}</strong>
+          <span>Total Skin Guides</span>
+        </div>
+      </div>
+
+      <!-- Published Guides Card -->
+      <div class="stat-card">
+        <div class="stat-card-icon">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="stat-card-content">
+          <strong>{{ $publishedArticles ?? 0 }}</strong>
+          <span>Published Guides</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  {{-- TABS --}}
-  <div class="sg-tabs">
-    <a href="{{ route('admin.inventory') }}" class="sg-tab">
-      <i class="bi bi-archive"></i>
-      Product Catalog
-    </a>
-    <a href="{{ route('admin.skin-guide.index') }}" class="sg-tab active">
-      <i class="bi bi-journal-bookmark"></i>
-      Skin Guide Articles
-    </a>
-  </div>
+  {{-- ===== SKIN GUIDE ARTICLES ===== --}}
 
-  {{-- GRID --}}
-  <div class="sg-grid">
+    {{-- Search and Actions Panel --}}
+    <section class="skin-guide-panel">
+      <form method="GET" action="{{ route('admin.skin-guide.index') }}" class="skin-guide-toolbar" id="searchForm">
 
-    {{-- Card 1: Product Dictionary --}}
-    <div class="sg-upload-card">
-      <div class="sg-card-header">
-        <div class="sg-card-header-left">
-          <div class="sg-card-icon"><i class="bi bi-bag"></i></div>
-          <div>
-            <div class="sg-card-title">Product Dictionary</div>
-            <div class="sg-card-updated">Last updated: Today, 09:41 AM</div>
+        <!-- Search Input -->
+        <label class="search-wrapper">
+          <i class="bi bi-search"></i>
+          <input
+            name="search"
+            value="{{ request('search') }}"
+            type="search"
+            placeholder="Cari artikel atau nama..."
+            aria-label="Cari artikel"
+            class="skin-guide-search"
+          />
+        </label>
+
+        <!-- Create Button -->
+        <a href="{{ route('admin.skin-guide.create') }}" class="skin-guide-btn skin-guide-btn--primary">
+          <i class="bi bi-plus"></i> Create Article
+        </a>
+      </form>
+
+      {{-- Table Section --}}
+      <div class="skin-guide-table-card">
+        @if($articles->count() > 0)
+          <div class="skin-guide-table-scroll">
+            <table class="skin-guide-table" role="table">
+              <colgroup>
+                <col style="width: 25%;">
+                <col style="width: 12%;">
+                <col style="width: 18%;">
+                <col style="width: 10%;">
+                <col style="width: 12%;">
+                <col style="width: 12%;">
+                <col style="width: 11%;">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Article Details</th>
+                  <th>Category</th>
+                  <th>Tags</th>
+                  <th class="center">Status</th>
+                  <th>Date Created</th>
+                  <th>Updated</th>
+                  <th class="center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($articles as $item)
+                  <tr>
+                    <td>
+                      <div class="skin-guide-art-title">{{ $item->title }}</div>
+                      <div class="skin-guide-art-slug">/{{ $item->slug }}</div>
+                    </td>
+                    <td>
+                      <span class="skin-guide-cat">{{ $item->category ?? '—' }}</span>
+                    </td>
+                    <td>
+                      <div class="skin-guide-tags-cell">
+                        @forelse($item->tags as $tag)
+                          <span class="skin-guide-tag-pill">{{ $tag->name }}</span>
+                        @empty
+                          <span class="cell-ellipsis" style="font-size:11px;color:#7A5C43;">—</span>
+                        @endforelse
+                      </div>
+                    </td>
+                    <td class="center">
+                      @if($item->is_published)
+                        <span class="skin-guide-status skin-guide-status--pub">Published</span>
+                      @else
+                        <span class="skin-guide-status skin-guide-status--draft">Draft</span>
+                      @endif
+                    </td>
+                    <td><span class="skin-guide-date">{{ $item->created_at?->format('d M Y') ?? '—' }}</span></td>
+                    <td><span class="skin-guide-date">{{ $item->updated_at?->format('d M Y') ?? '—' }}</span></td>
+                    <td class="center">
+                      <div class="skin-guide-actions">
+                        <a href="{{ route('admin.skin-guide.edit', $item->id) }}"
+                           class="skin-guide-action skin-guide-action--edit"
+                           title="Edit Article"
+                           aria-label="Edit Article">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{{ route('admin.skin-guide.destroy', $item->id) }}" method="POST"
+                              style="display: inline;">
+                          @csrf @method('DELETE')
+                          <button type="submit"
+                                  class="skin-guide-action skin-guide-action--del"
+                                  title="Delete Article"
+                                  aria-label="Delete Article"
+                                  onclick="return confirm('Hapus skin guide ini? Tindakan ini tidak dapat dibatalkan.');">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
           </div>
-        </div>
-        <span class="sg-badge-csv">CSV Only</span>
-      </div>
-      <div class="sg-dropzone" id="zone-product"
-           ondragover="handleDragOver(event,'zone-product')"
-           ondragleave="handleDragLeave('zone-product')"
-           ondrop="handleDrop(event,'zone-product','progress-product')">
-        <input type="file" accept=".csv" onchange="handleFileSelect(this,'progress-product')">
-        <div class="sg-dropzone-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
-        <div class="sg-dropzone-title">Click to upload or drag and drop</div>
-        <div class="sg-dropzone-sub">Max file size: 50MB</div>
-      </div>
-      <div id="progress-product" style="display:none; margin-top:12px;"></div>
-    </div>
 
-    {{-- Card 2: Constraint Dictionary --}}
-    <div class="sg-upload-card">
-      <div class="sg-card-header">
-        <div class="sg-card-header-left">
-          <div class="sg-card-icon"><i class="bi bi-exclamation-triangle"></i></div>
-          <div>
-            <div class="sg-card-title">Constraint Dictionary</div>
-            <div class="sg-card-updated">Last updated: 1 week ago</div>
+          {{-- Pagination Footer --}}
+          <div class="skin-guide-table-footer">
+            <div class="skin-guide-table-info">
+              Showing {{ $articles->firstItem() }} to {{ $articles->lastItem() }} of {{ $articles->total() }} articles
+            </div>
+            <nav class="pagination" role="navigation" aria-label="Pagination">
+              {{-- Previous Page Link --}}
+              @if($articles->onFirstPage())
+                <span class="page-btn disabled">‹</span>
+              @else
+                <a href="{{ $articles->previousPageUrl() }}&tab=articles" class="page-btn">‹</a>
+              @endif
+
+              {{-- Pagination Elements --}}
+              @foreach($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
+                @if($page == $articles->currentPage())
+                  <span class="page-btn active">{{ $page }}</span>
+                @else
+                  <a href="{{ $url }}&tab=articles" class="page-btn">{{ $page }}</a>
+                @endif
+              @endforeach
+
+              {{-- Next Page Link --}}
+              @if($articles->hasMorePages())
+                <a href="{{ $articles->nextPageUrl() }}&tab=articles" class="page-btn">›</a>
+              @else
+                <span class="page-btn disabled">›</span>
+              @endif
+            </nav>
           </div>
-        </div>
-        <span class="sg-badge-csv">CSV Only</span>
-      </div>
-      <div style="position:relative;">
-        <div class="sg-dot"></div>
-        <div class="sg-dropzone" id="zone-constraint"
-             ondragover="handleDragOver(event,'zone-constraint')"
-             ondragleave="handleDragLeave('zone-constraint')"
-             ondrop="handleDrop(event,'zone-constraint','progress-constraint')">
-          <input type="file" accept=".csv" onchange="handleFileSelect(this,'progress-constraint')">
-          <div class="sg-dropzone-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
-          <div class="sg-dropzone-title">Click to upload or drag and drop</div>
-          <div class="sg-dropzone-sub">Max file size: 50MB</div>
-        </div>
-      </div>
-      <div id="progress-constraint" style="display:none; margin-top:12px;"></div>
-    </div>
-
-    {{-- Card 3: Skin Type Dictionary --}}
-    <div class="sg-upload-card">
-      <div class="sg-card-header">
-        <div class="sg-card-header-left">
-          <div class="sg-card-icon"><i class="bi bi-droplet"></i></div>
-          <div>
-            <div class="sg-card-title">Skin Type Dictionary</div>
-            <div class="sg-card-updated">Last updated: Yesterday, 04:20 PM</div>
+        @else
+          {{-- Empty State --}}
+          <div class="skin-guide-empty-state">
+            <div class="skin-guide-empty-state-icon">
+              <i class="bi bi-book"></i>
+            </div>
+            <h3>Belum ada skin guide</h3>
+            <p>Mulai buat konten edukasi untuk komunitas Anda</p>
+            <a href="{{ route('admin.skin-guide.create') }}" class="skin-guide-empty-state-btn">Create Your First Skin Guide</a>
           </div>
-        </div>
-        <span class="sg-badge-csv">CSV Only</span>
+        @endif
       </div>
-      <div class="sg-dropzone" id="zone-skintype"
-           ondragover="handleDragOver(event,'zone-skintype')"
-           ondragleave="handleDragLeave('zone-skintype')"
-           ondrop="handleDrop(event,'zone-skintype','progress-skintype')">
-        <input type="file" accept=".csv" onchange="handleFileSelect(this,'progress-skintype')">
-        <div class="sg-dropzone-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
-        <div class="sg-dropzone-title">Click to upload or drag and drop</div>
-        <div class="sg-dropzone-sub">Max file size: 50MB</div>
-      </div>
-      <div id="progress-skintype" style="display:none; margin-top:12px;"></div>
-    </div>
+    </section>
 
-    {{-- Card 4: Ingredient Dictionary --}}
-    <div class="sg-upload-card">
-      <div class="sg-card-header">
-        <div class="sg-card-header-left">
-          <div class="sg-card-icon"><i class="bi bi-shield-check"></i></div>
-          <div>
-            <div class="sg-card-title">Ingredient Dictionary</div>
-            <div class="sg-card-updated">Last updated: 1 week ago</div>
-          </div>
-        </div>
-        <span class="sg-badge-csv">CSV Only</span>
-      </div>
-      <div class="sg-dropzone" id="zone-ingredient"
-           ondragover="handleDragOver(event,'zone-ingredient')"
-           ondragleave="handleDragLeave('zone-ingredient')"
-           ondrop="handleDrop(event,'zone-ingredient','progress-ingredient')">
-        <input type="file" accept=".csv" onchange="handleFileSelect(this,'progress-ingredient')">
-        <div class="sg-dropzone-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
-        <div class="sg-dropzone-title">Click to upload or drag and drop</div>
-        <div class="sg-dropzone-sub">Max file size: 50MB</div>
-      </div>
-      <div id="progress-ingredient" style="display:none; margin-top:12px;"></div>
-    </div>
-
-  </div>{{-- end sg-grid --}}
-
-  {{-- BOTTOM ACTIONS --}}
-  <div class="sg-bottom-actions">
-    <a href="#" class="btn-download-tpl" onclick="event.preventDefault(); alert('Downloading CSV templates...')">
-      <i class="bi bi-download"></i>
-      Download Templates
-    </a>
-    <button type="button" class="btn-process-all" onclick="alert('Processing all uploaded dictionaries...')">
-      <i class="bi bi-play-fill"></i>
-      Process All
-    </button>
-  </div>
-
-</div>{{-- end sg-page --}}
-
-@push('scripts')
-<script>
-  function handleDragOver(e, zoneId) {
-    e.preventDefault();
-    document.getElementById(zoneId).classList.add('dragover');
-  }
-  function handleDragLeave(zoneId) {
-    document.getElementById(zoneId).classList.remove('dragover');
-  }
-  function handleDrop(e, zoneId, progressId) {
-    e.preventDefault();
-    document.getElementById(zoneId).classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file) showProgress(progressId, file);
-  }
-  function handleFileSelect(input, progressId) {
-    const file = input.files[0];
-    if (file) showProgress(progressId, file);
-  }
-  function showProgress(containerId, file) {
-    const container = document.getElementById(containerId);
-    const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-    container.style.display = 'block';
-    container.innerHTML = `
-      <div class="sg-upload-progress">
-        <div class="sg-progress-icon"><i class="bi bi-file-earmark-text"></i></div>
-        <div class="sg-progress-info">
-          <div class="sg-progress-filename">${file.name}</div>
-          <div class="sg-progress-meta">${sizeMB} MB &bull; uploading...</div>
-          <div class="sg-progress-bar-wrap">
-            <div class="sg-progress-bar" id="bar-${containerId}" style="width:0%"></div>
-          </div>
-          <div class="sg-progress-status" id="status-${containerId}">UPLOADING...</div>
-        </div>
-        <button class="sg-progress-close" onclick="dismissProgress('${containerId}')">&times;</button>
-      </div>`;
-    simulateProgress(`bar-${containerId}`, `status-${containerId}`);
-  }
-  function simulateProgress(barId, statusId) {
-    let pct = 0;
-    const iv = setInterval(() => {
-      pct += Math.random() * 12;
-      if (pct >= 100) {
-        pct = 100;
-        clearInterval(iv);
-        const s = document.getElementById(statusId);
-        if (s) { s.textContent = 'COMPLETE ✓'; s.style.color = '#27AE60'; }
-      }
-      const b = document.getElementById(barId);
-      if (b) b.style.width = pct + '%';
-    }, 300);
-  }
-  function dismissProgress(containerId) {
-    const el = document.getElementById(containerId);
-    if (el) { el.style.display = 'none'; el.innerHTML = ''; }
-  }
-</script>
-@endpush
-
+</div>
 @endsection

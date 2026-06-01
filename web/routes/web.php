@@ -96,14 +96,14 @@ Route::view('/admin/profile-preview', 'admin.profile.profile')
 Route::view('/admin/profile-preview/change-password', 'admin.profile.change-password')
     ->name('admin.profile.preview.change-password');
 
-Route::view('/admin/journal-preview', 'admin.journal.index')
-    ->name('admin.journal.preview');
+Route::view('/admin/skin-guide-preview', 'admin.skin-guide.index')
+    ->name('admin.skin-guide.preview');
 
-Route::view('/admin/journal-preview/create', 'admin.journal.create')
-    ->name('admin.journal.preview.create');
+Route::view('/admin/skin-guide-preview/create', 'admin.skin-guide.create')
+    ->name('admin.skin-guide.preview.create');
 
-Route::view('/admin/journal-preview/edit', 'admin.journal.edit')
-    ->name('admin.journal.preview.edit');
+Route::view('/admin/skin-guide-preview/edit', 'admin.skin-guide.edit')
+    ->name('admin.skin-guide.preview.edit');
 
 Route::get('/admin/feedback-preview', [AdminFeedbackController::class, 'monitor'])
     ->name('admin.feedback.preview');
@@ -164,36 +164,10 @@ Route::middleware(['auth', AdminMiddleware::class])
         Route::get('/feedback', [AdminFeedbackController::class, 'monitor'])
             ->name('feedback');
 
-        // Journal
-        Route::get('/journal', function () {
-            return view('admin.journal.index');
-        })->name('journal');
-
-        Route::get('/journal/create', function () {
-            return view('admin.journal.create');
-        })->name('journal.create');
-
-        Route::post('/journal', function () {
-            return redirect()
-                ->route('admin.journal')
-                ->with('success', 'Article created successfully!');
-        })->name('journal.store');
-
-        Route::get('/journal/{id}/edit', function ($id) {
-            return view('admin.journal.edit');
-        })->name('journal.edit');
-
-        Route::put('/journal/{id}', function ($id) {
-            return redirect()
-                ->route('admin.journal')
-                ->with('success', 'Article updated successfully!');
-        })->name('journal.update');
-
-        Route::delete('/journal/{id}', function ($id) {
-            return redirect()
-                ->route('admin.journal')
-                ->with('success', 'Article deleted successfully!');
-        })->name('journal.destroy');
+        // Dictionary Upload
+        Route::get('/dictionary/upload', function () {
+            return view('admin.dictionary.upload');
+        })->name('dictionary.upload');
 
         // Products CRUD
         Route::resource('products', AdminProductController::class, [
