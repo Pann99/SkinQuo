@@ -105,11 +105,9 @@ class AdminProductController extends Controller
 
         $product->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product berhasil diupdate',
-            'data' => $product
-        ]);
+        return redirect()
+            ->route('admin.inventory')
+            ->with('success', 'Product berhasil diupdate!');
     }
 
     /**

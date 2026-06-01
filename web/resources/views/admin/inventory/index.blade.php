@@ -288,6 +288,10 @@
     display: none; /* sembunyikan "Showing X to Y of Z results" */
   }
 
+  /* ===== MODAL Z-INDEX FIX ===== */
+  .modal { z-index: 99999 !important; }
+  .modal-backdrop { z-index: 99998 !important; }
+
   /* ===== DELETE MODAL ===== */
   .modal-content {
     border-radius: 16px;
