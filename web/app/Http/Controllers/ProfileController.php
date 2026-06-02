@@ -21,10 +21,18 @@ class ProfileController extends Controller
                 return redirect()->route('login');
             }
             
-            // Fetch consultations ordered by latest
             $consultations = $user->consultations()
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get()
+                ->map(function($c) {
+                    $c->skin_concern_parsed = is_string($c->skin_concern)
+                        ? json_decode($c->skin_concern, true)
+                        : ($c->skin_concern ?? []);
+                    $c->ingredient_result_parsed = is_string($c->ingredient_result)
+                        ? json_decode($c->ingredient_result, true)
+                        : ($c->ingredient_result ?? []);
+                    return $c;
+                });
             
             // Debug: Log consultation count
             \Log::info('Profile show - User ID: ' . $user->user_id . ', Consultations count: ' . $consultations->count());

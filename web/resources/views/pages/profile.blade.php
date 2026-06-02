@@ -61,20 +61,31 @@
     }
 
     .pf-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        align-items: start;
-    }
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: stretch;
+    }   
 
     @media (max-width: 820px) {
         .pf-layout { grid-template-columns: 1fr; }
     }
 
     .pf-card {
-        background: #603F26;
-        border-radius: 20px;
-        padding: 1.75rem 1.85rem 2.25rem;
+    background: #603F26;
+    border-radius: 20px;
+    padding: 1.75rem 1.85rem 2.25rem;
+    height: 100%;
+    }
+
+    /* ===== FIX: History card sama tinggi dengan profile card ===== */
+    .pf-card-history {
+    background: #603F26;
+    border-radius: 20px;
+    padding: 1.75rem 1.85rem;
+    display: flex;
+    flex-direction: column;
+    height: 560px;
     }
 
     .pf-card-title {
@@ -85,6 +96,7 @@
         font-weight: 700;
         color: rgba(255, 234, 197, 0.72);
         margin-bottom: 1.4rem;
+        flex-shrink: 0;
     }
 
     .pf-field { margin-bottom: 0.9rem; }
@@ -117,12 +129,6 @@
         color: #603F26;
         cursor: not-allowed;
     }
-
-    .pf-field-input:focus, .pf-field-select:focus {
-        box-shadow: 0 0 0 2px rgba(255, 219, 181, 0.5);
-    }
-
-    .pf-field-input::placeholder { color: rgba(96,63,38,0.35); }
 
     .pf-field-select {
         appearance: none;
@@ -162,42 +168,7 @@
         background: rgba(255, 234, 197, 0.12);
         border-color: #FFEAC5;
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-
-    .pf-ubah-btn:active { transform: translateY(0); }
-
-    .pf-save-btn {
-        width: 100%;
-        background: #FFDBB5;
-        border: none;
-        border-radius: 999px;
-        padding: 0.65rem 1.8rem;
-        font-size: 0.78rem;
-        font-weight: 700;
-        font-family: 'Poppins', sans-serif;
-        color: #603F26;
-        cursor: pointer;
-        margin-top: 0.5rem;
-    }
-
-    .pf-save-btn:hover { opacity: 0.85; }
-
-    .pf-logout-btn {
-        width: 100%;
-        background: #E8B4A4;
-        border: none;
-        border-radius: 999px;
-        padding: 0.65rem 1.8rem;
-        font-size: 0.78rem;
-        font-weight: 700;
-        font-family: 'Poppins', sans-serif;
-        color: #603F26;
-        cursor: pointer;
-        margin-top: 1rem;
-    }
-
-    .pf-logout-btn:hover { opacity: 0.85; }
 
     .pf-alert {
         border-radius: 10px;
@@ -220,6 +191,25 @@
 
     .pf-alert-error ul { padding-left: 1.1rem; margin: 0; }
 
+    /* ===== SCROLLABLE HISTORY LIST ===== */
+    .pf-consult-scroll {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 480px;
+    min-height: 0;
+    }
+
+    .pf-consult-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .pf-consult-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .pf-consult-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255,234,197,0.35);
+        border-radius: 999px;
+    }
+
     .pf-consult-item {
         background: #FFEAC5;
         border-radius: 12px;
@@ -230,6 +220,7 @@
         margin-bottom: 0.65rem;
         cursor: pointer;
         text-decoration: none;
+        transition: transform 0.15s, box-shadow 0.15s;
     }
 
     .pf-consult-item:last-child { margin-bottom: 0; }
@@ -237,318 +228,275 @@
     .pf-consult-item:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        text-decoration: none;
     }
 
     .pf-consult-date {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 0.72rem;
+        font-weight: 700;
         color: #603F26;
         white-space: nowrap;
-        min-width: 75px;
+        flex-shrink: 0;
     }
 
     .pf-consult-sep {
         width: 1px;
-        height: 22px;
+        height: 24px;
         background: rgba(96,63,38,0.2);
         flex-shrink: 0;
     }
 
     .pf-consult-topic {
-        flex: 1;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         font-weight: 500;
         color: #603F26;
-    }
-
-    .pf-consult-link {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: rgba(96,63,38,0.55);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .pf-consult-item:hover .pf-consult-link { color: #603F26; }
+    .pf-consult-link {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: rgba(96,63,38,0.55);
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-decoration: none;
+    }
 
     .pf-empty {
         text-align: center;
         padding: 2rem 1rem;
-    }
-
-    .pf-empty p {
+        color: rgba(255,234,197,0.6);
         font-size: 0.82rem;
-        color: rgba(255,219,181,0.5);
-        margin-bottom: 1rem;
     }
 
     .pf-empty a {
-        display: inline-block;
-        background: #FFDBB5;
-        color: #603F26;
-        border-radius: 999px;
-        padding: 0.6rem 1.4rem;
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-decoration: none;
+        color: #FFEAC5;
+        font-weight: 600;
+        text-decoration: underline;
     }
 
-    .pf-empty a:hover { opacity: 0.8; }
-
+    /* ===== MODAL ===== */
     .pf-modal-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(96, 63, 38, 0.4);
-        backdrop-filter: blur(4px);
+        background: rgba(60,30,10,0.55);
         z-index: 9999;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
-        padding: 5rem 1.5rem 2rem;
-        overflow-y: auto;
+        padding: 1.5rem;
+        backdrop-filter: blur(3px);
     }
 
     .pf-modal-overlay.open { display: flex; }
 
     .pf-modal {
-        background: linear-gradient(135deg, #FFEAC5 0%, #FFE0B2 100%);
-        border-radius: 24px;
+        background: #FFF8EE;
+        border-radius: 28px;
+        padding: 2.2rem 2rem;
+        max-width: 680px;
         width: 100%;
-        max-width: 500px;
-        padding: 1.6rem 1.5rem;
+        max-height: 85vh;
+        overflow-y: auto;
         position: relative;
-        animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 20px 60px rgba(96, 63, 38, 0.2), 0 0 1px rgba(96, 63, 38, 0.1);
-        border: 1px solid rgba(255, 219, 181, 0.5);
-    }
-
-    @keyframes modalIn {
-        from { opacity: 0; transform: translateY(24px) scale(0.95); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
+        box-shadow: 0 24px 60px rgba(60,30,10,0.25);
     }
 
     .pf-modal-close {
         position: absolute;
-        top: 1.5rem;
-        right: 1.5rem;
-        background: rgba(96, 63, 38, 0.08);
+        top: 1.2rem;
+        right: 1.4rem;
+        background: rgba(96,63,38,0.1);
         border: none;
-        cursor: pointer;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        font-size: 1.2rem;
         color: #603F26;
-        font-size: 1.8rem;
-        line-height: 1;
-        padding: 0.25rem 0.5rem;
-        border-radius: 8px;
-        transition: all 0.2s;
-        width: 36px;
-        height: 36px;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        line-height: 1;
+        transition: background 0.2s;
     }
 
-    .pf-modal-close:hover { 
-        background: rgba(96, 63, 38, 0.15);
-        transform: scale(1.1);
-    }
+    .pf-modal-close:hover { background: rgba(96,63,38,0.18); }
 
     .pf-modal-title {
         font-family: 'Playfair Display', serif;
-        font-size: 1.5rem;
+        font-size: 1.9rem;
         font-weight: 700;
-        font-style: italic;
         color: #603F26;
-        margin-bottom: 1.1rem;
-        text-align: center;
+        margin-bottom: 1.2rem;
     }
 
     .pf-modal-user {
         display: flex;
         align-items: center;
         gap: 0.9rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(96, 63, 38, 0.1);
-    }
-
-    .pf-modal-avatar, .pf-modal-avatar-placeholder {
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        border: 3px solid #FFDBB5;
-        box-shadow: 0 4px 16px rgba(96, 63, 38, 0.15);
+        margin-bottom: 1.4rem;
+        flex-wrap: wrap;
     }
 
     .pf-modal-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
         object-fit: cover;
-        object-position: top center;
+        flex-shrink: 0;
     }
 
     .pf-modal-avatar-placeholder {
-        background: linear-gradient(135deg, #603F26, #8B5A3C);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #603F26;
         display: flex;
         align-items: center;
         justify-content: center;
         font-family: 'Playfair Display', serif;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: #FFEAC5;
-    }
-
-    .pf-modal-user-info {
-        flex: 1;
+        flex-shrink: 0;
     }
 
     .pf-modal-username {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.1rem;
         font-weight: 700;
-        font-style: italic;
+        font-size: 0.9rem;
         color: #603F26;
-        line-height: 1.2;
     }
 
     .pf-modal-datetime {
-        background: linear-gradient(135deg, #FFEAC5, #FFE0B2);
-        border-radius: 10px;
-        padding: 0.55rem 0.8rem;
-        flex-shrink: 0;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(96, 63, 38, 0.1);
-        border: 1px solid rgba(96, 63, 38, 0.08);
+        margin-left: auto;
+        text-align: right;
     }
 
     .pf-modal-date {
-        font-size: 0.75rem;
+        font-size: 0.82rem;
         font-weight: 700;
         color: #603F26;
-        margin-bottom: 0.2rem;
-        letter-spacing: 0.5px;
     }
 
     .pf-modal-time {
-        font-size: 0.75rem;
-        color: rgba(96,63,38,0.7);
-        font-weight: 600;
+        font-size: 0.72rem;
+        color: rgba(96,63,38,0.55);
     }
 
+    /* Diagnosis card */
     .pf-diag-card {
-        background: linear-gradient(135deg, #FFFBF8 0%, #FFF8F3 100%);
-        border-radius: 14px;
-        padding: 1.2rem;
+        background: #603F26;
+        border-radius: 16px;
+        padding: 1.4rem;
         margin-bottom: 1.4rem;
-        border: 1.5px solid rgba(96, 63, 38, 0.1);
-        box-shadow: 0 6px 18px rgba(96, 63, 38, 0.08);
     }
 
     .pf-diag-badge {
         display: inline-block;
-        background: linear-gradient(135deg, #603F26, #8B5A3C);
-        color: #FFEAC5;
-        font-size: 0.58rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        padding: 4px 10px;
+        background: rgba(255,234,197,0.15);
         border-radius: 999px;
-        margin-bottom: 0.8rem;
-        box-shadow: 0 4px 12px rgba(96, 63, 38, 0.15);
+        padding: 0.25rem 0.75rem;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255,234,197,0.75);
+        margin-bottom: 0.7rem;
     }
 
     .pf-diag-name {
         font-family: 'Playfair Display', serif;
-        font-size: 1.15rem;
+        font-size: 1.35rem;
         font-weight: 700;
-        font-style: italic;
-        color: #603F26;
-        margin-bottom: 0.8rem;
+        color: #FFEAC5;
+        margin-bottom: 1rem;
+        line-height: 1.2;
     }
 
     .pf-diag-section-label {
-        font-size: 0.62rem;
+        font-size: 0.58rem;
         font-weight: 700;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.13em;
         text-transform: uppercase;
-        color: rgba(96,63,38,0.65);
-        margin-bottom: 0.4rem;
-        margin-top: 0.6rem;
-    }
-
-    .pf-diag-section-label:first-of-type {
-        margin-top: 0;
+        color: rgba(255,219,181,0.52);
+        margin-bottom: 0.35rem;
+        margin-top: 0.85rem;
     }
 
     .pf-diag-section-text {
-        font-size: 0.82rem;
-        color: rgba(96,63,38,0.8);
+        font-size: 0.78rem;
+        color: rgba(255,234,197,0.85);
         line-height: 1.6;
-        margin-bottom: 0.6rem;
     }
 
-    .pf-diag-section-text:last-child { margin-bottom: 0; }
+    /* Concern tags */
+    .pf-concern-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 1rem;
+    }
 
+    .pf-concern-tag {
+        background: rgba(255,234,197,0.15);
+        border: 1px solid rgba(255,234,197,0.25);
+        border-radius: 999px;
+        padding: 0.25rem 0.7rem;
+        font-size: 0.72rem;
+        color: #FFEAC5;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    /* Products */
     .pf-recs-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 1rem;
-        padding-bottom: 0.8rem;
-        border-bottom: 1px solid rgba(96, 63, 38, 0.1);
+        margin-bottom: 0.85rem;
     }
 
     .pf-recs-title {
         font-family: 'Playfair Display', serif;
-        font-size: 1.05rem;
+        font-size: 1.15rem;
         font-weight: 700;
         color: #603F26;
     }
 
     .pf-recs-count {
-        font-size: 0.64rem;
+        font-size: 0.65rem;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: rgba(96,63,38,0.65);
-        background: rgba(255, 219, 181, 0.3);
-        padding: 0.35rem 0.7rem;
-        border-radius: 999px;
+        color: rgba(96,63,38,0.5);
     }
 
     .pf-products-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.8rem;
-    }
-
-    @media (max-width: 500px) {
-        .pf-products-grid { grid-template-columns: 1fr; }
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0.85rem;
     }
 
     .pf-product-card {
-        background: linear-gradient(135deg, #FFFBF8, #FFF8F3);
-        border-radius: 12px;
+        background: #603F26;
+        border-radius: 14px;
         overflow: hidden;
-        box-shadow: 0 6px 16px rgba(96, 63, 38, 0.12);
-        border: 1px solid rgba(96, 63, 38, 0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .pf-product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(96, 63, 38, 0.18);
+        display: flex;
+        flex-direction: column;
     }
 
     .pf-product-img {
         width: 100%;
-        height: 110px;
-        background: linear-gradient(135deg, rgba(96,63,38,0.08), rgba(96,63,38,0.04));
+        aspect-ratio: 1;
+        object-fit: cover;
+        background: #4A2E18;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
-        font-weight: 700;
-        color: #603F26;
-        border-bottom: 1px solid rgba(96, 63, 38, 0.1);
     }
 
     .pf-product-img img {
@@ -557,22 +505,49 @@
         object-fit: cover;
     }
 
+    .pf-product-img-placeholder {
+        width: 100%;
+        aspect-ratio: 1;
+        background: #4A2E18;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: rgba(255,234,197,0.3);
+    }
+
     .pf-product-info {
-        padding: 0.75rem 0.8rem 0.8rem;
+        padding: 0.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pf-product-brand {
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255,219,181,0.5);
+        margin-bottom: 0.25rem;
     }
 
     .pf-product-name {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #603F26;
-        margin-bottom: 0.25rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #FFEAC5;
         line-height: 1.3;
+        margin-bottom: 0.5rem;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
-    .pf-product-desc {
-        font-size: 0.64rem;
-        color: rgba(96,63,38,0.68);
-        line-height: 1.4;
+    .pf-product-category {
+        font-size: 0.65rem;
+        color: rgba(255,234,197,0.5);
         margin-bottom: 0.5rem;
     }
 
@@ -580,31 +555,36 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-top: 1px solid rgba(96, 63, 38, 0.1);
-        padding-top: 0.55rem;
+        gap: 0.5rem;
     }
 
-    .pf-product-price {
+    .pf-product-link {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #FFDBB5;
+        text-decoration: none;
+        border: 1px solid rgba(255,219,181,0.3);
+        border-radius: 999px;
+        padding: 0.25rem 0.6rem;
+        transition: background 0.15s;
+        white-space: nowrap;
+    }
+
+    .pf-product-link:hover {
+        background: rgba(255,219,181,0.15);
+        color: #FFEAC5;
+    }
+
+    /* Precaution notes */
+    .pf-precaution {
+        background: rgba(255,200,100,0.12);
+        border-left: 3px solid rgba(255,200,100,0.5);
+        border-radius: 8px;
+        padding: 0.6rem 0.9rem;
         font-size: 0.72rem;
-        font-weight: 700;
-        color: #603F26;
-    }
-
-    .pf-product-cart {
-        background: rgba(96, 63, 38, 0.1);
-        border: 1.5px solid rgba(96, 63, 38, 0.2);
-        cursor: pointer;
-        color: #603F26;
-        padding: 0.35rem 0.5rem;
-        font-weight: 700;
-        font-size: 1rem;
-        border-radius: 6px;
-        transition: all 0.2s;
-    }
-
-    .pf-product-cart:hover { 
-        background: rgba(96, 63, 38, 0.15);
-        border-color: #603F26;
+        color: rgba(255,234,197,0.75);
+        margin-top: 0.5rem;
+        line-height: 1.5;
     }
 
     @media (max-width: 620px) {
@@ -615,13 +595,7 @@
         .pf-card { padding: 1.4rem 1.4rem 1.85rem; }
         .pf-modal { padding: 1.8rem 1.4rem; border-radius: 24px; }
         .pf-modal-title { font-size: 1.6rem; }
-        .pf-modal-user { flex-wrap: wrap; }
-        .pf-modal-datetime { order: 3; flex-basis: 100%; margin-top: 0.8rem; width: 100%; text-align: left; }
-        .pf-diag-card { padding: 1.2rem; }
-        .pf-diag-name { font-size: 1.2rem; }
-        .pf-diag-section-text { font-size: 0.82rem; }
-        .pf-recs-title { font-size: 1.15rem; }
-        .pf-products-grid { gap: 0.8rem; }
+        .pf-products-grid { grid-template-columns: 1fr 1fr; }
     }
 </style>
 @endpush
@@ -630,6 +604,7 @@
 <div class="pf-page">
 <div class="pf-inner">
 
+    {{-- HERO --}}
     <div class="pf-hero">
         @if($user->sex && $user->sex->icon_image_url)
             <img src="{{ $user->sex->icon_image_url }}" alt="{{ $user->username }}" class="pf-avatar">
@@ -641,21 +616,16 @@
 
     <div class="pf-layout">
 
+        {{-- LEFT: Personal Info --}}
         <div class="pf-card">
-            <div class="pf-card-title">
-                <span>Personal Information</span>
-            </div>
+            <div class="pf-card-title"><span>Personal Information</span></div>
 
-            @if (session('status'))
+            @if(session('status'))
                 <div class="pf-alert pf-alert-success">{{ session('status') }}</div>
             @endif
-            @if ($errors->any())
+            @if($errors->any())
                 <div class="pf-alert pf-alert-error">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                    <ul>@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
                 </div>
             @endif
 
@@ -663,17 +633,16 @@
                 <label class="pf-field-label">User Name</label>
                 <input type="text" class="pf-field-input" value="{{ $user->username ?? '' }}" disabled>
             </div>
-
             <div class="pf-field">
                 <label class="pf-field-label">Email Address</label>
                 <input type="email" class="pf-field-input" value="{{ $user->email ?? '' }}" disabled>
             </div>
-
             <div class="pf-field">
                 <label class="pf-field-label">Date of Birth</label>
-                <input type="date" class="pf-field-input" value="{{ ($user->date_birth ?? null)?->format('Y-m-d') }}" disabled>
+                <input type="text" class="pf-field-input"
+                       value="{{ ($user->date_birth ?? null) ? \Carbon\Carbon::parse($user->date_birth)->format('d/m/Y') : '-' }}"
+                       disabled>
             </div>
-
             <div class="pf-field">
                 <label class="pf-field-label">Gender</label>
                 <select class="pf-field-select" disabled>
@@ -682,16 +651,13 @@
             </div>
 
             <div class="pf-change-pwd-section">
-                <a href="{{ route('profile.password.edit') }}" class="pf-ubah-btn">
-                    Change Password
-                </a>
+                <a href="{{ route('profile.password.edit') }}" class="pf-ubah-btn">Change Password</a>
             </div>
         </div>
 
-        <div class="pf-card">
-            <div class="pf-card-title">
-                <span>History Consultation</span>
-            </div>
+        {{-- RIGHT: History Consultation (scrollable) --}}
+        <div class="pf-card-history">
+            <div class="pf-card-title"><span>History Consultation</span></div>
 
             @if(($consultations ?? collect())->isEmpty())
                 <div class="pf-empty">
@@ -699,14 +665,41 @@
                     <a href="{{ route('consultation.index') }}">Start Consultation</a>
                 </div>
             @else
-                @foreach($consultations as $c)
-                    <a href="javascript:void(0)" class="pf-consult-item" onclick="openDetailModal({{ $c->id }})" style="cursor: pointer;">
-                        <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
-                        <span class="pf-consult-sep"></span>
-                        <span class="pf-consult-topic">{{ implode(', ', (array)($c->tags ?? [])) ?: 'Consultation' }}</span>
-                        <span class="pf-consult-link">View Details</span>
-                    </a>
-                @endforeach
+                <div class="pf-consult-scroll">
+                    @foreach($consultations as $c)
+                        @php
+                            $concerns = $c->skin_concern_parsed ?? [];
+                            $ingredientResult = $c->ingredient_result_parsed ?? [];
+                            $products = $ingredientResult['all_products'] ?? [];
+                            $firstProduct = $products[0]['product_name'] ?? null;
+                            $concernLabel = is_array($concerns) && count($concerns)
+                                ? implode(', ', array_map('ucfirst', $concerns))
+                                : 'Consultation';
+                        @endphp
+                        <a href="javascript:void(0)"
+                           class="pf-consult-item"
+                           onclick="openDetailModal({{ $c->id }})">
+                            <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
+                            <span class="pf-consult-sep"></span>
+                            <div style="flex:1;">
+                                <div class="pf-consult-topic">
+                                    {{ $concernLabel }}
+                                </div>
+
+                                @if($firstProduct)
+                                    <div style="
+                                        font-size:11px;
+                                        color:rgba(96,63,38,.6);
+                                        margin-top:2px;
+                                    ">
+                                        Product: {{ $firstProduct }}
+                                    </div>
+                                @endif
+                            </div>
+                            <span class="pf-consult-link">View Details</span>
+                        </a>
+                    @endforeach
+                </div>
             @endif
         </div>
 
@@ -715,9 +708,9 @@
 </div>
 </div>
 
+{{-- DETAIL MODAL --}}
 <div class="pf-modal-overlay" id="detailModalOverlay" onclick="closeModalOutside(event)">
     <div class="pf-modal">
-
         <button class="pf-modal-close" onclick="closeDetailModal()">×</button>
         <h2 class="pf-modal-title">Detail Consultation</h2>
 
@@ -738,11 +731,11 @@
 
         <div class="pf-diag-card">
             <span class="pf-diag-badge">Hasil Diagnosis</span>
-            <div class="pf-diag-name" id="modalDiagnosis">—</div>
-            <div class="pf-diag-section-label">ACTION PLAN</div>
-            <div class="pf-diag-section-text" id="modalActionPlan">—</div>
-            <div class="pf-diag-section-label">CONSULTANT NOTES</div>
-            <div class="pf-diag-section-text" id="modalNotes">—</div>
+            <div class="pf-concern-tags" id="modalConcernTags"></div>
+            <div class="pf-diag-section-label">REKOMENDASI PRODUK</div>
+            <div class="pf-diag-section-text" id="modalIngredients">—</div>
+            <div class="pf-diag-section-label">CATATAN PENTING</div>
+            <div class="pf-diag-section-text" id="modalPrecaution">—</div>
         </div>
 
         <div class="pf-recs-header">
@@ -751,88 +744,210 @@
         </div>
 
         <div class="pf-products-grid" id="modalProductsGrid"></div>
-
     </div>
 </div>
 
+@php
+$consultationData = ($consultations ?? collect())->map(function ($c) {
+    return [
+        'id' => $c->id,
+        'created_at' => $c->created_at,
+        'skin_concern' => $c->skin_concern_parsed ?? [],
+        'ingredient_result' => $c->ingredient_result_parsed ?? [],
+    ];
+})->values()->toArray();
+@endphp
+
 <script>
-var consultationsData = @json(($consultations ?? collect())->toArray());
+const consultationsData = @json($consultationData);
 
 function openDetailModal(id) {
-    var found = false;
-    var c = null;
-    for (var i = 0; i < consultationsData.length; i++) {
-        if (consultationsData[i].id == id) {
-            c = consultationsData[i];
-            found = true;
-            break;
-        }
+    var c = consultationsData.find(function(x){
+        return x.id == id;
+    });
+
+    if (!c) return;
+
+    // Date & time
+    var dt = c.created_at ? new Date(c.created_at) : null;
+
+    document.getElementById('modalDate').textContent =
+        dt
+            ? dt.toLocaleDateString('id-ID',{
+                day:'2-digit',
+                month:'short',
+                year:'numeric'
+            })
+            : '—';
+
+    document.getElementById('modalTime').textContent =
+        dt
+            ? dt.toLocaleTimeString('id-ID',{
+                hour:'2-digit',
+                minute:'2-digit'
+            })
+            : '—';
+
+    // Concern tags
+    var tagsEl = document.getElementById('modalConcernTags');
+    tagsEl.innerHTML = '';
+
+    var concerns = Array.isArray(c.skin_concern)
+        ? c.skin_concern
+        : [];
+
+    if (concerns.length === 0) {
+        tagsEl.innerHTML =
+            '<span class="pf-concern-tag">General</span>';
+    } else {
+        concerns.forEach(function(t) {
+            var span = document.createElement('span');
+            span.className = 'pf-concern-tag';
+            span.textContent =
+                t.charAt(0).toUpperCase() + t.slice(1);
+
+            tagsEl.appendChild(span);
+        });
     }
-    if (!found) {
-        console.error('Consultation not found with id: ' + id);
-        return;
+
+    // Ingredient result
+    var ir = c.ingredient_result || {};
+
+    var products =
+        (ir.all_products || []).slice(0, 6);
+
+    var constraints = ir.constraints || [];
+
+    document.getElementById('modalIngredients').textContent =
+        constraints.length
+            ? 'Menggunakan bahan aktif: ' + constraints.join(', ')
+            : 'Rekomendasi produk berdasarkan kondisi kulit Anda.';
+
+    // Precaution
+    var precaution = '—';
+
+    if (
+        products.length > 0 &&
+        products[0].reasoning_meta &&
+        products[0].reasoning_meta.precaution_notes
+    ) {
+        precaution =
+            products[0].reasoning_meta.precaution_notes.join(' ');
     }
 
-    // Format date dari created_at
-    var dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) : '—';
-    var timeStr = c.created_at ? new Date(c.created_at).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : '—';
-    
-    document.getElementById('modalDate').textContent = dateStr;
-    document.getElementById('modalTime').textContent = timeStr;
+    document.getElementById('modalPrecaution').textContent =
+        precaution;
 
-    // Get diagnosis dari detected_traits atau tags
-    var diag = 'Skin Concern';
-    if (c.detected_traits && Array.isArray(c.detected_traits) && c.detected_traits.length > 0) {
-        diag = c.detected_traits.join(', ');
-    } else if (c.tags && Array.isArray(c.tags) && c.tags.length > 0) {
-        diag = c.tags.join(', ');
+    document.getElementById('modalRecsCount').textContent =
+        products.length + ' ITEMS CURATED';
+
+    // Product Grid
+    var grid =
+        document.getElementById('modalProductsGrid');
+
+    grid.innerHTML = '';
+
+    if (products.length === 0) {
+        grid.innerHTML =
+            '<p style="color:rgba(96,63,38,0.5)">Tidak ada rekomendasi produk.</p>';
+    } else {
+
+        products.forEach(function(p){
+
+            var card =
+                document.createElement('div');
+
+            card.className =
+                'pf-product-card';
+
+            let imgHtml = '';
+
+            if (p.image_url) {
+                imgHtml =
+                    `<img
+                        src="${p.image_url}"
+                        alt="${p.product_name || ''}"
+                        style="width:100%;aspect-ratio:1;object-fit:cover;"
+                        onerror="this.outerHTML='<div class=&quot;pf-product-img-placeholder&quot;>🧴</div>'"
+                    >`;
+            } else {
+                imgHtml =
+                    '<div class="pf-product-img-placeholder">🧴</div>';
+            }
+
+            const reasonText =
+                p.reasoning_meta?.reasoning_text || '';
+
+            card.innerHTML = `
+                <div class="pf-product-img">
+                    ${imgHtml}
+                </div>
+
+                <div class="pf-product-info">
+
+                    <div class="pf-product-brand">
+                        ${p.brand || ''}
+                    </div>
+
+                    <div class="pf-product-name">
+                        ${p.product_name || ''}
+                    </div>
+
+                    <div class="pf-product-category">
+                        ${p.category || ''}
+                    </div>
+
+                    ${
+                        reasonText
+                            ? `<div class="pf-precaution" style="font-size:.62rem;margin-bottom:.5rem;">
+                                    ${reasonText}
+                               </div>`
+                            : ''
+                    }
+
+                    <div class="pf-product-footer">
+                        ${
+                            p.link_produk
+                                ? `<a href="${p.link_produk}" target="_blank" class="pf-product-link">
+                                        Shop →
+                                   </a>`
+                                : ''
+                        }
+                    </div>
+
+                </div>
+            `;
+
+            grid.appendChild(card);
+        });
     }
-    document.getElementById('modalDiagnosis').textContent = diag;
 
-    // Get skin story atau recommendations
-    var story = c.skin_story ? c.skin_story : (c.recommendations ? (Array.isArray(c.recommendations) ? c.recommendations.join('. ') : c.recommendations) : 'Lakukan perawatan kulit secara rutin sesuai kondisi kulit Anda.');
-    document.getElementById('modalActionPlan').textContent = 'Focus on treating: ' + diag + '.';
-    document.getElementById('modalNotes').textContent = story;
+    document
+        .getElementById('detailModalOverlay')
+        .classList.add('open');
 
-    var products = getProductRecommendations(c.concern_1 || c.concern_2 || 'general');
-    document.getElementById('modalRecsCount').textContent = products.length + ' ITEMS CURATED';
-
-    var grid = document.getElementById('modalProductsGrid');
-    var html = '';
-    for (var i = 0; i < products.length; i++) {
-        var p = products[i];
-        html += '<div class="pf-product-card"><div class="pf-product-img">' + p.emoji + '</div><div class="pf-product-info"><div class="pf-product-name">' + p.name + '</div><div class="pf-product-desc">' + p.desc + '</div><div class="pf-product-footer"><span class="pf-product-price">' + p.price + '</span><button type="button" class="pf-product-cart">+</button></div></div></div>';
-    }
-    grid.innerHTML = html;
-
-    document.getElementById('detailModalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
 }
 
-function getProductRecommendations(concern) {
-    return [
-        { name: 'Salicylic Acid Cleanser', desc: 'Sunscreen setiap pagi dan malam hari', price: 'Rp 185.000', emoji: 'P' },
-        { name: 'Niacinamide Serum', desc: 'Tersedia 3-4 hari sebelum pelembab', price: 'Rp 240.000', emoji: 'S' },
-        { name: 'Barrier Repair Cream', desc: 'Aplikasikan secara merta di aklir ritual', price: 'Rp 315.000', emoji: 'C' }
-    ];
-}
-
 function closeDetailModal() {
-    document.getElementById('detailModalOverlay').classList.remove('open');
+    document
+        .getElementById('detailModalOverlay')
+        .classList.remove('open');
+
     document.body.style.overflow = '';
 }
 
 function closeModalOutside(e) {
-    if (e.target.id === 'detailModalOverlay') closeDetailModal();
+    if (e.target.id === 'detailModalOverlay') {
+        closeDetailModal();
+    }
 }
 
-function togglePasswordVisibility(btn) {
-    var input = btn.previousElementSibling;
-    input.type = input.type === 'password' ? 'text' : 'password';
-}
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeDetailModal();
+document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+        closeDetailModal();
+    }
 });
 </script>
+
 @endsection
