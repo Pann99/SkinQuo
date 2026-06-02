@@ -29,7 +29,6 @@ class Product extends Model
         'cara_pakai',
         'kandungan',
         'is_best_seller',
-        'is_visible',
         'sold_count',
     ];
 

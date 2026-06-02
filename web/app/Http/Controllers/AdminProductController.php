@@ -46,6 +46,7 @@ class AdminProductController extends Controller
      */
     public function store(Request $request)
     {
+        
         $validated = $request->validate([
             'product_id' => 'nullable|integer|unique:products,product_id',
             'nama_produk' => 'required|string|max:255',
@@ -58,7 +59,6 @@ class AdminProductController extends Controller
             'kandungan' => 'nullable|string',
             'image' => 'nullable|string|url',
             'link_produk' => 'nullable|string|url',
-            'is_visible' => 'nullable|boolean',
         ]);
 
         try {
@@ -107,7 +107,6 @@ class AdminProductController extends Controller
             'kandungan' => 'nullable|string',
             'image' => 'nullable|string|url',
             'link_produk' => 'nullable|string|url',
-            'is_visible' => 'nullable|boolean',
         ]);
 
         try {
