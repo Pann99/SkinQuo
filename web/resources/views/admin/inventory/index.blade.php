@@ -652,7 +652,128 @@
     .btn-process-all {
       width: 100%;
     }
+
   }
+
+  /* ===== SEARCH BAR ===== */
+
+.inventory-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.search-form {
+    position: relative;
+}
+
+.search-input {
+    width: 360px;
+    height: 48px;
+
+    padding-left: 48px;
+    padding-right: 18px;
+
+    background: #ffffff;
+    border: 1.5px solid #E5D5C4;
+    border-radius: 999px;
+
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: var(--brown-dark);
+
+    transition: all .2s ease;
+}
+
+.search-input::placeholder {
+    color: #A67C52;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--brown-dark);
+    box-shadow: 0 0 0 4px rgba(74, 36, 19, 0.08);
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #A67C52;
+    font-size: 15px;
+}
+
+.inventory-page .inventory-section-header {
+    margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+
+    .inventory-header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .btn-add-product {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ===== SKINQUO ALERT ===== */
+.alert-success-custom {
+    background: #FFF8F1;
+    border: 1px solid #E8C49A;
+    color: #7A5030;
+
+    padding: 16px 20px;
+    border-radius: 14px;
+
+    margin-bottom: 24px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+
+    box-shadow: 0 6px 18px rgba(122, 80, 48, 0.08);
+
+    animation: fadeInDown .4s ease;
+}
+
+.alert-success-custom i {
+    color: #A67C52;
+    font-size: 18px;
+}
+
+/* Fade Out */
+.alert-hide {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all .5s ease;
+}
+
+/* Animation */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 @endpush
 
@@ -685,17 +806,67 @@
     </a>
   </div>
 
+
+  {{-- Success Message --}}
+@if(session('success'))
+<div class="alert-success-custom" id="successAlert">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ session('success') }}
+</div>
+@endif
+
+{{-- Error Message --}}
+@if(session('error'))
+<div class="alert-error-custom">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ session('error') }}
+</div>
+@endif
   {{-- ===== TAB: PRODUCT CATALOG ===== --}}
   @if($activeTab === 'products')
 
   {{-- ===== SECTION HEADER: Products List ===== --}}
-  <div class="inventory-section-header">
+  {{-- <div class="inventory-section-header">
     <h2 class="section-title">Product List</h2>
     <a href="{{ route('admin.products.create') }}" class="btn-add-product">
       <i class="bi bi-plus-circle"></i>
       ADD NEW PRODUCT
     </a>
-  </div>
+  </div> --}}
+
+
+<div class="inventory-section-header">
+
+    <h2 class="section-title">Product List</h2>
+
+    <div class="inventory-header-actions">
+
+        <form method="GET"
+              action="{{ route('admin.inventory') }}"
+              class="search-form">
+
+            <i class="bi bi-search search-icon"></i>
+
+            <input
+                type="text"
+                name="search"
+                class="search-input"
+                placeholder="Search products..."
+                value="{{ request('search') }}"
+            >
+
+        </form>
+
+        <a href="{{ route('admin.products.create') }}"
+           class="btn-add-product">
+            <i class="bi bi-plus-circle"></i>
+            ADD NEW PRODUCT
+        </a>
+
+    </div>
+
+</div>
+
 
   {{-- ===== PRODUCT GRID ===== --}}
   <div class="inventory-grid">
@@ -742,6 +913,9 @@
       </div>
     @endforelse
   </div>
+
+
+  
 
   {{-- ===== PAGINATION SECTION ===== --}}
   @if(isset($products) && method_exists($products, 'total') && $products->total() > 0)
@@ -997,6 +1171,23 @@
       deleteModal.classList.add('hidden');
     }
   });
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const alert = document.getElementById('successAlert');
+
+    if(alert){
+
+        setTimeout(() => {
+            alert.classList.add('alert-hide');
+        }, 3000); // tampil 3 detik
+
+        setTimeout(() => {
+            alert.remove();
+        }, 3500);
+    }
+
+});
 </script>
 @endpush
 
