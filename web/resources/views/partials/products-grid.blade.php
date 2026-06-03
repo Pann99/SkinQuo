@@ -32,7 +32,6 @@
     </a>
 @empty
     <div class="cat-empty">
-        <div class="cat-empty-icon">💧</div>
-        <p style="font-size: 1rem; font-weight: 500;">Produk tidak tersedia.</p>
+        <p style="font-size: 0.95rem; font-weight: 500; color: rgba(96,63,38,0.55);">Produk tidak tersedia.</p>
     </div>
 @endforelse

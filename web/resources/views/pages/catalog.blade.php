@@ -542,7 +542,6 @@
     <div class="cat-header">
         <div class="cat-header-top">
             <h1 class="cat-title">Our Catalog</h1>
-            <span class="cat-count">{{ is_array($products ?? null) ? count($products) : ($products->total() ?? 0) }} products</span>
         </div>
         <p class="cat-sub">Choose the best skincare products for your unique skin needs from our collection.</p>
     </div>
