@@ -13,7 +13,6 @@ class Article extends Model
         'title',
         'slug',
         'content',
-        'excerpt',
         'image_url',
         'category',
         'is_published',

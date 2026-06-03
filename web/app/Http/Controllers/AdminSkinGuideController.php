@@ -53,11 +53,11 @@ class AdminSkinGuideController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:articles,slug',
-            'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
             'image_url' => 'nullable|url',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'category' => 'required|string|max:255',
             'is_published' => 'required|boolean',
             'tags' => 'nullable|array',
@@ -74,6 +74,23 @@ class AdminSkinGuideController extends Controller
         }
 
         $validated['slug'] = $slug;
+
+
+       if (!$request->filled('image_url') && !$request->hasFile('image_file')) {
+    return back()
+        ->withErrors([
+            'image_url' => 'Upload gambar atau masukkan URL gambar.'
+        ])
+        ->withInput();
+}
+
+if ($request->hasFile('image_file')) {
+
+    $path = $request->file('image_file')
+        ->store('skin-guide', 'public');
+
+    $validated['image_url'] = asset('storage/' . $path);
+}
 
         // Simpan artikel
         $article = Article::create($validated);
@@ -92,22 +109,28 @@ class AdminSkinGuideController extends Controller
     /**
      * Show edit form
      */
-    public function edit(Article $article)
-    {
-        $tags = Tag::all();
-        $selectedTagIds = $article->tags->pluck('id')->toArray();
-        return view('admin.skin-guide.edit', compact('article', 'tags', 'selectedTagIds'));
-    }
+   public function edit($id)
+{
+    $article = Article::with('tags')->findOrFail($id);
+
+    $tags = Tag::all();
+    $selectedTagIds = $article->tags->pluck('id')->toArray();
+
+    return view(
+        'admin.skin-guide.edit',
+        compact('article', 'tags', 'selectedTagIds')
+    );
+}
 
     /**
      * Update article with tags
      */
-    public function update(Request $request, Article $article)
-    {
+    public function update(Request $request, $id)
+{
+    $article = Article::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:articles,slug,' . $article->id,
-            'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
             'image_url' => 'nullable|url',
             'category' => 'required|string|max:255',
@@ -144,16 +167,15 @@ class AdminSkinGuideController extends Controller
     /**
      * Delete article and related tags
      */
-    public function destroy(Article $article)
-    {
-        // Detach all tags (cascade handled by database if configured, but explicit here)
-        $article->tags()->detach();
+public function destroy($id)
+{
+    $article = Article::findOrFail($id);
 
-        // Delete article
-        $article->delete();
+    $article->tags()->detach();
+    $article->delete();
 
-        return redirect()
-            ->route('admin.skin-guide.index')
-            ->with('success', 'Skin Guide berhasil dihapus!');
-    }
+    return redirect()
+        ->route('admin.skin-guide.index')
+        ->with('success', 'Skin Guide berhasil dihapus!');
+}
 }

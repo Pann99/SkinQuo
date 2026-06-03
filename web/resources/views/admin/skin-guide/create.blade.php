@@ -646,7 +646,12 @@
   </div>
 
   {{-- FORM --}}
-  <form action="{{ route('admin.skin-guide.store') }}" method="POST" id="sgcForm">
+  <form
+    action="{{ route('admin.skin-guide.store') }}"
+    method="POST"
+    id="sgcForm"
+    enctype="multipart/form-data"
+>
     @csrf
 
     <div class="form-layout">
@@ -676,13 +681,6 @@
                      placeholder="Auto-generated from title"
                      value="{{ old('slug') }}" required>
               @error('slug')<span class="error-msg">{{ $message }}</span>@enderror
-            </div>
-
-            <div class="field-group">
-              <label for="excerpt">Article Summary <span class="required-dot"></span></label>
-              <textarea id="excerpt" name="excerpt" class="form-textarea {{ $errors->has('excerpt') ? 'is-invalid' : '' }}"
-                        placeholder="Brief summary for preview on Skin Guide listing page...">{{ old('excerpt') }}</textarea>
-              @error('excerpt')<span class="error-msg">{{ $message }}</span>@enderror
             </div>
 
             <div class="field-group">
@@ -719,21 +717,55 @@
           <div class="form-card-body">
 
             <div class="field-group">
-              <label for="image_url">Featured Image</label>
-              <div class="image-upload-area">
-                <span class="upload-icon">🖼</span>
-                <span class="upload-label"><strong>Click to select</strong> or paste image URL below</span>
-              </div>
-              <input type="url" id="image_url" name="image_url" class="form-input {{ $errors->has('image_url') ? 'is-invalid' : '' }}"
-                     placeholder="https://images.unsplash.com/..."
-                     value="{{ old('image_url') }}"
-                     oninput="previewImage(this.value)"
-                     style="margin-top: 8px;">
-              <div id="image_preview_wrap">
-                <img id="image_preview" src="" alt="Preview">
-              </div>
-              @error('image_url')<span class="error-msg">{{ $message }}</span>@enderror
-            </div>
+  
+<div class="field-group">
+    <label>Featured Image</label>
+
+    <div class="image-upload-area" onclick="document.getElementById('image_file').click()">
+        <span class="upload-icon">🖼</span>
+
+        <span id="upload-text">
+            <strong>Klik untuk upload gambar</strong>
+        </span>
+
+        <input
+            type="file"
+            id="image_file"
+            name="image_file"
+            accept="image/*"
+            hidden
+            onchange="handleFileSelect(this)"
+        >
+    </div>
+
+    <div class="upload-divider">
+        atau masukkan URL gambar
+    </div>
+
+    <input
+        type="url"
+        id="image_url"
+        name="image_url"
+        class="form-input"
+        placeholder="https://example.com/image.jpg"
+        value="{{ old('image_url') }}"
+        oninput="previewImage(this.value)"
+    >
+
+    <div id="image_preview_wrap">
+        <img id="image_preview" src="" alt="Preview">
+    </div>
+
+    @error('image_url')
+        <span class="error-msg">{{ $message }}</span>
+    @enderror
+
+    @error('image_file')
+        <span class="error-msg">{{ $message }}</span>
+    @enderror
+</div>
+   
+</div>
 
             <div class="field-group">
               <label for="category">Category <span class="required-dot"></span></label>
@@ -884,6 +916,35 @@ function togglePreview() {
   } else {
     box.style.display = 'none';
   }
+}
+
+function previewUploadedImage(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        document.getElementById('image_preview').src = e.target.result;
+        document.getElementById('image_preview_wrap').style.display = 'block';
+    };
+
+    reader.readAsDataURL(input.files[0]);
+}
+
+function handleFileSelect(input) {
+    if (!input.files.length) return;
+
+    document.getElementById('upload-text').innerHTML =
+        '✓ ' + input.files[0].name;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        document.getElementById('image_preview').src = e.target.result;
+        document.getElementById('image_preview_wrap').style.display = 'block';
+    };
+
+    reader.readAsDataURL(input.files[0]);
 }
 </script>
 @endsection

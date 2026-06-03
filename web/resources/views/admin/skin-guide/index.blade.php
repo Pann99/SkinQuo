@@ -13,6 +13,7 @@
   flex-direction: column;
   margin: 0;
   max-width: 100%;
+  overflow: hidden;
 }
 
 /* Header Section */
@@ -226,7 +227,7 @@
 
 .skin-guide-table {
   width: 100%;
-  min-width: 1100px;
+  min-width: 900px;
   table-layout: fixed;
   border-collapse: collapse;
 }
@@ -561,10 +562,14 @@
 
   {{-- Flash Messages --}}
   @if(session('success'))
-    <div class="skin-guide-alert skin-guide-alert--success">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      {{ session('success') }}
-    </div>
+    <div
+    id="success-alert"
+    class="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg
+           bg-[#F5EEE6] border border-[#DCC5B2] text-[#8B6B4A]
+           transition-opacity duration-1000"
+>
+    {{ session('success') }}
+</div>
   @endif
   @if(session('error'))
     <div class="skin-guide-alert skin-guide-alert--error">
@@ -657,56 +662,73 @@
                 </tr>
               </thead>
               <tbody>
-                @foreach($articles as $item)
-                  <tr>
-                    <td>
-                      <div class="skin-guide-art-title">{{ $item->title }}</div>
-                      <div class="skin-guide-art-slug">/{{ $item->slug }}</div>
-                    </td>
-                    <td>
-                      <span class="skin-guide-cat">{{ $item->category ?? '—' }}</span>
-                    </td>
-                    <td>
-                      <div class="skin-guide-tags-cell">
-                        @forelse($item->tags as $tag)
-                          <span class="skin-guide-tag-pill">{{ $tag->name }}</span>
-                        @empty
-                          <span class="cell-ellipsis" style="font-size:11px;color:#7A5C43;">—</span>
-                        @endforelse
-                      </div>
-                    </td>
-                    <td class="center">
-                      @if($item->is_published)
-                        <span class="skin-guide-status skin-guide-status--pub">Published</span>
-                      @else
-                        <span class="skin-guide-status skin-guide-status--draft">Draft</span>
-                      @endif
-                    </td>
-                    <td><span class="skin-guide-date">{{ $item->created_at?->format('d M Y') ?? '—' }}</span></td>
-                    <td><span class="skin-guide-date">{{ $item->updated_at?->format('d M Y') ?? '—' }}</span></td>
-                    <td class="center">
-                      <div class="skin-guide-actions">
-                        <a href="{{ route('admin.skin-guide.edit', $item->id) }}"
-                           class="skin-guide-action skin-guide-action--edit"
-                           title="Edit Article"
-                           aria-label="Edit Article">
-                          <i class="bi bi-pencil"></i>
-                        </a>
-                        <form action="{{ route('admin.skin-guide.destroy', $item->id) }}" method="POST"
-                              style="display: inline;">
-                          @csrf @method('DELETE')
-                          <button type="submit"
-                                  class="skin-guide-action skin-guide-action--del"
-                                  title="Delete Article"
-                                  aria-label="Delete Article"
-                                  onclick="return confirm('Hapus skin guide ini? Tindakan ini tidak dapat dibatalkan.');">
-                            <i class="bi bi-trash"></i>
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                @endforeach
+@foreach($articles as $item)
+<tr data-article='{!! json_encode([
+    "title"      => $item->title,
+    "slug"       => $item->slug,
+    "category"   => $item->category ?? "",
+    "excerpt"    => $item->excerpt ?? "",
+    "content"    => $item->content ?? "",
+    "image_url"  => $item->image_url ?? "",
+    "status"     => $item->is_published ? "Published" : "Draft",
+    "created_at" => $item->created_at?->format("d M Y") ?? "—",
+    "tags"       => $item->tags->pluck("name")->toArray(),
+    "edit_url"   => route("admin.skin-guide.edit", $item->id),
+]) !!}'>
+  <td>
+    <div class="skin-guide-art-title">{{ $item->title }}</div>
+    <div class="skin-guide-art-slug">/{{ $item->slug }}</div>
+  </td>
+  <td>
+    <span class="skin-guide-cat">{{ $item->category ?? '—' }}</span>
+  </td>
+  <td>
+    <div class="skin-guide-tags-cell">
+      @forelse($item->tags as $tag)
+        <span class="skin-guide-tag-pill">{{ $tag->name }}</span>
+      @empty
+        <span class="cell-ellipsis" style="font-size:11px;color:#7A5C43;">—</span>
+      @endforelse
+    </div>
+  </td>
+  <td class="center">
+    @if($item->is_published)
+      <span class="skin-guide-status skin-guide-status--pub">Published</span>
+    @else
+      <span class="skin-guide-status skin-guide-status--draft">Draft</span>
+    @endif
+  </td>
+  <td><span class="skin-guide-date">{{ $item->created_at?->format('d M Y') ?? '—' }}</span></td>
+  <td><span class="skin-guide-date">{{ $item->updated_at?->format('d M Y') ?? '—' }}</span></td>
+  <td class="center">
+    <div class="skin-guide-actions">
+      <a href="{{ route('admin.skin-guide.edit', $item->id) }}"
+         class="skin-guide-action skin-guide-action--edit"
+         title="Edit Article"
+         aria-label="Edit Article">
+        <i class="bi bi-pencil"></i>
+      </a>
+      <button type="button"
+              class="skin-guide-action"
+              title="Read Article"
+              onclick="openPreview('{{ $item->slug }}')">
+        <i class="bi bi-eye"></i>
+      </button>
+      <form action="{{ route('admin.skin-guide.destroy', $item->id) }}" method="POST"
+            style="display: inline;">
+        @csrf @method('DELETE')
+        <button type="submit"
+                class="skin-guide-action skin-guide-action--del"
+                title="Delete Article"
+                aria-label="Delete Article"
+                onclick="return confirm('Hapus skin guide ini? Tindakan ini tidak dapat dibatalkan.');">
+          <i class="bi bi-trash"></i>
+        </button>
+      </form>
+    </div>
+  </td>
+</tr>
+@endforeach
               </tbody>
             </table>
           </div>
@@ -756,4 +778,132 @@
     </section>
 
 </div>
+
+{{-- Article Preview Modal --}}
+<div id="articleModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(61,35,20,0.45); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+  <div style="background:#FFFDF9; border-radius:24px; width:90%; max-width:780px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 32px 80px rgba(61,35,20,0.18); overflow:hidden;">
+
+    {{-- Modal Header --}}
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 28px; border-bottom:1px solid #F2E3D4; flex-shrink:0;">
+      <div>
+        <div id="modalCategory" style="font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#7A5030; margin-bottom:6px;"></div>
+        <h2 id="modalTitle" style="margin:0; font-family:'Playfair Display',serif; font-size:1.5rem; color:#3D2314; line-height:1.2;"></h2>
+      </div>
+      <button onclick="closePreview()" style="width:36px; height:36px; border-radius:12px; border:1px solid #E8D5C4; background:#F7EFE6; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#7A5030; flex-shrink:0;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    {{-- Modal Meta --}}
+    <div id="modalMeta" style="display:flex; gap:12px; align-items:center; padding:14px 28px; border-bottom:1px solid #F2E3D4; flex-shrink:0; flex-wrap:wrap;">
+    </div>
+
+    {{-- Modal Image --}}
+    <div id="modalImageWrap" style="display:none; flex-shrink:0;">
+      <img id="modalImage" src="" alt="" style="width:100%; height:220px; object-fit:cover;">
+    </div>
+
+    {{-- Modal Body --}}
+    <div id="modalBody" style="padding:28px; overflow-y:auto; flex:1; font-size:14px; line-height:1.9; color:#5E402C;">
+      <div id="modalContent"></div>
+    </div>
+
+    {{-- Modal Footer --}}
+    <div style="padding:16px 28px; border-top:1px solid #F2E3D4; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; background:#FFFDF9;">
+      <a id="modalEditLink" href="#" class="skin-guide-btn skin-guide-btn--primary" style="padding:10px 20px; font-size:11px;">
+        <i class="bi bi-pencil"></i> Edit Article
+      </a>
+      <button onclick="closePreview()" style="padding:10px 20px; border-radius:999px; border:1px solid #E8D5C4; background:#F7EFE6; color:#7A5030; font-family:'Jost',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">
+        Tutup
+      </button>
+    </div>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+// Auto-hide success alert
+setTimeout(() => {
+    const alert = document.getElementById('success-alert');
+    if (alert) {
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 1000);
+    }
+}, 3000);
+
+// Modal logic
+const modal = document.getElementById('articleModal');
+
+function openPreview(slug) {
+    // Find row by slug
+    const rows = document.querySelectorAll('tr[data-article]');
+    let data = null;
+    rows.forEach(row => {
+        try {
+            const d = JSON.parse(row.getAttribute('data-article'));
+            if (d.slug === slug) data = d;
+        } catch(e) {}
+    });
+    if (!data) return;
+
+    document.getElementById('modalTitle').textContent    = data.title;
+    document.getElementById('modalCategory').textContent = data.category;
+    document.getElementById('modalEditLink').href        = data.edit_url;
+
+    // Meta (status + date + tags)
+    const meta = document.getElementById('modalMeta');
+    const statusColor = data.status === 'Published' ? '#4CAF50' : '#D4841C';
+    const statusBg    = data.status === 'Published' ? '#E8F5E9' : '#FDF0E0';
+    let tagsHtml = data.tags.map(t =>
+        `<span style="padding:3px 10px; border-radius:999px; font-size:10px; font-weight:600; background:#E8EAF6; color:#5C5FB0; border:1px solid #D1C4E9;">${t}</span>`
+    ).join('');
+    meta.innerHTML = `
+        <span style="padding:4px 12px; border-radius:999px; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; background:${statusBg}; color:${statusColor};">${data.status}</span>
+        <span style="font-size:12px; color:#7A5C43;">${data.created_at}</span>
+        ${tagsHtml}
+    `;
+
+    // Image
+    const imgWrap = document.getElementById('modalImageWrap');
+    const img     = document.getElementById('modalImage');
+    if (data.image_url) {
+        img.src = data.image_url;
+        imgWrap.style.display = 'block';
+    } else {
+        imgWrap.style.display = 'none';
+    }
+
+    // Content — render markdown-ish: bold, italic, headings, blockquote, hr
+    let html = data.content || data.excerpt || '<em style="color:#aaa;">Tidak ada konten.</em>';
+    html = html
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/^### (.+)$/gm, '<h3 style="font-family:\'Playfair Display\',serif;font-size:1rem;color:#3D2314;margin:18px 0 6px;">$1</h3>')
+        .replace(/^## (.+)$/gm,  '<h2 style="font-family:\'Playfair Display\',serif;font-size:1.2rem;color:#3D2314;margin:22px 0 8px;">$1</h2>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+        .replace(/^> (.+)$/gm,    '<blockquote style="border-left:3px solid #D4C4B0;margin:12px 0;padding:8px 16px;color:#7A5030;font-style:italic;">$1</blockquote>')
+        .replace(/^---$/gm,       '<hr style="border:none;border-top:1px solid #F2E3D4;margin:20px 0;">')
+        .replace(/\n/g, '<br>');
+    document.getElementById('modalContent').innerHTML = html;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closePreview() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Close on backdrop click
+modal.addEventListener('click', e => {
+    if (e.target === modal) closePreview();
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePreview();
+});
+</script>
+@endpush
 @endsection
