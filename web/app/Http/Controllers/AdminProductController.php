@@ -80,7 +80,7 @@ class AdminProductController extends Controller
      */
     public function show(Product $product)
     {
-        return response()->json($product);
+        return view('admin.inventory.show', compact('product'));
     }
 
     /**
