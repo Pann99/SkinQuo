@@ -890,6 +890,11 @@
 
           {{-- Actions --}}
           <div class="product-actions">
+            <a href="{{ route('admin.products.show', $product->product_id) }}"
+               class="product-action-btn"
+               title="View Detail">
+              <i class="bi bi-eye"></i>
+            </a>
             <a href="{{ route('admin.products.edit', $product->product_id) }}"
                class="product-action-btn"
                title="Edit Product">
@@ -1094,98 +1099,90 @@
 
 
 {{-- ===== DELETE CONFIRMATION MODAL ===== --}}
-<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
-    {{-- Modal Header --}}
-    <div class="border-b border-gray-200 px-8 py-7">
-      <h2 class="text-xl font-serif font-light text-gray-900">Delete Product</h2>
-    </div>
+{{-- Ditempatkan di luar semua container, akan di-teleport ke body via JS --}}
+<div id="deleteModalBackdrop" class="modal-backdrop" style="display:none;"></div>
+<div id="deleteModal" class="modal hidden" aria-modal="true" role="dialog">
+  <div class="modal-card">
+    <div class="modal-content">
+      {{-- Header --}}
+      <h2 style="font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--brown-dark); margin:0 0 16px 0;">
+        Delete Product
+      </h2>
+      <hr style="border:none; border-top:1px solid #F0EAE3; margin-bottom:20px;">
 
-    {{-- Modal Body --}}
-    <div class="px-8 py-6 text-gray-700">
-      <p class="text-base leading-relaxed">
+      {{-- Body --}}
+      <p style="font-size:14px; color:#4A3728; line-height:1.6; margin:0 0 8px 0;">
         Are you sure you want to delete <strong id="delete-product-name"></strong>?
       </p>
-      <p class="text-sm text-gray-500 mt-4">This action cannot be undone.</p>
-    </div>
+      <p style="font-size:12px; color:#9B7A5A; margin:0 0 24px 0;">This action cannot be undone.</p>
 
-    {{-- Modal Footer --}}
-    <div class="border-t border-gray-200 px-8 py-5 flex gap-3 justify-end">
-      <button type="button" 
-              id="cancelDeleteBtn"
-              class="px-6 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition">
-        Cancel
-      </button>
-      <form id="delete-form" method="POST" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="px-6 py-2 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 transition">
-          Delete Product
+      <hr style="border:none; border-top:1px solid #F0EAE3; margin-bottom:20px;">
+
+      {{-- Footer --}}
+      <div style="display:flex; justify-content:flex-end; gap:12px;">
+        <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">
+          Cancel
         </button>
-      </form>
+        <form id="delete-form" method="POST" style="display:inline;">
+          @csrf
+          @method('DELETE')
+          <button type="submit" class="btn" style="background:#C0392B; color:#fff;">
+            Delete Product
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
 
 @push('scripts')
 <script>
-  // Handle delete modal with Tailwind CSS
+document.addEventListener('DOMContentLoaded', function () {
+
+  // ── Teleport modal ke <body> agar keluar dari semua scroll/stacking container ──
+  const backdrop = document.getElementById('deleteModalBackdrop');
   const deleteModal = document.getElementById('deleteModal');
+  if (backdrop) document.body.appendChild(backdrop);
+  if (deleteModal) document.body.appendChild(deleteModal);
+
+  // ── Delete Modal ──
   const deleteButtons = document.querySelectorAll('.product-action-btn.delete');
   const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-  // Open modal when delete button is clicked
+  function openDeleteModal() {
+    backdrop.style.display = 'block';
+    deleteModal.classList.remove('hidden');
+  }
+
+  function closeDeleteModal() {
+    backdrop.style.display = 'none';
+    deleteModal.classList.add('hidden');
+  }
+
   deleteButtons.forEach(btn => {
     btn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      
       const productId = this.getAttribute('data-product-id');
       const productName = this.getAttribute('data-product-name');
-
-      // Update modal content
       document.getElementById('delete-product-name').textContent = productName;
-      const deleteForm = document.getElementById('delete-form');
-      deleteForm.action = '/admin/products/' + productId;
-
-      // Show modal
-      deleteModal.classList.remove('hidden');
+      document.getElementById('delete-form').action = '/admin/products/' + productId;
+      openDeleteModal();
     });
   });
 
-  // Close modal when cancel button is clicked
-  cancelDeleteBtn.addEventListener('click', function() {
-    deleteModal.classList.add('hidden');
-  });
-
-  // Close modal when clicking outside the modal content
-  deleteModal.addEventListener('click', function(e) {
-    if (e.target === deleteModal) {
-      deleteModal.classList.add('hidden');
-    }
-  });
-
-  // Close modal with Escape key
+  if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+  if (backdrop) backdrop.addEventListener('click', closeDeleteModal);
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && !deleteModal.classList.contains('hidden')) {
-      deleteModal.classList.add('hidden');
-    }
+    if (e.key === 'Escape') closeDeleteModal();
   });
 
-document.addEventListener('DOMContentLoaded', function () {
-
-    const alert = document.getElementById('successAlert');
-
-    if(alert){
-
-        setTimeout(() => {
-            alert.classList.add('alert-hide');
-        }, 3000); // tampil 3 detik
-
-        setTimeout(() => {
-            alert.remove();
-        }, 3500);
-    }
+  // ── Flash alert auto-hide ──
+  const alert = document.getElementById('successAlert');
+  if (alert) {
+    setTimeout(() => { alert.classList.add('alert-hide'); }, 3000);
+    setTimeout(() => { alert.remove(); }, 3500);
+  }
 
 });
 </script>

@@ -80,7 +80,7 @@
   @endif
 
   {{-- ===== MAIN AREA: content + footer (sidebar TIDAK ikut footer) ===== --}}
-  <div style="flex:1; display:flex; flex-direction:column; height:100vh; overflow-y:auto; overflow-x:hidden;">
+  <div style="flex:1; display:flex; flex-direction:column; min-height:100vh;">
 
     {{-- Main Content --}}
     <main class="admin-main">
