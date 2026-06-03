@@ -418,7 +418,7 @@
             {{-- Actions - Only Buy Product Button ── --}}
             <div class="pd-actions">
                 <a href="{{ $link_produk }}" target="_blank" rel="noopener noreferrer" class="pd-btn-primary" style="text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">
-                    🛒 Buy Product
+                    Buy Product
                 </a>
             </div>
 

@@ -468,7 +468,7 @@
 
     {{-- Articles Grid ── --}}
     <div class="sg-grid" id="sg-grid">
-        @forelse($remainingPosts as $article)
+        @foreach($remainingPosts as $article)
             <a href="{{ route('skin-guide.show', $article->slug) }}" style="text-decoration: none; color: inherit;">
                 <div class="bg-white rounded-[20px] overflow-hidden border border-[rgba(108,78,49,0.08)] hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full">
                     {{-- Image Section --}}
@@ -514,15 +514,23 @@
                     </div>
                 </div>
             </a>
-        @empty
-            <div class="sg-empty">
-                <div class="sg-empty-icon">📖</div>
-                <p style="font-size: 1rem; font-weight: 500;">No articles found</p>
-                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Try another keyword or reset the filter</p>
-                <button class="sg-empty-button" onclick="resetFilters()">Reset Filter</button>
-            </div>
-        @endforelse
+        @endforeach
     </div>
+
+    {{-- Empty state: satu kondisi, muncul hanya jika tidak ada artikel sama sekali --}}
+    @if(!$featuredPost && $remainingPosts->isEmpty())
+        <div class="sg-empty">
+            <p style="font-size: 0.95rem; font-weight: 500; color: rgba(96,63,38,0.55);">
+                @if($searchQuery)
+                    Tidak ada artikel yang cocok dengan kata kunci <em>"{{ $searchQuery }}"</em>.
+                @elseif($selectedCategory)
+                    Belum ada artikel di kategori <em>{{ $selectedCategory }}</em>.
+                @else
+                    Belum ada artikel yang tersedia.
+                @endif
+            </p>
+        </div>
+    @endif
 
 </div>
 </div>
