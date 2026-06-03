@@ -4,6 +4,64 @@
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Jost:wght@300;400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
+:root{
+    --brown-dark:#3D2314;
+    --brown-dk:#3D2314;
+    --brown-md:#5A3923;
+    --brown:#7A5030;
+    --brown-lt:#8B6A50;
+
+    --cream:#FFF9F3;
+    --peach:#F8EBDD;
+    --peach-lt:#FBF4EC;
+    --peach-mid:#E8D5C4;
+
+    --border:#E8D5C4;
+
+    --green:#2E7D32;
+    --green-bg:#E8F5E9;
+
+    --amber:#D4841C;
+    --red:#C84B31;
+
+    --shadow:0 8px 24px rgba(61,35,20,.08);
+}
+
+.sge-header{
+    margin-bottom:30px;
+}
+
+.sge-eyebrow{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    color:#7A5030;
+    margin-bottom:8px;
+}
+
+.sge-title{
+    font-family:'Playfair Display', serif;
+    font-size:42px;
+    color:#3D2314;
+    margin:0;
+}
+
+.sge-subtitle{
+    margin-top:10px;
+    color:#7A5C43;
+    font-size:14px;
+}
+
+.sge-status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+}
+
 /* ===== SKIN GUIDE EDIT PAGE STYLES ===== */
 .skin-guide-edit-page {
   width: 100%;
@@ -626,10 +684,7 @@
   background: #F5EFE6;
   border-color: #7A5030;
 }
-</style>
-@endpush
-  margin-top: 8px;
-}
+
 .sge-status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
 .sge-status-pub   { background: var(--green-bg); color: var(--green); }
 .sge-status-pub::before { background: var(--green); }
@@ -822,6 +877,7 @@
 </style>
 @endpush
 
+
 @section('content')
 <div class="skin-guide-edit-page">
 
@@ -856,8 +912,13 @@
     </div>
   </div>
 
-  <form action="{{ route('admin.skin-guide.update', $article->id) }}" method="POST" id="sgeForm">
-    @csrf @method('PUT')
+
+  <form action="{{ route('admin.skin-guide.update', ['skin_guide' => $article->id]) }}"
+      method="POST"
+      id="sgeForm">
+    @csrf
+    @method('PUT')
+
     <div class="sge-layout">
 
       {{-- LEFT --}}
@@ -1014,28 +1075,40 @@
           @endif
         </div>
 
-        {{-- Danger zone --}}
+        {{-- Danger Zone --}}
         <div class="sge-card">
           <h3 class="sge-card-title" style="color:var(--red);">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
             Danger Zone
           </h3>
           <p style="font-size:12px;color:var(--brown-lt);margin:0 0 14px;line-height:1.6;">
             Menghapus artikel ini akan menghapus semua relasi tag secara permanen. Tindakan ini tidak bisa dibatalkan.
           </p>
-          <form action="{{ route('admin.skin-guide.destroy', $article->id) }}" method="POST"
-                onsubmit="return confirm('Hapus artikel ini secara permanen?')">
-            @csrf @method('DELETE')
-            <button type="submit" class="sge-btn sge-btn--danger" style="width:100%;">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-              Delete Skin Guide
-            </button>
-          </form>
+          <button type="button"
+                  class="sge-btn sge-btn--danger"
+                  onclick="if(confirm('Hapus artikel ini secara permanen?')) document.getElementById('deleteForm').submit();">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            Delete Article
+          </button>
         </div>
 
       </div>
     </div>
   </form>
+
+  {{-- Delete form terpisah di luar sgeForm, tidak nested --}}
+  <form id="deleteForm"
+        action="{{ route('admin.skin-guide.destroy', $article->id) }}"
+        method="POST"
+        style="display:none;">
+    @csrf
+    @method('DELETE')
+  </form>
+
 </div>
 
 <script>
