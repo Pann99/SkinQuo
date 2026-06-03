@@ -559,19 +559,6 @@
         {{-- ══ STICKY EDITORIAL SIDEBAR (RIGHT) ══ --}}
         <aside class="ad-sidebar">
 
-            {{-- Search Articles (UI Layer: English) --}}
-            <div class="ad-sidebar-box">
-                <div class="ad-sidebar-label">Search Articles</div>
-                <div class="ad-search-wrap">
-                    <svg class="ad-search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                    <form action="{{ route('skin-guide.index') }}" method="GET" style="width: 100%;">
-                        <input type="text" name="search" class="ad-search-input" placeholder="Search articles...">
-                    </form>
-                </div>
-            </div>
-
             {{-- Latest Articles Sidebar List --}}
             @if($latestArticles->count() > 0)
             <div class="ad-sidebar-box">
