@@ -655,57 +655,56 @@
             </div>
         </div>
 
-        {{-- RIGHT: History Consultation (scrollable) --}}
-        <div class="pf-card-history">
-            <div class="pf-card-title"><span>History Consultation</span></div>
+       {{-- RIGHT: History Consultation (scrollable) --}}
+<div class="pf-card-history">
+    <div class="pf-card-title"><span>History Consultation</span></div>
 
-            @if(($consultations ?? collect())->isEmpty())
-                <div class="pf-empty">
-                    <p>No consultations yet.</p>
-                    <a href="{{ route('consultation.index') }}">Start Consultation</a>
-                </div>
-            @else
-                <div class="pf-consult-scroll">
-                    @foreach($consultations as $c)
-                        @php
-                            $concerns = $c->skin_concern_parsed ?? [];
-                            $ingredientResult = $c->ingredient_result_parsed ?? [];
-                            $products = $ingredientResult['all_products'] ?? [];
-                            $firstProduct = $products[0]['product_name'] ?? null;
-                            $concernLabel = is_array($concerns) && count($concerns)
-                                ? implode(', ', array_map('ucfirst', $concerns))
-                                : 'Consultation';
-                        @endphp
-                        <a href="javascript:void(0)"
-                           class="pf-consult-item"
-                           onclick="openDetailModal({{ $c->id }})">
-                            <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
-                            <span class="pf-consult-sep"></span>
-                            <div style="flex:1;">
-                                <div class="pf-consult-topic">
-                                    {{ $concernLabel }}
-                                </div>
-
-                                @if($firstProduct)
-                                    <div style="
-                                        font-size:11px;
-                                        color:rgba(96,63,38,.6);
-                                        margin-top:2px;
-                                    ">
-                                        Product: {{ $firstProduct }}
-                                    </div>
-                                @endif
-                            </div>
-                            <span class="pf-consult-link">View Details</span>
-                        </a>
-                    @endforeach
-                </div>
-            @endif
+    @if(($consultations ?? collect())->isEmpty())
+        <div class="pf-empty">
+            <p>No consultations yet.</p>
+            <a href="{{ route('consultation.index') }}">Start Consultation</a>
         </div>
+    @else
+        <div class="pf-consult-scroll">
+            @foreach($consultations as $c)
+                @php
+                    $concerns = $c->skin_concern_parsed ?? [];
+                    $ingredientResult = $c->ingredient_result_parsed ?? [];
+                    $products = $ingredientResult['all_products'] ?? [];
+                    $firstProduct = $products[0]['product_name'] ?? null;
+                    $concernLabel = is_array($concerns) && count($concerns)
+                        ? implode(', ', array_map('ucfirst', $concerns))
+                        : 'Consultation';
+                @endphp
+                <a href="{{ route('consultation.index') }}"
+                   class="pf-consult-item">
+                    <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
+                    <span class="pf-consult-sep"></span>
+                    <div style="flex:1;">
+                        <div class="pf-consult-topic">
+                            {{ $concernLabel }}
+                        </div>
 
-    </div>
-
-</div>
+                        @if($firstProduct)
+                            <div style="
+                                font-size:11px;
+                                color:rgba(96,63,38,.6);
+                                margin-top:2px;
+                            ">
+                                Product: {{ $firstProduct }}
+                            </div>
+                        @endif
+                    </div>
+                    <span class="pf-consult-link btn-primary">
+                        View Details
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M2 6.5H11M11 6.5L7 2.5M11 6.5L7 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </a>
+            @endforeach
+        </div>
+    @endif
 </div>
 
 {{-- DETAIL MODAL --}}

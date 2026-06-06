@@ -2,6 +2,10 @@
 
 @section('title', 'Monitoring Feedback — SkinQuo Admin')
 
+@push('styles')
+{{-- pindahkan isi <style>...</style> ke sini --}}
+@endpush
+
 @section('content')
 <div class="feedback-page">
     <!-- HEADER SECTION -->
@@ -383,6 +387,7 @@
   flex-direction: column;
   margin: 0;
   max-width: 100%;
+    overflow: hidden;
 }
 
 .feedback-header-grid {
@@ -529,7 +534,7 @@
 
 .feedback-table {
   width: 100%;
-  min-width: 1100px;
+  min-width: 900px;
   table-layout: fixed;
   border-collapse: collapse;
 }
