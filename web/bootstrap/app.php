@@ -13,11 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens(except: [
-    // 'catalog/*',
+        'catalog/*',
         'admin/products',
-    'admin/products/*',
-'admin/skin-guide',
-    'admin/skin-guide/*',
+        'admin/products/*',
+        'admin/skin-guide',
+        'admin/skin-guide/*',
+        'admin/dictionary/upload',
 ]);
 
     })
