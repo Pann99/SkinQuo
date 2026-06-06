@@ -94,7 +94,14 @@ class FeedbackController extends Controller
      */
     public function store(Request $request)
     {
-        try {
+         // Cek apakah user sudah login
+    if (!Auth::check()) {
+        return redirect()->route('login')
+            ->with('info', 'Silakan login terlebih dahulu untuk mengirim feedback.')
+            ->withInput($request->only('text', 'rating'));
+    }
+    
+    try {
             // Validasi input
             $validated = $request->validate([
                 'text' => ['required', 'string', 'min:10', 'max:1000'],

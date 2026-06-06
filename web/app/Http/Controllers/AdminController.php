@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Product;
 use App\Models\Article;
 use App\Models\Feedback;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 /**
@@ -28,10 +30,11 @@ class AdminController extends Controller
     {
         try {
             // Fetch dashboard statistics from Supabase
-            $totalProducts = Product::count();
-            $totalArticles = Article::where('is_published', true)->count();
-            $totalFeedback = Feedback::count();
-            $totalUsers = User::count();
+            $totalProducts   = Product::count();
+            $totalArticles   = Article::where('is_published', true)->count();
+            $totalFeedback   = Feedback::count();
+            $pendingFeedback = Feedback::where('is_reviewed', false)->count(); // tambahkan ini
+            $totalUsers      = User::count();
             
             // Fetch latest 3 feedbacks with user information
             $feedbacks = Feedback::with('user')
@@ -51,24 +54,24 @@ class AdminController extends Controller
             // Reverse to show newest first
             $feedbacks = $feedbacks->reverse();
             
-        } catch (\Exception $e) {
-            // Fallback if queries fail - prevent dashboard from crashing
-            $totalProducts = 0;
-            $totalArticles = 0;
-            $totalFeedback = 0;
-            $totalUsers = 0;
-            $feedbacks = collect([]);
-            
-            // Log error for debugging
-            \Log::error('Dashboard data fetch failed: ' . $e->getMessage());
-        }
+                    } catch (\Exception $e) {
+                    $totalProducts   = 0;
+                    $totalArticles   = 0;
+                    $totalFeedback   = 0;
+                    $totalUsers      = 0;
+                    $pendingFeedback = 0; // tambahkan ini
+                    $feedbacks       = collect([]);
+
+                    Log::error('Dashboard data fetch failed: ' . $e->getMessage());
+                }
 
         return view('admin.dashboard', compact(
             'totalProducts',
             'totalArticles',
             'totalFeedback',
             'totalUsers',
-            'feedbacks'
+            'feedbacks',
+            'pendingFeedback',
         ));
     }
 }

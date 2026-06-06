@@ -25,6 +25,7 @@ class HomeController extends Controller
         $communityVoices = Feedback::with('user')
             ->whereNotNull('text')
             ->where('rating', '>=', 4)
+             ->where('is_reviewed', true)
             ->latest('id')
             ->take(3)
             ->get();

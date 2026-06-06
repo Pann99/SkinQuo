@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSkinGuideController;
 use App\Http\Controllers\AdminFeedbackController;
 use App\Http\Controllers\DebugAuthController;
+use App\Http\Controllers\ValidationKeywordController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -165,9 +166,15 @@ Route::middleware(['auth', AdminMiddleware::class])
             ->name('feedback');
 
         // Dictionary Upload
-        Route::get('/dictionary/upload', function () {
-            return view('admin.dictionary.upload');
-        })->name('dictionary.upload');
+       // Dictionary / Validation Keywords
+        Route::get('/dictionary', [ValidationKeywordController::class, 'index'])
+            ->name('dictionary.index');
+
+        Route::post('/dictionary/upload', [ValidationKeywordController::class, 'upload'])
+            ->name('dictionary.upload');
+
+        Route::delete('/dictionary/{type}', [ValidationKeywordController::class, 'destroy'])
+            ->name('dictionary.destroy');
 
         // Products CRUD
         Route::resource('products', AdminProductController::class, [

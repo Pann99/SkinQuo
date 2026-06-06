@@ -192,19 +192,25 @@
             SkinQuo
         </a>
 
-        {{-- Form --}}
-        <div class="auth-form-area">
+       {{-- Form --}}
+<div class="auth-form-area">
 
-            <h1 class="auth-title">Login to SkinQuo</h1>
+    <h1 class="auth-title">Login to SkinQuo</h1>
 
-            {{-- Session Status --}}
-            @if (session('status'))
-                <div class="auth-alert">{{ session('status') }}</div>
-            @endif
+    {{-- Session Status --}}
+    @if (session('status'))
+        <div class="auth-alert">{{ session('status') }}</div>
+    @endif
 
-            <form method="POST" action="{{ route('login') }}" id="login-form">
-                @csrf
+    {{-- Info (redirect dari feedback) --}}
+    @if (session('info'))
+        <div class="auth-alert" style="background:rgba(255,193,7,0.12);border-left-color:#D4841C;color:#7A5030;">
+            ⚠️ {{ session('info') }}
+        </div>
+    @endif
 
+    <form method="POST" action="{{ route('login') }}" id="login-form">
+        @csrf
                 {{-- Email / Mobile --}}
                 <label class="auth-label" for="email">Email address</label>
                 <input
