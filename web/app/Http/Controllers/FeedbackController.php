@@ -103,7 +103,6 @@ class FeedbackController extends Controller
 
             // Simpan feedback ke database
             Feedback::create([
-                'consultation_id' => null, // Homepage feedback tidak terkait konsultasi
                 'user_id' => Auth::id(),   // NULL jika guest, user_id jika login
                 'text' => $validated['text'],
                 'rating' => (float) $validated['rating'],

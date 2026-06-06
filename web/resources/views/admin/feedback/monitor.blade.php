@@ -120,7 +120,6 @@
                                     $userEmail = $item->user?->email ?? '-';
                                     $feedbackText = $item->text ?? '';
                                     $rating = $item->rating ?? null;
-                                    $isReviewed = ($hasIsReviewedColumn ?? false) ? ($item->is_reviewed ?? false) : false;
                                     $feedbackId = $item->id;
                                 @endphp
                                 <tr class="feedback-row" data-feedback-id="{{ $feedbackId }}">
@@ -1494,21 +1493,11 @@
                 document.getElementById('detailUserEmail').textContent = data.user?.email || '-';
                 document.getElementById('detailRating').textContent = data.rating ? `⭐ ${data.rating}/5` : 'Belum diberi rating';
                 document.getElementById('detailFeedbackText').textContent = data.text || '-';
-                document.getElementById('detailStatus').textContent = data.is_reviewed ? 'Sudah Ditinjau' : 'Belum Ditinjau';
-                document.getElementById('detailDate').textContent = data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID') : '-';
-
-                // Setup Mark as Reviewed button
-                const isReviewedBtn = document.getElementById('detailMarkReviewedBtn');
-                if (data.is_reviewed) {
-                    isReviewedBtn.disabled = true;
-                    isReviewedBtn.querySelector('i').className = 'bi bi-check-circle-fill';
-                    isReviewedBtn.querySelector('span').textContent = 'Sudah Ditinjau';
-                } else {
-                    isReviewedBtn.disabled = false;
-                    isReviewedBtn.querySelector('i').className = 'bi bi-check-circle';
-                    isReviewedBtn.querySelector('span').textContent = 'Tandai Sudah Ditinjau';
-                }
-
+               document.getElementById('detailStatus').textContent = '-';
+                document.getElementById('detailDate').textContent = data.created_at 
+                    ? new Date(data.created_at).toLocaleDateString('id-ID') 
+                    : '-';
+              
                 // Store feedback ID in modal
                 modals.detail.dataset.feedbackId = feedbackId;
                 openModal('detail');
@@ -1522,131 +1511,7 @@
         });
     });
 
-    // ===== MARK AS REVIEWED HANDLER (TABLE ROW) =====
-    document.querySelectorAll('.mark-reviewed-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            
-            if (btn.disabled) return;
 
-            const feedbackId = btn.dataset.id;
-            const markBtn = btn;
-            
-            // Add loading state
-            markBtn.classList.add('loading');
-            
-            try {
-                const response = await fetch(`/admin/feedback/${feedbackId}/mark-reviewed`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Update the table row
-                    const row = document.querySelector(`[data-feedback-id="${feedbackId}"]`);
-                    if (row) {
-                        // Update status badge
-                        const statusBadge = row.querySelector('.status-badge');
-                        if (statusBadge) {
-                            statusBadge.classList.remove('status-badge-new');
-                            statusBadge.classList.add('status-badge-reviewed');
-                            statusBadge.textContent = 'Reviewed';
-                        }
-
-                        // Disable and update mark button
-                        markBtn.disabled = true;
-                        const icon = markBtn.querySelector('i');
-                        if (icon) {
-                            icon.classList.remove('bi-check-circle');
-                            icon.classList.add('bi-check-circle-fill');
-                        }
-                    }
-
-                    toast.success('Feedback sudah ditandai sebagai ditinjau');
-                } else {
-                    toast.error(data.message || 'Gagal menandai feedback');
-                }
-            } catch (error) {
-                console.error('Error marking feedback as reviewed:', error);
-                toast.error('Gagal menandai feedback. Silakan coba lagi.');
-            } finally {
-                markBtn.classList.remove('loading');
-            }
-        });
-    });
-
-    // ===== DETAIL MODAL - MARK AS REVIEWED =====
-    document.getElementById('detailMarkReviewedBtn')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        const btn = e.currentTarget;
-        if (btn.disabled) return;
-
-        const feedbackId = modals.detail.dataset.feedbackId;
-        
-        btn.classList.add('loading');
-
-        try {
-            const response = await fetch(`/admin/feedback/${feedbackId}/mark-reviewed`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (data.success) {
-                // Update the table row
-                const row = document.querySelector(`[data-feedback-id="${feedbackId}"]`);
-                if (row) {
-                    // Update status badge
-                    const statusBadge = row.querySelector('.status-badge');
-                    if (statusBadge) {
-                        statusBadge.classList.remove('status-badge-new');
-                        statusBadge.classList.add('status-badge-reviewed');
-                        statusBadge.textContent = 'Reviewed';
-                    }
-
-                    // Disable and update mark button in table
-                    const markBtn = row.querySelector('.mark-reviewed-btn');
-                    if (markBtn) {
-                        markBtn.disabled = true;
-                        const icon = markBtn.querySelector('i');
-                        if (icon) {
-                            icon.classList.remove('bi-check-circle');
-                            icon.classList.add('bi-check-circle-fill');
-                        }
-                    }
-                }
-
-                closeModal('detail');
-                toast.success('Feedback sudah ditandai sebagai ditinjau');
-            } else {
-                toast.error(data.message || 'Gagal menandai feedback');
-            }
-        } catch (error) {
-            console.error('Error marking feedback as reviewed:', error);
-            toast.error('Gagal menandai feedback. Silakan coba lagi.');
-        } finally {
-            btn.classList.remove('loading');
-        }
-    });
 
     // ===== DELETE HANDLER =====
     let pendingDeleteId = null;
@@ -1682,7 +1547,6 @@
             }
 
             const data = await response.json();
-
             if (data.success) {
                 // Remove row from table
                 const row = document.querySelector(`[data-feedback-id="${pendingDeleteId}"]`);
@@ -1691,10 +1555,15 @@
                     setTimeout(() => row.remove(), 300);
                 }
 
+                // Update total feedback counter
+                const totalEl = document.querySelector('.stat-card-content strong');
+                if (totalEl) {
+                    const current = parseInt(totalEl.textContent) || 0;
+                    totalEl.textContent = Math.max(0, current - 1);
+                }
+
                 closeModal('deleteConfirm');
                 toast.success('Feedback berhasil dihapus');
-                
-                // Optionally reload or update stats here
             } else {
                 toast.error(data.message || 'Gagal menghapus feedback');
             }

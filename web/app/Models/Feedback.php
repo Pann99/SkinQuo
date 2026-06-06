@@ -15,11 +15,10 @@ class Feedback extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'consultation_id',
         'user_id',
         'text',
         'rating',
-        'is_reviewed',
+        
     ];
 
     /**
@@ -30,7 +29,6 @@ class Feedback extends Model
 
     protected $casts = [
         'rating' => 'float',
-        'is_reviewed' => 'boolean',
     ];
 
     /**
@@ -46,8 +44,4 @@ class Feedback extends Model
      * Relationship: Feedback belongs to Consultation
      * Foreign key is 'consultation_id'
      */
-    public function consultation(): BelongsTo
-    {
-        return $this->belongsTo(Consultation::class, 'consultation_id', 'id');
-    }
 }
