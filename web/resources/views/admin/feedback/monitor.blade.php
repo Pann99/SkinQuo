@@ -121,6 +121,7 @@
                                     $feedbackText = $item->text ?? '';
                                     $rating = $item->rating ?? null;
                                     $feedbackId = $item->id;
+                                     $isReviewed = $item->is_reviewed ?? false; 
                                 @endphp
                                 <tr class="feedback-row" data-feedback-id="{{ $feedbackId }}">
                                     <td data-label="Nama" class="name-cell">{{ $userName }}</td>
@@ -1493,7 +1494,7 @@
                 document.getElementById('detailUserEmail').textContent = data.user?.email || '-';
                 document.getElementById('detailRating').textContent = data.rating ? `⭐ ${data.rating}/5` : 'Belum diberi rating';
                 document.getElementById('detailFeedbackText').textContent = data.text || '-';
-               document.getElementById('detailStatus').textContent = '-';
+                document.getElementById('detailStatus').textContent = data.is_reviewed ? 'Sudah Ditinjau' : 'Belum Ditinjau';
                 document.getElementById('detailDate').textContent = data.created_at 
                     ? new Date(data.created_at).toLocaleDateString('id-ID') 
                     : '-';
@@ -1511,7 +1512,118 @@
         });
     });
 
+// ===== MARK AS REVIEWED HANDLER (TABLE ROW) =====
+document.querySelectorAll('.mark-reviewed-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (btn.disabled) return;
 
+        const feedbackId = btn.dataset.id;
+        btn.classList.add('loading');
+
+        try {
+            const response = await fetch(`/admin/feedback/${feedbackId}/mark-reviewed`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+
+            if (data.success) {
+                const row = document.querySelector(`[data-feedback-id="${feedbackId}"]`);
+                if (row) {
+                    const statusBadge = row.querySelector('.status-badge');
+                    if (statusBadge) {
+                        statusBadge.classList.remove('status-badge-new');
+                        statusBadge.classList.add('status-badge-reviewed');
+                        statusBadge.textContent = 'Reviewed';
+                    }
+                    btn.disabled = true;
+                    btn.querySelector('i').className = 'bi bi-check-circle-fill';
+                }
+
+                // Update pending counter
+                const pendingEl = document.querySelectorAll('.stat-card-content strong')[1];
+                if (pendingEl) {
+                    const current = parseInt(pendingEl.textContent) || 0;
+                    pendingEl.textContent = Math.max(0, current - 1);
+                }
+
+                toast.success('Feedback sudah ditandai sebagai ditinjau');
+            } else {
+                toast.error(data.message || 'Gagal menandai feedback');
+            }
+        } catch (error) {
+            toast.error('Gagal menandai feedback. Silakan coba lagi.');
+        } finally {
+            btn.classList.remove('loading');
+        }
+    });
+});
+
+// ===== DETAIL MODAL - MARK AS REVIEWED =====
+document.getElementById('detailMarkReviewedBtn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const btn = e.currentTarget;
+    if (btn.disabled) return;
+
+    const feedbackId = modals.detail.dataset.feedbackId;
+    btn.classList.add('loading');
+
+    try {
+        const response = await fetch(`/admin/feedback/${feedbackId}/mark-reviewed`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const row = document.querySelector(`[data-feedback-id="${feedbackId}"]`);
+            if (row) {
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.classList.remove('status-badge-new');
+                    statusBadge.classList.add('status-badge-reviewed');
+                    statusBadge.textContent = 'Reviewed';
+                }
+                const markBtn = row.querySelector('.mark-reviewed-btn');
+                if (markBtn) {
+                    markBtn.disabled = true;
+                    markBtn.querySelector('i').className = 'bi bi-check-circle-fill';
+                }
+            }
+
+            document.getElementById('detailStatus').textContent = 'Sudah Ditinjau';
+            btn.disabled = true;
+            btn.querySelector('span').textContent = 'Sudah Ditinjau';
+
+            const pendingEl = document.querySelectorAll('.stat-card-content strong')[1];
+            if (pendingEl) {
+                const current = parseInt(pendingEl.textContent) || 0;
+                pendingEl.textContent = Math.max(0, current - 1);
+            }
+
+            closeModal('detail');
+            toast.success('Feedback sudah ditandai sebagai ditinjau');
+        } else {
+            toast.error(data.message || 'Gagal menandai feedback');
+        }
+    } catch (error) {
+        toast.error('Gagal menandai feedback. Silakan coba lagi.');
+    } finally {
+        btn.classList.remove('loading');
+    }
+});
 
     // ===== DELETE HANDLER =====
     let pendingDeleteId = null;
