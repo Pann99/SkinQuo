@@ -1,572 +1,860 @@
 @extends('layouts.app')
 
-@section('title', 'Hasil Konsultasi')
+@section('title', 'Hasil Rekomendasi — SkinQuo')
 
 @push('styles')
-<style>
-    /* ═══════════════════════════════════════
-       CONSULTATION RESULT PAGE — LUXURY DESIGN
-    ═══════════════════════════════════════ */
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    .cr-page {
-        background: linear-gradient(135deg, #FAF3E8 0%, #F5EAD9 100%);
-        min-height: 100vh;
-        padding: 120px 0 4rem;
+<style>
+    :root {
+        --cream: #FAF3E8;
+        --cream-dark: #F2E8D5;
+        --brown: #6C4E31;
+        --dark-brown: #3D2010;
+        --accent: #C17F4A;
+        --accent-light: #E8C89A;
+        --text-muted: rgba(61,32,16,0.45);
+        --border: rgba(108,78,49,0.12);
+        --border-strong: rgba(108,78,49,0.22);
+        --white: #FFFFFF;
     }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        background: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--dark-brown);
+    }
+
+    /* ─── NAV ─── */
+    .sq-nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 56px;
+        background: rgba(250,243,232,0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        z-index: 100;
+    }
+    .sq-nav-logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark-brown);
+        text-decoration: none;
+        letter-spacing: -0.3px;
+    }
+    .sq-nav-links { display: flex; align-items: center; gap: 28px; }
+    .sq-nav-link {
+        font-size: 13px;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .sq-nav-link:hover { color: var(--dark-brown); }
+    .sq-nav-link.active { color: var(--dark-brown); font-weight: 600; }
+
+    /* ─── PAGE LAYOUT ─── */
+    .cr-page {
+        padding-top: 76px;
+        padding-bottom: 4rem;
+        min-height: 100vh;
+    }
     .cr-container {
-        max-width: 1200px;
+        max-width: 1100px;
         margin: 0 auto;
         padding: 0 1.5rem;
     }
 
-    /* ═══ HEADER SECTION ═══ */
-    .cr-header { text-align: center; margin-bottom: 3rem; }
-    .cr-header-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.5rem; }
-    .cr-header-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #4A3728; line-height: 1.2; margin-bottom: 0.8rem; }
-    .cr-header-subtitle { font-size: 0.95rem; color: #7C6355; margin-bottom: 0.3rem; }
-    .cr-header-date { font-size: 0.8rem; color: #A18269; opacity: 0.8; }
+    /* ─── PAGE HEADER ─── */
+    .cr-page-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .cr-ph-eyebrow {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 4px;
+    }
+    .cr-ph-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.5rem, 3.5vw, 2rem);
+        color: var(--dark-brown);
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .cr-ph-date {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 3px;
+    }
+    .cr-ph-new-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: transparent;
+        border: 1.5px solid var(--border-strong);
+        color: var(--dark-brown);
+        font-size: 12.5px;
+        font-weight: 500;
+        font-family: 'DM Sans', sans-serif;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .cr-ph-new-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .cr-ph-new-btn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
 
-    /* ═══ MAIN GRID ═══ */
-    .cr-main-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; margin-bottom: 3rem; }
+    /* ─── QUERY CONTEXT STRIP ─── */
+    .cr-query-strip {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+    }
+    .cr-qs-query { flex: 1; min-width: 0; }
+    .cr-qs-label {
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+    }
+    .cr-qs-text {
+        font-size: 13px;
+        color: var(--dark-brown);
+        font-style: italic;
+        line-height: 1.5;
+        opacity: 0.7;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .cr-qs-text.expanded { -webkit-line-clamp: unset; }
+    .cr-qs-expand-btn {
+        font-size: 11px;
+        color: var(--accent);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 600;
+        padding: 0;
+        margin-top: 3px;
+        display: block;
+    }
+    .cr-qs-divider {
+        width: 1px;
+        background: var(--border);
+        align-self: stretch;
+        flex-shrink: 0;
+    }
+    .cr-qs-extracted { flex-shrink: 0; min-width: 200px; max-width: 300px; }
+    .cr-qs-ext-label {
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+    }
+    .cr-qs-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .cr-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 8px;
+        border: 1px solid;
+    }
+    .cr-tag.cat     { background: rgba(193,127,74,0.1);  color: #6C4E31; border-color: rgba(193,127,74,0.22); }
+    .cr-tag.concern { background: rgba(55,138,221,0.08); color: #185FA5; border-color: rgba(55,138,221,0.18); }
+    .cr-tag.block   { background: rgba(226,75,74,0.07);  color: #A32D2D; border-color: rgba(226,75,74,0.18); }
+    .cr-tag.area    { background: rgba(99,153,34,0.08);  color: #3B6D11; border-color: rgba(99,153,34,0.18); }
+    .cr-tag svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
 
-    /* ═══ TOP PRODUCT SHOWCASE ═══ */
-    .cr-showcase-section {
+    @media (max-width: 680px) {
+        .cr-query-strip { flex-direction: column; }
+        .cr-qs-divider { width: 100%; height: 1px; }
+        .cr-qs-extracted { min-width: unset; max-width: unset; width: 100%; }
+    }
+
+    /* ═══════════════════════════════════
+       MAIN SHOWCASE — UNIFIED CARD
+    ═══════════════════════════════════ */
+    .cr-showcase {
+        background: var(--white);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 24px rgba(61,32,16,0.05);
+    }
+
+    /* Top bar */
+    .cr-showcase-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 24px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(250,243,232,0.6);
+    }
+    .cr-showcase-rank {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 12px; font-weight: 600; color: var(--dark-brown);
+    }
+    .cr-rank-badge {
+        background: var(--dark-brown); color: #FFEAC5;
+        font-size: 10px; font-weight: 700;
+        padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px;
+    }
+    .cr-best-label {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: rgba(46,125,50,0.08); border: 1px solid rgba(46,125,50,0.2);
+        color: #2E7D32; font-size: 11.5px; font-weight: 700;
+        padding: 4px 12px; border-radius: 20px;
+    }
+    .cr-best-label svg { width: 11px; height: 11px; fill: currentColor; }
+
+    /* ─── UNIFIED 2-COLUMN BODY ─── */
+    .cr-showcase-body {
         display: grid;
-        grid-template-columns: 300px 1fr 290px;
-        gap: 2.5rem;
-        align-items: start;
-        background: white;
-        border-radius: 32px;
-        padding: 2.5rem;
-        border: 1px solid rgba(74, 55, 40, 0.08);
-        box-shadow: 0 8px 32px rgba(74, 55, 40, 0.06);
+        grid-template-columns: 260px 1fr;
+        gap: 0;
+    }
+    @media (max-width: 860px) { .cr-showcase-body { grid-template-columns: 1fr; } }
+
+    /* ─── LEFT: Gallery ─── */
+    .cr-gallery {
+        padding: 1.5rem;
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .cr-gallery-main {
+        width: 100%;
+        height: 220px;
+        background: linear-gradient(135deg, #F0E4CC 0%, #FFFDF8 100%);
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden; font-size: 3.5rem;
+    }
+    .cr-gallery-main img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+
+    .cr-alts-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+        text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
+    }
+    .cr-alts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .cr-alt-item {
+        background: #FFFDF8; border: 1.5px solid var(--border);
+        border-radius: 10px; cursor: pointer; transition: all 0.2s; overflow: hidden;
+    }
+    .cr-alt-item:hover,
+    .cr-alt-item.selected { border-color: var(--accent); box-shadow: 0 3px 10px rgba(193,127,74,0.15); }
+    .cr-alt-img {
+        width: 100%; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(135deg, #F0E4CC, #FFFDF8); font-size: 1.1rem;
+    }
+    .cr-alt-img img { width: 100%; height: 100%; object-fit: contain; padding: 0.25rem; }
+    .cr-alt-name {
+        font-size: 9px; color: var(--dark-brown); font-weight: 500;
+        padding: 4px 5px; line-height: 1.3; text-align: center;
+        overflow: hidden; display: -webkit-box;
+        -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    }
+
+    /* Alt detail popup */
+    .cr-alt-detail {
+        display: none; background: rgba(250,243,232,0.6);
+        border: 1px solid var(--border); border-radius: 12px;
+        padding: 10px 12px; gap: 10px; align-items: flex-start; margin-top: 4px;
+    }
+    .cr-alt-detail.show { display: flex; animation: fadeUp 0.2s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .cr-alt-detail-img {
+        width: 52px; height: 52px; background: #FFFDF8; border-radius: 8px;
+        overflow: hidden; flex-shrink: 0; border: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
+    .cr-alt-detail-img img { width: 100%; height: 100%; object-fit: contain; }
+    .cr-alt-detail-info { flex: 1; min-width: 0; }
+    .cr-alt-detail-brand { font-size: 9px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+    .cr-alt-detail-name  { font-size: 12px; font-weight: 600; color: var(--dark-brown); line-height: 1.3; margin: 2px 0; }
+    .cr-alt-detail-cat   { font-size: 10.5px; color: var(--text-muted); }
+    .cr-alt-detail-link  { font-size: 10.5px; font-weight: 600; color: var(--accent); text-decoration: none; margin-top: 4px; display: none; }
+    .cr-alt-detail-link:hover { text-decoration: underline; }
+
+    /* ─── RIGHT: Unified Product Detail ─── */
+    .cr-product-detail {
+        padding: 1.75rem 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* Header: Brand + Name + Category + CTA row */
+    .cr-pd-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .cr-pd-header-left { flex: 1; min-width: 0; }
+    .cr-p-brand {
+        font-size: 10px; font-weight: 700;
+        letter-spacing: 1.8px; text-transform: uppercase;
+        color: var(--accent); margin-bottom: 3px;
+    }
+    .cr-p-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.3rem, 2.5vw, 1.65rem);
+        color: var(--dark-brown); font-weight: 700; line-height: 1.2;
+        margin-bottom: 4px;
+    }
+    .cr-p-cat { font-size: 12px; color: var(--text-muted); font-style: italic; }
+    .cr-pd-cta-inline {
+        flex-shrink: 0;
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--dark-brown); color: #FFEAC5;
+        font-size: 12.5px; font-weight: 600;
+        font-family: 'DM Sans', sans-serif;
+        padding: 9px 18px; border-radius: 20px;
+        text-decoration: none; transition: all 0.2s;
+        white-space: nowrap; margin-top: 4px;
+    }
+    .cr-pd-cta-inline:hover { background: var(--brown); transform: translateY(-1px); }
+
+    /* Reason banner — inline, compact */
+    .cr-reason-banner {
+        background: var(--dark-brown);
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex; gap: 10px; align-items: flex-start;
+    }
+    .cr-reason-icon { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
+    .cr-reason-label {
+        font-size: 9px; font-weight: 700;
+        letter-spacing: 1.5px; text-transform: uppercase;
+        color: var(--accent); margin-bottom: 4px;
+    }
+    .cr-reason-text { font-size: 12.5px; color: rgba(255,253,248,0.88); line-height: 1.55; }
+
+    /* Ingredient tags */
+    .cr-ingredients-wrap {
+        background: rgba(250,243,232,0.4);
+        border: 1px solid var(--border);
+        border-radius: 12px; padding: 12px 14px;
+    }
+    .cr-ing-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+        text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .cr-ing-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .cr-ing-tag {
+        background: var(--white); border: 1px solid var(--border);
+        color: var(--dark-brown); font-size: 11.5px;
+        padding: 3px 9px; border-radius: 8px;
+    }
+    .cr-ing-tag.hero { background: var(--dark-brown); color: #FFEAC5; border-color: var(--dark-brown); }
+
+    /* 2-col info row: Strengths + Description side by side */
+    .cr-pd-info-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    @media (max-width: 680px) { .cr-pd-info-row { grid-template-columns: 1fr; } }
+
+    /* Strengths */
+    .cr-strengths {
+        background: rgba(250,243,232,0.5);
+        border: 1px solid var(--border);
+        border-radius: 14px; padding: 14px 16px;
+    }
+    .cr-strengths-title {
+        font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+        text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
+    }
+    .cr-strength-list { display: flex; flex-direction: column; gap: 8px; }
+    .cr-strength-item {
+        display: flex; align-items: flex-start; gap: 9px;
+        font-size: 12px; color: var(--dark-brown); line-height: 1.45;
+    }
+    .cr-strength-dot {
+        width: 20px; height: 20px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; font-size: 10px; margin-top: 1px;
+    }
+    .cr-strength-dot.match  { background: rgba(46,125,50,0.12);  color: #2E7D32; }
+    .cr-strength-dot.cat    { background: rgba(193,127,74,0.12); color: #854F0B; }
+    .cr-strength-dot.ing    { background: rgba(55,138,221,0.1);  color: #185FA5; }
+    .cr-strength-dot.skin   { background: rgba(99,153,34,0.1);   color: #3B6D11; }
+    .cr-strength-dot.none   { background: rgba(61,32,16,0.06);   color: var(--text-muted); }
+
+    /* Description text block */
+    .cr-text-block {
+        background: rgba(250,243,232,0.4);
+        border: 1px solid var(--border);
+        border-radius: 12px; padding: 12px 14px;
+        display: flex; flex-direction: column;
+    }
+    .cr-text-block-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+        text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+    .cr-expandable {
+        font-size: 12.5px; color: #603F38; line-height: 1.65;
+        display: -webkit-box; -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical; overflow: hidden;
+        flex: 1;
+    }
+    .cr-expandable.expanded { -webkit-line-clamp: unset; }
+    .cr-expand-btn {
+        font-size: 11.5px; color: var(--accent); background: none; border: none;
+        cursor: pointer; font-weight: 600; margin-top: 6px;
+        font-family: 'DM Sans', sans-serif; align-self: flex-start;
+    }
+
+    /* Composition strip — collapsed by default */
+    .cr-composition-wrap {
+        border: 1px solid var(--border);
+        border-radius: 12px; overflow: hidden;
+    }
+    .cr-composition-toggle {
+        width: 100%; background: rgba(250,243,232,0.4);
+        border: none; cursor: pointer; padding: 10px 14px;
+        display: flex; align-items: center; justify-content: space-between;
+        font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
+        letter-spacing: 1.2px; text-transform: uppercase;
+        color: var(--accent); transition: background 0.2s;
+    }
+    .cr-composition-toggle:hover { background: rgba(250,243,232,0.8); }
+    .cr-composition-toggle svg {
+        width: 12px; height: 12px; fill: none; stroke: var(--accent);
+        stroke-width: 2.5; stroke-linecap: round; transition: transform 0.2s;
+    }
+    .cr-composition-toggle.open svg { transform: rotate(180deg); }
+    .cr-composition-body {
+        display: none; padding: 10px 14px;
+        font-size: 11.5px; color: #603F38; line-height: 1.65;
+        background: var(--white);
+    }
+    .cr-composition-body.open { display: block; animation: fadeUp 0.15s ease; }
+
+    /* Precautions */
+    .cr-precaution-box {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 11px 13px; border-radius: 12px;
+        font-size: 12px; border: 1px solid; line-height: 1.5;
+    }
+    .cr-precaution-box.warning { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
+    .cr-precaution-box.info    { background: #F0F9FF; border-color: #BAE6FD; color: #075985; }
+    .cr-precaution-icon { flex-shrink: 0; font-size: 13px; }
+    .cr-precaution-type {
+        display: block; font-size: 9px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;
+    }
+
+    /* ─── RELATED ARTICLES ─── */
+    .cr-articles-section {
+        background: var(--white);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        padding: 2rem;
+        margin-top: 1.5rem;
+    }
+    .cr-articles-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+        color: var(--dark-brown); font-weight: 700;
+        margin-bottom: 1.25rem; text-align: center;
+    }
+    .cr-articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .cr-article-card {
+        background: var(--cream); border-radius: 16px;
+        border: 1px solid var(--border); overflow: hidden;
+        text-decoration: none; color: inherit;
+        display: flex; flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cr-article-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(61,32,16,0.09); }
+    .cr-article-card:hover .cr-article-read-link { gap: 5px; }
+    .cr-article-cover {
+        width: 100%; height: 130px;
+        background: linear-gradient(135deg, var(--cream-dark) 0%, #EAD9C2 100%);
+        overflow: hidden;
+        display: flex; align-items: center; justify-content: center;
         position: relative;
     }
-
-    @media (max-width: 1100px) { .cr-showcase-section { grid-template-columns: 1fr; gap: 2rem; padding: 2rem; } }
-    @media (max-width: 700px) { .cr-showcase-section { padding: 1.5rem; } }
-
-    /* ─ Left: Gallery Carousel ─ */
-    .cr-gallery-carousel { display: flex; flex-direction: column; gap: 1rem; }
-    .cr-gallery-main { width: 100%; height: 280px; background: linear-gradient(135deg, #F0E4CC 0%, #FFFDF8 100%); border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; }
-    .cr-gallery-main img { width: 100%; height: 100%; object-fit: contain; padding: 1.5rem; }
-
-    .cr-alt-thumbs-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #A18269; margin-bottom: 0.5rem; }
-    .cr-alt-thumbs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
-    .cr-alt-thumb-item { background: #FFFDF8; border: 1.5px solid rgba(196, 149, 106, 0.2); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
-    .cr-alt-thumb-item:hover, .cr-alt-thumb-item.active { border-color: #C4956A; transform: scale(1.04); box-shadow: 0 4px 12px rgba(196, 149, 106, 0.2); }
-    .cr-alt-thumb-img { width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #F0E4CC 0%, #FFFDF8 100%); font-size: 1.2rem; }
-    .cr-alt-thumb-img img { width: 100%; height: 100%; object-fit: contain; padding: 0.3rem; }
-    .cr-alt-thumb-score { position: absolute; top: 3px; right: 3px; background: rgba(74, 55, 40, 0.8); color: #FFFDF8; font-size: 0.55rem; font-weight: 700; padding: 0.15rem 0.35rem; border-radius: 5px; }
-    .cr-alt-thumb-name { font-size: 0.6rem; color: #4A3728; font-weight: 500; padding: 0.25rem 0.35rem; line-height: 1.3; text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-
-    /* ─ Center: Product Info ─ */
-    .cr-product-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 1.2rem; }
-    .cr-p-brand { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C4956A; }
-    .cr-p-title { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3.5vw, 2rem); font-weight: 900; color: #4A3728; line-height: 1.2; }
-    .cr-p-subtitle { font-size: 0.85rem; color: #7C6355; font-style: italic; }
-
-    .cr-p-desc-wrapper { background: rgba(250, 243, 232, 0.5); border: 1px solid rgba(196, 149, 106, 0.2); border-radius: 14px; padding: 1rem 1.2rem; width: 100%; }
-    .cr-p-desc-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.6rem; }
-    .cr-p-desc-label svg { width: 12px; height: 12px; opacity: 0.8; }
-    
-    .cr-expandable-text { font-size: 0.88rem; color: #603F38; line-height: 1.7; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .cr-expandable-text.expanded { -webkit-line-clamp: unset; }
-    .cr-text-toggle-btn { font-size: 0.75rem; color: #C4956A; background: none; border: none; padding: 0; margin-top: 0.5rem; cursor: pointer; font-weight: 600; font-family: inherit; }
-    .cr-text-toggle-btn:hover { text-decoration: underline; }
-
-    .cr-p-full-ingredients-wrapper { background: rgba(196, 149, 106, 0.04); border: 1px dashed rgba(196, 149, 106, 0.25); border-radius: 14px; padding: 1rem 1.2rem; width: 100%; }
-    .cr-p-full-ingredients-text { font-size: 0.82rem; color: #7C6355; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .cr-p-full-ingredients-text.expanded { -webkit-line-clamp: unset; }
-
-    .cr-p-ingredients-wrapper { background: rgba(196, 149, 106, 0.06); border: 1px solid rgba(196, 149, 106, 0.18); border-radius: 14px; padding: 1rem 1.2rem; width: 100%; }
-    .cr-p-ingredients-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.6rem; }
-    .cr-p-ingredient-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .cr-p-ingredient-tag { background: white; border: 1px solid rgba(196, 149, 106, 0.25); color: #4A3728; font-size: 0.75rem; font-weight: 500; padding: 0.3rem 0.7rem; border-radius: 10px; }
-    .cr-p-ingredient-tag.hero { background: #4A3728; color: #FFFDF8; border-color: #4A3728; }
-
-    .cr-match-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: #2E7D32; color: white; font-size: 0.8rem; font-weight: 700; padding: 0.5rem 1.1rem; border-radius: 50px; }
-    .cr-match-badge svg { width: 14px; height: 14px; }
-
-    /* ─ Right Column & Sidebar ─ */
-    .cr-right-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 1.2rem;
-        height: fit-content;
+    .cr-article-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .cr-article-card:hover .cr-article-cover img { transform: scale(1.03); }
+    .cr-article-cover-placeholder {
+        display: flex; flex-direction: column; align-items: center; gap: 6px;
+        color: var(--text-muted);
     }
-
-    .cr-diagnosis-card { background: linear-gradient(135deg, #FFFDF8 0%, #FAF3E8 100%); border-radius: 20px; padding: 1.5rem; border: 1px solid rgba(74, 55, 40, 0.08); }
-    .cr-diagnosis-title { font-size: 0.9rem; font-weight: 700; color: #4A3728; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(74, 55, 40, 0.08); display: flex; align-items: center; gap: 0.4rem; }
-    .cr-diagnosis-block { margin-bottom: 1rem; }
-    .cr-diagnosis-block:last-child { margin-bottom: 0; }
-    .cr-diagnosis-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.4rem; }
-    .cr-diagnosis-value { font-size: 0.82rem; color: #603F38; line-height: 1.5; font-style: italic; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .cr-diag-query-expand { font-size: 0.7rem; color: #C4956A; cursor: pointer; font-weight: 600; margin-top: 0.2rem; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; }
-    .cr-diag-query-expand:hover { text-decoration: underline; }
-
-    .cr-tag-group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .cr-tag { display: inline-block; background: rgba(196, 149, 106, 0.12); color: #4A3728; font-size: 0.75rem; font-weight: 500; padding: 0.3rem 0.7rem; border-radius: 12px; border: 1px solid rgba(196, 149, 106, 0.25); }
-    .cr-tag.danger { background: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
-    .cr-tag.empty-state { background: rgba(74, 55, 40, 0.04); color: #A18269; font-style: italic; border: 1px dashed rgba(74, 55, 40, 0.12); }
-
-    /* Layout untuk Reason Banner di Sidebar Kanan */
-    .cr-reason-banner { width: 100%; background: linear-gradient(135deg, #4A3728 0%, #603F38 100%); border-radius: 16px; padding: 1.2rem; display: flex; gap: 0.8rem; align-items: flex-start; }
-    .cr-reason-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
-    .cr-reason-title-small { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.35rem; }
-    .cr-reason-text { font-size: 0.82rem; color: rgba(255,253,248,0.9); line-height: 1.5; }
-
-    /* ─ Precaution Notes / Edukasi Medis ─ */
-    .cr-precaution-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-        width: 100%;
+    .cr-article-cover-placeholder .ph-icon { font-size: 2rem; }
+    .cr-article-cover-placeholder span { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .cr-article-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+    .cr-article-category { font-size: 9.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.2px; }
+    .cr-article-headline { font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--dark-brown); }
+    .cr-article-excerpt {
+        font-size: 11.5px; color: #7A5C4A; line-height: 1.55;
+        display: -webkit-box; -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical; overflow: hidden;
+        flex: 1;
     }
-    .cr-precaution-box { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.9rem 1rem; border-radius: 14px; font-size: 0.79rem; line-height: 1.55; border: 1px solid; }
-    .cr-precaution-box.warning { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
-    .cr-precaution-box.info { background: #F0F9FF; border-color: #BAE6FD; color: #075985; }
-    .cr-precaution-box-icon { flex-shrink: 0; font-size: 1.1rem; margin-top: 0.05rem; }
-    .cr-precaution-content strong { display: block; margin-bottom: 0.2rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.9; font-weight: 700; }
-
-    /* Layout untuk Button di Sidebar Kanan */
-    .cr-btn-group { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
-    .cr-btn { display: inline-flex; justify-content: center; align-items: center; gap: 0.6rem; width: 100%; background: #4A3728; color: #FFFDF8; padding: 0.85rem 1.6rem; border: none; border-radius: 50px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; font-family: 'DM Sans', sans-serif; }
-    .cr-btn:hover { background: #603F38; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(74, 55, 40, 0.15); }
-    .cr-btn-secondary { background: transparent; border: 1.5px solid #C4956A; color: #4A3728; }
-    .cr-btn-secondary:hover { background: #FAF3E8; border-color: #4A3728; }
-
-    /* ─ Ingredients Section Global ─ */
-    .cr-ingredients-section { background: white; border-radius: 32px; padding: 2.5rem; border: 1px solid rgba(74, 55, 40, 0.08); box-shadow: 0 8px 32px rgba(74, 55, 40, 0.06); margin-bottom: 2rem; }
-    .cr-ingredients-title { font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 3vw, 1.6rem); font-weight: 700; color: #4A3728; margin-bottom: 1.8rem; text-align: center; }
-    .cr-carousel-container { display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0; scroll-behavior: smooth; margin-left: -1rem; margin-right: -1rem; padding-left: 1rem; padding-right: 1rem; }
-    .cr-carousel-container::-webkit-scrollbar { height: 6px; }
-    .cr-carousel-container::-webkit-scrollbar-track { background: rgba(74, 55, 40, 0.05); border-radius: 10px; }
-    .cr-carousel-container::-webkit-scrollbar-thumb { background: rgba(196, 149, 106, 0.3); border-radius: 10px; }
-    .cr-ingredient-card { background: #FFFDF8; border-radius: 20px; padding: 1.6rem; border: 1px solid rgba(74, 55, 40, 0.06); min-width: 260px; max-width: 260px; flex-shrink: 0; transition: all 0.3s; }
-    .cr-ingredient-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(74, 55, 40, 0.1); border-color: rgba(196, 149, 106, 0.3); }
-    .cr-ingredient-emoji { font-size: 2rem; margin-bottom: 0.7rem; display: block; }
-    .cr-ingredient-name { font-size: 0.95rem; font-weight: 600; color: #4A3728; margin-bottom: 0.4rem; }
-    .cr-ingredient-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; margin-bottom: 0.8rem; }
-    .cr-ingredient-desc { font-size: 0.83rem; color: #603F38; line-height: 1.6; }
-
-    /* ─ Articles Section ─ */
-    .cr-articles-section { background: white; border-radius: 32px; padding: 2.5rem; border: 1px solid rgba(74, 55, 40, 0.08); box-shadow: 0 8px 32px rgba(74, 55, 40, 0.06); margin-bottom: 2rem; }
-    .cr-articles-title { font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 3vw, 1.6rem); font-weight: 700; color: #4A3728; margin-bottom: 1.8rem; text-align: center; }
-    .cr-articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
-    .cr-article-card { background: #FFFDF8; border-radius: 20px; border: 1px solid rgba(74, 55, 40, 0.06); overflow: hidden; transition: all 0.3s; display: flex; flex-direction: column; text-decoration: none; }
-    .cr-article-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(74, 55, 40, 0.1); border-color: rgba(196, 149, 106, 0.3); }
-    .cr-article-cover { width: 100%; height: 140px; background: linear-gradient(135deg, #F0E4CC 0%, #FFFDF8 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; flex-shrink: 0; position: relative; }
-    .cr-article-cover img { width: 100%; height: 100%; object-fit: cover; }
-    .cr-article-tag { position: absolute; top: 10px; left: 10px; background: rgba(74, 55, 40, 0.8); color: #FFFDF8; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.7rem; border-radius: 8px; }
-    .cr-article-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
-    .cr-article-category { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; }
-    .cr-article-headline { font-size: 0.88rem; font-weight: 600; color: #4A3728; line-height: 1.4; flex: 1; }
-    .cr-article-excerpt { font-size: 0.78rem; color: #A18269; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .cr-article-meta { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; color: #A18269; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(74, 55, 40, 0.06); }
-    .cr-article-meta svg { width: 12px; height: 12px; opacity: 0.6; }
-    .cr-articles-empty { text-align: center; padding: 2rem; color: #A18269; font-size: 0.9rem; font-style: italic; }
-
-    /* ─ Panel Alt Product ─ */
-    .cr-alt-detail-panel { display: none; background: rgba(250, 243, 232, 0.7); border: 1px solid rgba(196, 149, 106, 0.2); border-radius: 14px; padding: 1rem 1.2rem; gap: 0.8rem; align-items: flex-start; animation: fadeIn 0.2s ease; }
-    .cr-alt-detail-panel.show { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .cr-alt-detail-img { width: 60px; height: 60px; background: #FFFDF8; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(196, 149, 106, 0.2); }
-    .cr-alt-detail-img img { width: 100%; height: 100%; object-fit: contain; padding: 0.3rem; }
-    .cr-alt-detail-info { flex: 1; min-width: 0; }
-    .cr-alt-detail-brand { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #C4956A; }
-    .cr-alt-detail-name { font-size: 0.82rem; font-weight: 600; color: #4A3728; line-height: 1.3; margin: 0.2rem 0; }
-    .cr-alt-detail-cat { font-size: 0.75rem; color: #A18269; }
-    .cr-alt-detail-match { font-size: 0.72rem; font-weight: 700; color: white; background: #2E7D32; padding: 0.2rem 0.5rem; border-radius: 8px; display: inline-block; margin-top: 0.3rem; }
-    .cr-alt-detail-desc { font-size: 0.75rem; color: #603F38; line-height: 1.5; margin-top: 0.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .cr-alt-detail-link { font-size: 0.75rem; font-weight: 600; color: #C4956A; text-decoration: none; margin-top: 0.4rem; display: inline-flex; align-items: center; gap: 0.3rem; }
-    .cr-alt-detail-link:hover { color: #4A3728; }
-
-    @media (max-width: 768px) {
-        .cr-showcase-section { grid-template-columns: 1fr; padding: 1.5rem; gap: 1.5rem; }
-        .cr-gallery-main { height: 240px; }
-        .cr-btn-group { flex-direction: row; }
-        .cr-ingredients-section, .cr-articles-section { padding: 1.8rem 1.2rem; }
-        .cr-articles-grid { grid-template-columns: 1fr 1fr; }
+    .cr-article-footer {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border);
     }
-    @media (max-width: 480px) {
-        .cr-btn-group { flex-direction: column; }
-        .cr-articles-grid { grid-template-columns: 1fr; }
-        .cr-alt-thumbs-grid { grid-template-columns: repeat(3, 1fr); }
+    .cr-article-time { font-size: 11px; color: var(--text-muted); }
+    .cr-article-read-link {
+        font-size: 11px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 3px;
+        transition: gap 0.15s ease;
     }
 </style>
 @endpush
 
 @section('content')
-
 <div class="cr-page">
-    <div class="cr-container">
+<div class="cr-container">
 
-        @php
-            $skinConcern = is_string($consultation->skin_concern ?? '')
-                ? json_decode($consultation->skin_concern, true)
-                : ($consultation->skin_concern ?? []);
+    @php
+        $ingredientResult = is_string($consultation->ingredient_result ?? '')
+            ? json_decode($consultation->ingredient_result, true)
+            : ($consultation->ingredient_result ?? []);
 
-            $ingredientResult = is_string($consultation->ingredient_result ?? '')
-                ? json_decode($consultation->ingredient_result, true)
-                : ($consultation->ingredient_result ?? []);
+        $queryText     = $ingredientResult['original_query'] ?? $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
+        $constraints   = $ingredientResult['extracted_constraints'] ?? $ingredientResult['constraints'] ?? [];
+        $products      = $ingredientResult['recommendations'] ?? $ingredientResult['all_products'] ?? [];
+        $skinConcern   = $ingredientResult['extracted_concerns'] ?? [];
+        $faceArea      = $ingredientResult['extracted_face_area'] ?? [];
+        $extractedCats = $ingredientResult['extracted_products'] ?? [];
 
-            // PERUBAHAN: Tampilkan Original Query jika tersedia
-            $queryText = $ingredientResult['original_query'] ?? $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
-            
-            $constraints = $ingredientResult['constraints'] ?? [];
-            $products = $ingredientResult['all_products'] ?? [];
-            $ingredients = $ingredientResult['ingredients'] ?? [];
+        $heroProduct       = !empty($products) ? $products[0] : null;
+        $alternateProducts = array_slice($products, 1);
 
-            $heroProduct = !empty($products) ? $products[0] : null;
-            $alternateProducts = array_slice($products, 1);
+        $heroIngredients = $heroProduct['key_ingredients'] ?? $heroProduct['ingredients'] ?? [];
+        if (!empty($heroIngredients) && is_array($heroIngredients)) {
+            $heroIngredientNames = array_map(fn($ing) => is_array($ing) ? ($ing['name'] ?? '') : $ing, $heroIngredients);
+            $heroIngredientNames = array_filter($heroIngredientNames);
+        } else {
+            $heroIngredientNames = [];
+        }
 
-            $heroIngredients = $heroProduct['key_ingredients'] ?? $heroProduct['ingredients'] ?? [];
-            if (!empty($heroIngredients) && is_array($heroIngredients)) {
-                $heroIngredientNames = array_map(function($ing) {
-                    return is_array($ing) ? ($ing['name'] ?? '') : $ing;
-                }, $heroIngredients);
-                $heroIngredientNames = array_filter($heroIngredientNames);
-            } else {
-                $heroIngredientNames = [];
-            }
-        @endphp
+        $relatedArticles = $ingredientResult['related_articles'] ?? [];
+    @endphp
 
-        {{-- ═══ HEADER ═══ --}}
-        <div class="cr-header">
-            <div class="cr-header-eyebrow">✓ Analisis Selesai</div>
-            <h1 class="cr-header-title">Hasil Rekomendasi Skincare</h1>
-            <p class="cr-header-subtitle">Produk & bahan yang cocok untuk kulitmu</p>
-            <p class="cr-header-date">{{ \Carbon\Carbon::parse($consultation->created_at)->format('d M Y, H:i') }} WIB</p>
+    {{-- PAGE HEADER --}}
+    <div class="cr-page-header">
+        <div>
+            <div class="cr-ph-eyebrow">✓ Analisis Selesai</div>
+            <h1 class="cr-ph-title">Hasil Rekomendasi Skincare</h1>
+            <div class="cr-ph-date">{{ \Carbon\Carbon::parse($consultation->created_at)->format('d M Y · H:i') }} WIB</div>
         </div>
+        <a href="{{ route('consultation.index') }}" class="cr-ph-new-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Pencarian Baru
+        </a>
+    </div>
 
-        {{-- ═══ MAIN SHOWCASE ═══ --}}
-        @if($heroProduct)
-        {{-- Pre-compute reasonMeta di sini agar tersedia di semua kolom --}}
-        @php
-            $reasonMeta = $heroProduct['reasoning_meta'] ?? null;
-            $reasonText = $reasonMeta['reasoning_text'] ?? '';
-            if (empty($reasonText) && $reasonMeta) {
-                $kategoriText = implode(', ', $reasonMeta['matched_categories'] ?? ['Produk']);
-                $kandunganText = implode(', ', $reasonMeta['matched_ingredients'] ?? []);
-                if (($reasonMeta['reason_code'] ?? '') === 'MATCHED_INGREDIENTS') {
-                    $reasonText = "Sesuai dengan pencarianmu untuk tipe {$kategoriText}, dan mengandung {$kandunganText} yang relevan dengan kebutuhan kulitmu.";
-                } else {
-                    $reasonText = "Sebagai {$kategoriText}, produk ini memiliki kecocokan tinggi dengan keseluruhan kata kunci pencarianmu.";
-                }
-            }
-        @endphp
-        <div class="cr-main-grid">
-            <div class="cr-showcase-section">
-
-                {{-- LEFT: Gallery + Alternatif Thumbnail --}}
-                <div class="cr-gallery-carousel">
-                    <div class="cr-gallery-main" id="mainImage">
-                        @if(!empty($heroProduct['image_url']))
-                            <img src="{{ $heroProduct['image_url'] }}" alt="{{ $heroProduct['product_name'] }}" loading="lazy">
-                        @else
-                            ✨
-                        @endif
-                    </div>
-
-                    @if(!empty($alternateProducts))
-                    <div>
-                        <div class="cr-alt-thumbs-label">Alternatif Produk</div>
-                        <div class="cr-alt-thumbs-grid">
-                            @foreach($alternateProducts as $i => $prod)
-                            <div
-                                class="cr-alt-thumb-item"
-                                onclick="selectAltProduct(this, {{ $i }})"
-                                data-index="{{ $i }}"
-                            >
-                                <div class="cr-alt-thumb-img">
-                                    @if(!empty($prod['image_url']))
-                                        <img src="{{ $prod['image_url'] }}" alt="{{ $prod['product_name'] }}" loading="lazy">
-                                    @else
-                                        
-                                    @endif
-                                </div>
-                                <div class="cr-alt-thumb-score">{{ round(($prod['similarity_score'] ?? 0.8) * 100) }}%</div>
-                                <div class="cr-alt-thumb-name">{{ $prod['product_name'] }}</div>
-                            </div>
-                            @endforeach
-                        </div>
-
-                        <div class="cr-alt-detail-panel" id="altDetailPanel" style="margin-top: 0.8rem;">
-                            <div class="cr-alt-detail-img" id="altDetailImg"></div>
-                            <div class="cr-alt-detail-info">
-                                <div class="cr-alt-detail-brand" id="altDetailBrand"></div>
-                                <div class="cr-alt-detail-name" id="altDetailName"></div>
-                                <div class="cr-alt-detail-cat" id="altDetailCat"></div>
-                                <div class="cr-alt-detail-match" id="altDetailMatch"></div>
-                                <div class="cr-alt-detail-desc" id="altDetailDesc"></div>
-                                <a href="#" class="cr-alt-detail-link" id="altDetailLink" target="_blank">
-                                    Lihat Produk
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
-                    {{-- Edukasi Kandungan & Peringatan Medis — di bawah thumbnail alternatif --}}
-                    @if(!empty($reasonMeta['precaution_notes']))
-                    <div class="cr-precaution-wrapper" style="margin-top: 0.8rem;">
-                        @foreach($reasonMeta['precaution_notes'] as $note)
-                            @php
-                                $isWarning = \Illuminate\Support\Str::contains(strtolower($note), ['retinol', 'eksfoliasi', 'sensitivitas', 'wajib', 'sinar matahari', 'iritasi']);
-                            @endphp
-                            <div class="cr-precaution-box {{ $isWarning ? 'warning' : 'info' }}">
-                                <div class="cr-precaution-box-icon">{{ $isWarning ? '⚠️' : '💡' }}</div>
-                                <div class="cr-precaution-content">
-                                    <strong>{{ $isWarning ? 'Peringatan Medis' : 'Edukasi Kandungan' }}</strong>
-                                    {{ $note }}
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    @endif
-                </div>
-
-                {{-- CENTER: Product Info --}}
-                <div class="cr-product-info">
-                    <div>
-                        <div class="cr-p-brand">{{ $heroProduct['brand'] ?? 'Premium Brand' }}</div>
-                        <h2 class="cr-p-title">{{ $heroProduct['product_name'] }}</h2>
-                        <p class="cr-p-subtitle">{{ $heroProduct['category'] ?? 'Skincare' }}</p>
-                    </div>
-
-                    <div class="cr-match-badge">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                        </svg>
-                        {{ round(($heroProduct['similarity_score'] ?? 0.95) * 100) }}% Match
-                    </div>
-
-                    {{-- AREA DESKRIPSI --}}
-                    <div class="cr-p-desc-wrapper">
-                        <div class="cr-p-desc-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14 2 14 8 20 8"/>
-                                <line x1="16" y1="13" x2="8" y2="13"/>
-                                <line x1="16" y1="17" x2="8" y2="17"/>
-                            </svg>
-                            Deskripsi Produk
-                        </div>
-                        <p class="cr-expandable-text" id="mainDescText">{{ $heroProduct['description'] ?? 'Produk berkualitas premium yang dirancang khusus untuk kebutuhan kulitmu.' }}</p>
-                        @if(strlen($heroProduct['description'] ?? '') > 120)
-                            <button class="cr-text-toggle-btn" onclick="toggleTextExpand(this, 'mainDescText')">Lihat selengkapnya ▾</button>
-                        @endif
-                    </div>
-
-                    {{-- AREA KOMPOSISI LENGKAP --}}
-                    @if(!empty($heroProduct['ingredients']))
-                    <div class="cr-p-full-ingredients-wrapper">
-                        <div class="cr-p-desc-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-                            </svg>
-                            Komposisi Lengkap
-                        </div>
-                        <p class="cr-p-full-ingredients-text" id="mainIngText">{{ $heroProduct['ingredients'] }}</p>
-                        @if(strlen($heroProduct['ingredients']) > 150)
-                            <button class="cr-text-toggle-btn" onclick="toggleTextExpand(this, 'mainIngText')">Lihat selengkapnya ▾</button>
-                        @endif
-                    </div>
-                    @endif
-
-                    {{-- Key Ingredients --}}
-                    @if(!empty($heroIngredientNames))
-                    <div class="cr-p-ingredients-wrapper">
-                        <div class="cr-p-ingredients-label">
-                            🧪 Key Ingredients
-                        </div>
-                        <div class="cr-p-ingredient-tags">
-                            @foreach($heroIngredientNames as $idx => $ingName)
-                                <span class="cr-p-ingredient-tag {{ $idx < 2 ? 'hero' : '' }}">{{ $ingName }}</span>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-
-                </div>
-
-                {{-- RIGHT: Sidebar (MODIFIKASI URUTAN BARU) --}}
-                <div class="cr-right-sidebar">
-                    
-                    {{-- 1. Kotak Alasan Rekomendasi --}}
-
-                    @if($reasonText)
-                    <div class="cr-reason-banner">
-                        <div class="cr-reason-icon">💡</div>
-                        <div>
-                            <div class="cr-reason-title-small">Mengapa Produk Ini?</div>
-                            <div class="cr-reason-text">{{ $reasonText }}</div>
-                        </div>
-                    </div>
-                    @endif
-
-                    {{-- 2. Kotak Diagnosis Sekarang di Tengah --}}
-                    <div class="cr-diagnosis-card">
-                        <h3 class="cr-diagnosis-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;">
-                                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                                <rect x="9" y="3" width="6" height="4" rx="2"/>
-                                <line x1="9" y1="12" x2="15" y2="12"/>
-                                <line x1="9" y1="16" x2="12" y2="16"/>
-                            </svg>
-                            Ringkasan Diagnosis
-                        </h3>
-
-                        <div class="cr-diagnosis-block">
-                            <div class="cr-diagnosis-label">Keluhan</div>
-                            <div class="cr-diagnosis-value" id="diagQueryText">"{{ $queryText }}"</div>
-                            @if(strlen($queryText) > 80)
-                            <button class="cr-diag-query-expand" onclick="toggleQueryExpand(this)">Lihat selengkapnya ▾</button>
-                            @endif
-                        </div>
-
-                        @if(!empty($skinConcern))
-                        <div class="cr-diagnosis-block">
-                            <div class="cr-diagnosis-label">Kondisi Kulit</div>
-                            <div class="cr-tag-group">
-                                @foreach($skinConcern as $concern)
-                                    <span class="cr-tag">{{ ucwords($concern) }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endif
-
-                        @if(!empty($constraints))
-                        <div class="cr-diagnosis-block">
-                            <div class="cr-diagnosis-label">Prioritas Bahan</div>
-                            <div class="cr-tag-group">
-                                @foreach($constraints as $constraint)
-                                    <span class="cr-tag danger">{{ ucwords($constraint) }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                        @else
-                        <div class="cr-diagnosis-block">
-                            <div class="cr-diagnosis-label">Prioritas Bahan</div>
-                            <span class="cr-tag empty-state">✓ Bebas Prioritas Bahan</span>
-                        </div>
-                        @endif
-
-                        <div class="cr-diagnosis-block">
-                            <div class="cr-diagnosis-label">Hasil Analisis</div>
-                            <div style="display:flex;align-items:center;gap:0.4rem;">
-                                <span style="font-size:1.3rem;font-weight:800;color:#4A3728;">{{ count($products) }}</span>
-                                <span style="font-size:0.8rem;color:#A18269;">produk ditemukan</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 3. Tombol Aksi Tetap Berada di Paling Bawah Sidebar Kanan --}}
-                    <div class="cr-btn-group">
-                        @if(!empty($heroProduct['link_produk']))
-                            <a href="{{ $heroProduct['link_produk'] }}" target="_blank" class="cr-btn">
-                                Lihat Produk
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
-                                </svg>
-                            </a>
-                        @endif
-                        <a href="{{ route('consultation.index') }}" class="cr-btn cr-btn-secondary">
-                            Mulai Baru
-                        </a>
-                    </div>
-                    
-                </div> </div>
-        </div>
-        @else
-        {{-- EMPTY STATE --}}
-        <div style="background: white; border-radius: 32px; padding: 4rem; text-align: center; border: 1px solid rgba(74, 55, 40, 0.08); margin-bottom: 3rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
-            <h2 style="font-family: 'Playfair Display', serif; color: #4A3728; margin-bottom: 0.5rem;">Tidak Ada Rekomendasi</h2>
-            <p style="color: #A18269; font-size: 1rem; max-width: 500px; margin: 0 auto;">
-                Data rekomendasi produk tidak tersedia untuk kueri spesifik ini. Cobalah menggunakan kata kunci atau keluhan kulit yang lebih umum.
-            </p>
-        </div>
-        @endif
-
-        {{-- ═══ KOMPOSISI BAHAN GLOBAL ═══ --}}
-        @if(!empty($ingredients) && count($ingredients) > 0)
-        <div class="cr-ingredients-section">
-            <h2 class="cr-ingredients-title">Komposisi Bahan Utama</h2>
-            <div class="cr-carousel-container">
-                @foreach($ingredients as $ingredient)
-                    <div class="cr-ingredient-card">
-                        <div class="cr-ingredient-emoji">{{ $ingredient['icon'] ?? '✨' }}</div>
-                        <h4 class="cr-ingredient-name">{{ $ingredient['name'] ?? 'Ingredient' }}</h4>
-                        <div class="cr-ingredient-label">{{ $ingredient['type'] ?? 'Active' }}</div>
-                        <p class="cr-ingredient-desc">{{ $ingredient['description'] ?? 'Bahan alami dengan manfaat maksimal untuk kulit.' }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
-        {{-- ═══ ARTIKEL TERKAIT ═══ --}}
-        @php
-            $relatedArticles = $ingredientResult['related_articles'] ?? [];
-            $heroCategory = $heroProduct['category'] ?? 'Skincare';
-            $heroConcerns = !empty($skinConcern) ? implode(', ', array_slice($skinConcern, 0, 2)) : 'Perawatan Kulit';
-        @endphp
-        <div class="cr-articles-section">
-            <h2 class="cr-articles-title">Artikel Terkait</h2>
-
-            @if(!empty($relatedArticles))
-                <div class="cr-articles-grid">
-                    @foreach($relatedArticles as $article)
-                    <a
-                        href="{{ $article['url'] ?? '#' }}"
-                        class="cr-article-card"
-                        target="{{ !empty($article['url']) ? '_blank' : '_self' }}"
-                    >
-                        <div class="cr-article-cover">
-                            @if(!empty($article['cover_image']))
-                                <img src="{{ $article['cover_image'] }}" alt="{{ $article['title'] }}" loading="lazy">
-                            @else
-                                {{ $article['icon'] ?? '📝' }}
-                            @endif
-                            @if(!empty($article['tag']))
-                                <div class="cr-article-tag">{{ $article['tag'] }}</div>
-                            @endif
-                        </div>
-                        <div class="cr-article-body">
-                            <div class="cr-article-category">{{ $article['category'] ?? 'Skincare Tips' }}</div>
-                            <div class="cr-article-headline">{{ $article['title'] }}</div>
-                            @if(!empty($article['excerpt']))
-                                <div class="cr-article-excerpt">{{ $article['excerpt'] }}</div>
-                            @endif
-                            <div class="cr-article-meta">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                {{ $article['published_at'] ?? 'Artikel Terpilih' }}
-                                @if(!empty($article['read_time']))
-                                    &nbsp;·&nbsp; {{ $article['read_time'] }} baca
-                                @endif
-                            </div>
-                        </div>
-                    </a>
-                    @endforeach
-                </div>
-            @else
-                <div class="cr-articles-empty">
-                    <p>Artikel terkait <strong>{{ $heroCategory }}</strong> dan <strong>{{ $heroConcerns }}</strong> belum tersedia.<br>
-                    Tim kami sedang menyiapkan konten yang relevan untuk kulitmu.</p>
-                </div>
+    {{-- QUERY CONTEXT STRIP --}}
+    <div class="cr-query-strip" role="region" aria-label="Ringkasan query dan entitas yang diekstrak">
+        <div class="cr-qs-query">
+            <div class="cr-qs-label">Kalimat yang kamu masukkan</div>
+            <div class="cr-qs-text" id="queryEchoText">"{{ $queryText }}"</div>
+            @if(strlen($queryText) > 100)
+                <button class="cr-qs-expand-btn" onclick="toggleExpand('queryEchoText', this)">Lihat selengkapnya ▾</button>
             @endif
         </div>
+        <div class="cr-qs-divider" aria-hidden="true"></div>
+        <div class="cr-qs-extracted">
+            <div class="cr-qs-ext-label">Sistem memahami</div>
+            <div class="cr-qs-tags">
+                @foreach($extractedCats as $cat)
+                    <span class="cr-tag cat">
+                        <svg viewBox="0 0 24 24" style="width:8px;height:8px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+                        {{ ucwords($cat) }}
+                    </span>
+                @endforeach
+                @foreach($skinConcern as $concern)
+                    <span class="cr-tag concern">{{ ucwords($concern) }}</span>
+                @endforeach
+                @foreach($faceArea as $area)
+                    <span class="cr-tag area">{{ ucwords($area) }}</span>
+                @endforeach
+                @foreach($constraints as $constraint)
+                    <span class="cr-tag block">
+                        <svg viewBox="0 0 24 24" style="width:8px;height:8px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        {{ ucwords($constraint) }}
+                    </span>
+                @endforeach
+                @if(empty($extractedCats) && empty($skinConcern) && empty($constraints) && empty($faceArea))
+                    <span style="font-size:12px;color:var(--text-muted);">Sedang diproses...</span>
+                @endif
+            </div>
+        </div>
     </div>
+
+    {{-- MAIN SHOWCASE --}}
+    @if($heroProduct)
+    @php
+        $reasonMeta = $heroProduct['reasoning_meta'] ?? null;
+        $reasonText = $reasonMeta['reasoning_text'] ?? '';
+        $sawBreak   = $reasonMeta['saw_breakdown'] ?? [];
+        $matchCats  = $reasonMeta['matched_categories'] ?? [];
+        $matchIngs  = $reasonMeta['matched_ingredients'] ?? [];
+
+        // Build user-friendly "keunggulan" bullets
+        $strengths = [];
+        if (!empty($matchCats))
+            $strengths[] = ['dot' => 'cat',  'icon' => '📦', 'text' => 'Kategori produk sesuai — ' . implode(', ', array_map('ucwords', $matchCats))];
+        if (!empty($matchIngs))
+            $strengths[] = ['dot' => 'ing',  'icon' => '🧪', 'text' => 'Mengandung bahan aktif yang kamu cari — ' . implode(', ', array_map('ucwords', $matchIngs))];
+        if (!empty($skinConcern))
+            $strengths[] = ['dot' => 'skin', 'icon' => '✅', 'text' => 'Formulasi efektif untuk ' . implode(', ', array_map('ucwords', $skinConcern))];
+
+        $c2Val = $sawBreak['c2_category_match'] ?? 0;
+        $c3Val = $sawBreak['c3_ingredient_match'] ?? 0;
+        $c4Val = $sawBreak['c4_concern_match'] ?? 0;
+        $hasTextMatch = ($sawBreak['c1_textual_similarity'] ?? 0) > 0;
+        if ($hasTextMatch && count($strengths) === 0)
+            $strengths[] = ['dot' => 'match', 'icon' => '🔍', 'text' => 'Deskripsi produk paling sesuai dengan pencarianmu'];
+        if (empty($strengths))
+            $strengths[] = ['dot' => 'none',  'icon' => '⭐', 'text' => 'Produk dengan skor algoritma tertinggi dari database'];
+    @endphp
+
+    <div class="cr-showcase" role="region" aria-label="Detail produk rekomendasi utama">
+
+        {{-- Top bar — label ramah, tanpa angka score --}}
+        <div class="cr-showcase-bar">
+            <div class="cr-showcase-rank">
+                <span class="cr-rank-badge">#1</span>
+                Rekomendasi Utama
+            </div>
+            <div class="cr-best-label">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                Pilihan Terbaik untuk Kamu
+            </div>
+        </div>
+
+        <div class="cr-showcase-body">
+
+            {{-- LEFT: Gambar + Alternatif --}}
+            <div class="cr-gallery">
+                <div class="cr-gallery-main" id="mainProductImage">
+                    @if(!empty($heroProduct['image_url']))
+                        <img src="{{ $heroProduct['image_url'] }}" alt="{{ $heroProduct['product_name'] }}" loading="eager">
+                    @else
+                        ✨
+                    @endif
+                </div>
+
+                @if(!empty($alternateProducts))
+                <div>
+                    <div class="cr-alts-label">Pilihan Lain yang Relevan</div>
+                    <div class="cr-alts-grid">
+                        @foreach($alternateProducts as $i => $prod)
+                        <div class="cr-alt-item" onclick="selectAlt(this, {{ $i }})" aria-label="{{ $prod['product_name'] }}">
+                            <div class="cr-alt-img">
+                                @if(!empty($prod['image_url']))
+                                    <img src="{{ $prod['image_url'] }}" alt="{{ $prod['product_name'] }}" loading="lazy">
+                                @else
+                                    ✨
+                                @endif
+                            </div>
+                            <div class="cr-alt-name">{{ $prod['product_name'] }}</div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div class="cr-alt-detail" id="altDetailPanel" role="region" aria-label="Detail produk alternatif terpilih">
+                        <div class="cr-alt-detail-img" id="altDetailImg">✨</div>
+                        <div class="cr-alt-detail-info">
+                            <div class="cr-alt-detail-brand" id="altDetailBrand"></div>
+                            <div class="cr-alt-detail-name"  id="altDetailName"></div>
+                            <div class="cr-alt-detail-cat"   id="altDetailCat"></div>
+                            <a href="#" class="cr-alt-detail-link" id="altDetailLink" target="_blank" rel="noopener">Lihat Produk ↗</a>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            {{-- RIGHT: Unified Product Detail Panel --}}
+            <div class="cr-product-detail">
+
+                {{-- Header: Nama + Brand + CTA inline --}}
+                <div class="cr-pd-header">
+                    <div class="cr-pd-header-left">
+                        <div class="cr-p-brand">{{ $heroProduct['brand'] ?? 'Premium Brand' }}</div>
+                        <h2 class="cr-p-title">{{ $heroProduct['product_name'] }}</h2>
+                        <p class="cr-p-cat">{{ $heroProduct['category'] ?? 'Skincare' }}</p>
+                    </div>
+                    @if(!empty($heroProduct['link_produk']))
+                    <a href="{{ $heroProduct['link_produk'] }}" target="_blank" rel="noopener" class="cr-pd-cta-inline">
+                        Lihat di Katalog ↗
+                    </a>
+                    @endif
+                </div>
+
+                {{-- Alasan AI --}}
+                @if($reasonText)
+                <div class="cr-reason-banner">
+                    <div class="cr-reason-icon">💡</div>
+                    <div>
+                        <div class="cr-reason-label">Mengapa direkomendasikan</div>
+                        <div class="cr-reason-text">{{ $reasonText }}</div>
+                    </div>
+                </div>
+                @endif
+
+                {{-- Bahan Aktif Kunci --}}
+                @if(!empty($heroIngredientNames))
+                <div class="cr-ingredients-wrap">
+                    <div class="cr-ing-label">
+                        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;" aria-hidden="true"><path d="M9 3l3 9 3-9"/><path d="M6 21h12"/><path d="M12 12v9"/></svg>
+                        Bahan Aktif Kunci
+                    </div>
+                    <div class="cr-ing-tags">
+                        @foreach($heroIngredientNames as $idx => $ingName)
+                            <span class="cr-ing-tag {{ $idx < 2 ? 'hero' : '' }}">{{ $ingName }}</span>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                {{-- Keunggulan + Deskripsi side by side --}}
+                <div class="cr-pd-info-row">
+                    {{-- Keunggulan Produk --}}
+                    <div class="cr-strengths">
+                        <div class="cr-strengths-title">Keunggulan Produk Ini</div>
+                        <div class="cr-strength-list">
+                            @foreach($strengths as $s)
+                            <div class="cr-strength-item">
+                                <div class="cr-strength-dot {{ $s['dot'] }}">{{ $s['icon'] }}</div>
+                                <span>{{ $s['text'] }}</span>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Deskripsi Produk --}}
+                    @if(!empty($heroProduct['description']))
+                    <div class="cr-text-block">
+                        <div class="cr-text-block-label">Deskripsi Produk</div>
+                        <p class="cr-expandable" id="descText">{{ $heroProduct['description'] }}</p>
+                        @if(strlen($heroProduct['description']) > 200)
+                            <button class="cr-expand-btn" onclick="toggleExpand('descText', this)">Lihat selengkapnya ▾</button>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+
+                {{-- Komposisi Lengkap — collapsible --}}
+                @if(!empty($heroProduct['ingredients']))
+                <div class="cr-composition-wrap">
+                    <button class="cr-composition-toggle" id="compToggle" onclick="toggleComposition()" aria-expanded="false">
+                        <span>📋 Komposisi Lengkap</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="cr-composition-body" id="compBody">
+                        {{ $heroProduct['ingredients'] }}
+                    </div>
+                </div>
+                @endif
+
+                {{-- Peringatan / catatan penggunaan --}}
+                @if(!empty($reasonMeta['precaution_notes']))
+                @foreach($reasonMeta['precaution_notes'] as $note)
+                    @php
+                        $isWarning = \Illuminate\Support\Str::contains(strtolower($note), ['retinol','eksfoliasi','sensitivitas','sinar matahari','iritasi','hamil','menyusui','acid']);
+                    @endphp
+                    <div class="cr-precaution-box {{ $isWarning ? 'warning' : 'info' }}">
+                        <div class="cr-precaution-icon">{{ $isWarning ? '⚠️' : 'ℹ️' }}</div>
+                        <div>
+                            <strong class="cr-precaution-type">{{ $isWarning ? 'Peringatan' : 'Info Penggunaan' }}</strong>
+                            {{ $note }}
+                        </div>
+                    </div>
+                @endforeach
+                @endif
+
+            </div>{{-- end unified product detail --}}
+        </div>{{-- end showcase body --}}
+    </div>{{-- end showcase --}}
+    @endif
+
+    {{-- RELATED ARTICLES --}}
+    @if(!empty($relatedArticles))
+    <div class="cr-articles-section">
+        <h3 class="cr-articles-title">Artikel Edukasi yang Relevan</h3>
+        <div class="cr-articles-grid">
+            @foreach($relatedArticles as $article)
+            {{-- 
+                URL sudah di-generate di controller via url('/artikel/' . $art->slug)
+                Gunakan route internal (tanpa target blank) agar navigasi smooth
+            --}}
+            <a href="{{ $article['url'] ?? '#' }}" class="cr-article-card">
+                <div class="cr-article-cover">
+                    @if(!empty($article['cover_image']))
+                        <img src="{{ $article['cover_image'] }}" alt="{{ $article['title'] }}" loading="lazy">
+                    @else
+                        <div class="cr-article-cover-placeholder">
+                            <span class="ph-icon">📖</span>
+                            <span>Artikel</span>
+                        </div>
+                    @endif
+                </div>
+                <div class="cr-article-body">
+                    <div class="cr-article-category">{{ $article['category'] ?? 'Skincare Tips' }}</div>
+                    <h4 class="cr-article-headline">{{ $article['title'] }}</h4>
+                    @if(!empty($article['excerpt']))
+                        <p class="cr-article-excerpt">{{ $article['excerpt'] }}</p>
+                    @endif
+                    <div class="cr-article-footer">
+                        <span class="cr-article-time">{{ $article['read_time'] ?? '2 min' }}</span>
+                        <span class="cr-article-read-link">Baca →</span>
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+</div>
 </div>
 
 <script>
@@ -577,28 +865,43 @@
 
 @push('scripts')
 <script>
-    function selectAltProduct(el, index) {
-        document.querySelectorAll('.cr-alt-thumb-item').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
+    function toggleExpand(targetId, btn) {
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        const isExpanded = el.classList.contains('expanded');
+        el.classList.toggle('expanded', !isExpanded);
+        btn.textContent = isExpanded ? 'Lihat selengkapnya ▾' : 'Sembunyikan ▴';
+    }
+
+    function toggleComposition() {
+        const btn  = document.getElementById('compToggle');
+        const body = document.getElementById('compBody');
+        if (!btn || !body) return;
+        const isOpen = body.classList.contains('open');
+        body.classList.toggle('open', !isOpen);
+        btn.classList.toggle('open', !isOpen);
+        btn.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    function selectAlt(el, index) {
+        document.querySelectorAll('.cr-alt-item').forEach(t => t.classList.remove('selected'));
+        el.classList.add('selected');
 
         const prod = altProductsData[index];
         if (!prod) return;
 
         const panel = document.getElementById('altDetailPanel');
-        const matchScore = Math.round((prod.similarity_score ?? 0.8) * 100);
 
         const imgEl = document.getElementById('altDetailImg');
         if (prod.image_url) {
-            imgEl.innerHTML = `<img src="${prod.image_url}" alt="${prod.product_name}" loading="lazy" style="width:100%;height:100%;object-fit:contain;padding:0.3rem;">`;
+            imgEl.innerHTML = `<img src="${prod.image_url}" alt="${prod.product_name}" loading="lazy" style="width:100%;height:100%;object-fit:contain;">`;
         } else {
-            imgEl.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">✨</div>`;
+            imgEl.innerHTML = `<span style="font-size:1.4rem;">✨</span>`;
         }
 
-        document.getElementById('altDetailBrand').textContent = prod.brand ?? 'Brand';
-        document.getElementById('altDetailName').textContent = prod.product_name ?? '';
-        document.getElementById('altDetailCat').textContent = prod.category ?? 'Skincare';
-        document.getElementById('altDetailMatch').textContent = `${matchScore}% Match`;
-        document.getElementById('altDetailDesc').textContent = prod.description ?? '';
+        document.getElementById('altDetailBrand').textContent = prod.brand ?? '';
+        document.getElementById('altDetailName').textContent  = prod.product_name ?? '';
+        document.getElementById('altDetailCat').textContent   = prod.category ?? 'Skincare';
 
         const linkEl = document.getElementById('altDetailLink');
         if (prod.link_produk) {
@@ -610,41 +913,5 @@
 
         panel.classList.add('show');
     }
-
-    function toggleTextExpand(btn, targetId) {
-        const el = document.getElementById(targetId);
-        if (el.classList.contains('expanded')) {
-            el.classList.remove('expanded');
-            btn.textContent = 'Lihat selengkapnya ▾';
-        } else {
-            el.classList.add('expanded');
-            btn.textContent = 'Sembunyikan ▴';
-        }
-    }
-
-    function toggleQueryExpand(btn) {
-        const el = document.getElementById('diagQueryText');
-        if (el.style.webkitLineClamp === 'unset' || el.style.overflow === 'visible') {
-            el.style.webkitLineClamp = '3';
-            el.style.overflow = 'hidden';
-            btn.textContent = 'Lihat selengkapnya ▾';
-        } else {
-            el.style.webkitLineClamp = 'unset';
-            el.style.overflow = 'visible';
-            btn.textContent = 'Sembunyikan ▴';
-        }
-    }
-
-    document.querySelectorAll('.cr-carousel-container').forEach(carousel => {
-        let isDown = false, startX, scrollLeft;
-        carousel.addEventListener('mousedown', e => { isDown = true; startX = e.pageX - carousel.offsetLeft; scrollLeft = carousel.scrollLeft; });
-        carousel.addEventListener('mouseleave', () => isDown = false);
-        carousel.addEventListener('mouseup', () => isDown = false);
-        carousel.addEventListener('mousemove', e => {
-            if (!isDown) return;
-            e.preventDefault();
-            carousel.scrollLeft = scrollLeft - (e.pageX - carousel.offsetLeft - startX);
-        });
-    });
 </script>
 @endpush

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str; // Tambahkan ini untuk fungsi Str::limit
+use Illuminate\Support\Str;
 
 class ConsultationController extends Controller
 {
@@ -32,104 +32,139 @@ class ConsultationController extends Controller
     {
         return view('pages.consultation');
     }
-
     /**
-     * Integrasi Utama: Kirim query ke FastAPI dan simpan hasil ke Supabase.
+     * Integrasi Utama: Kirim query ke FastAPI, tangani Guest/User + Rate Limiting, dan filter Artikel.
      */
     public function sendConsultation(Request $request)
     {
         try {
             $validated = $request->validate([
-                'query' => ['required', 'string', 'min:5', 'max:200']
+                'query' => ['required', 'string', 'min:5', 'max:500']
             ]);
 
-            $userId = Auth::id() ?? 5; // id masih statis bikinkan agar dinamis menyesuaian user yang login  dan buatkan agar si tamu bisa tetap query tapi gak kesimpan di db gpp dan di limit aja 3 request per hari
+            // 1. CEK OTENTIKASI & IDENTITAS (USER ATAU GUEST)
+            $isGuest = !Auth::check();
+            $userId = Auth::id(); // Otomatis null jika tamu
 
-            return DB::transaction(function () use ($validated, $userId) {
-                
-                // Kirim ke FastAPI dengan timeout 120 detik
-                $response = Http::timeout(120)->withHeaders([
-                    'Content-Type' => 'application/json'
-                ])->post($this->aiServiceUrl . '/api/recommend', [
-                    'query' => $validated['query']
-                ]);
+            // 2. PEMBATASAN (RATE LIMITING)
+            if ($isGuest) {
+                // Gunakan IP Address sebagai pengenal unik tamu di cache
+                $cacheKey = 'guest_consultation_limit:' . $request->ip();
+                $requestCount = cache()->get($cacheKey, 0);
 
-                if ($response->failed()) {
-                    Log::error('AI Service Connection Failed on endpoint: ' . $this->aiServiceUrl . ' | Body: ' . $response->body());
-                    return response()->json([
-                        'success' => false, 
-                        'message' => 'Gagal mendapatkan respons data dari AI Service.'
-                    ], 500);
-                }
-
-                $aiData = $response->json();
-
-                // Jika status validasi internal Python menyatakan "invalid"
-                if (isset($aiData['status']) && $aiData['status'] === 'invalid') {
+                if ($requestCount >= 3) {
                     return response()->json([
                         'success' => false,
-                        'status' => 'invalid',
-                        'message' => $aiData['message'] ?? 'Query pencarian tidak valid.',
-                        'missing_points' => $aiData['missing_points'] ?? []
-                    ], 422);
+                        'message' => 'Batas konsultasi gratis telah habis (Maksimal 3 kali per hari). Silakan Login untuk menikmati fitur tanpa batas!'
+                    ], 429); // 429 Too Many Requests
                 }
 
-                $recommendations = $aiData['recommendations'] ?? [];
+                // Tambah hitungan kueri di cache, simpan hingga akhir hari (tengah malam)
+                cache()->put($cacheKey, $requestCount + 1, now()->endOfDay());
+            }
 
-                $topProductId = null;
-                if (!empty($recommendations)) {
-                    $dbProduct = DB::table('products')
-                        ->where('nama_produk', 'ILIKE', $recommendations[0]['product_name'])
-                        ->first();
-                    $topProductId = $dbProduct ? $dbProduct->product_id : null;
+            // 3. KIRIM PERMINTAAN DATA KE FASTAPI (HUGGING FACE)
+            // Dikeluarkan dari DB::transaction agar koneksi database tidak menggantung saat menunggu AI
+            $response = Http::timeout(120)->withHeaders([
+                'Content-Type' => 'application/json'
+            ])->post($this->aiServiceUrl . '/api/recommend', [
+                'query' => $validated['query']
+            ]);
+
+            if ($response->failed()) {
+                Log::error('AI Service Connection Failed on endpoint: ' . $this->aiServiceUrl . ' | Body: ' . $response->body());
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Gagal mendapatkan respons data dari AI Service.'
+                ], 500);
+            }
+
+            $aiData = $response->json();
+
+            // Cek jika status validasi internal Python menyatakan "invalid"
+            if (isset($aiData['status']) && $aiData['status'] === 'invalid') {
+                return response()->json([
+                    'success' => false,
+                    'status'  => 'invalid',
+                    'message' => $aiData['message'] ?? 'Query pencarian tidak valid.',
+                    'missing_points' => $aiData['missing_points'] ?? []
+                ], 422);
+            }
+
+            $recommendations = $aiData['recommendations'] ?? [];
+            $topProductId = null;
+            
+            if (!empty($recommendations)) {
+                $dbProduct = DB::table('products')
+                    ->where('nama_produk', 'ILIKE', $recommendations[0]['product_name'])
+                    ->first();
+                $topProductId = $dbProduct ? $dbProduct->product_id : null;
+            }
+
+            // ====================================================================
+            // ARTIKEL TERKAIT (DENGAN FIX ERROR 500 ARRAY PARSING)
+            // ====================================================================
+            $concerns = $aiData['extracted_concerns'] ?? [];
+            $constraints = $aiData['extracted_constraints'] ?? [];
+            $products = $aiData['extracted_products'] ?? [];
+            
+            // Ekstrak nama produk dari rekomendasi jika ada
+            if (isset($aiData['recommendations']) && is_array($aiData['recommendations'])) {
+                foreach ($aiData['recommendations'] as $rec) {
+                    if (isset($rec['product_name'])) {
+                        $products[] = $rec['product_name'];
+                    }
                 }
+            }
 
-                // ====================================================================
-                // FITUR BARU: CARI ARTIKEL TERKAIT BERDASARKAN KATA KUNCI AI
-                // ====================================================================
-                $concerns = $aiData['extracted_concerns'] ?? [];
-                $constraints = $aiData['extracted_constraints'] ?? [];
-                $products = $aiData['extracted_products'] ?? [];
-                
-                // Gabungkan semua kata kunci yang ditemukan AI
-                $searchKeywords = array_filter(array_merge($concerns, $constraints, $products));
-                
-                $articlesQuery = DB::table('articles');
-                
-                if (!empty($searchKeywords)) {
-                    $articlesQuery->where(function($q) use ($searchKeywords) {
-                        foreach ($searchKeywords as $keyword) {
-                            // Cari di kolom title (menggunakan ILIKE agar case-insensitive di Supabase/PostgreSQL)
-                            $q->orWhere('title', 'ILIKE', '%' . trim($keyword) . '%');
-                        }
-                    });
-                } else {
-                    // Fallback: Jika tidak ada keyword, tampilkan 3 artikel terbaru
-                    $articlesQuery->orderBy('id', 'desc');
+            $rawKeywords = array_merge($concerns, $constraints, $products);
+            $searchKeywords = [];
+
+            // AMAN DARI ERROR 500: Pastikan hanya data teks (string) yang diproses
+            foreach ($rawKeywords as $item) {
+                if (is_string($item) && trim($item) !== '') {
+                    $searchKeywords[] = trim($item);
+                } elseif (is_array($item) && isset($item['name']) && is_string($item['name'])) {
+                    $searchKeywords[] = trim($item['name']);
                 }
-                
-                // Ambil maksimal 3 artikel paling relevan
-                $dbArticles = $articlesQuery->limit(3)->get();
-                
-                // Format data artikel agar sesuai dengan Blade template milikmu
-                $relatedArticles = $dbArticles->map(function($art) {
-                    $contentStr = strip_tags($art->content ?? '');
-                    $wordCount = str_word_count($contentStr);
-                    $readTime = ceil($wordCount / 200); // Estimasi membaca rata-rata (200 kata/menit)
+            }
+            
+            $articlesQuery = DB::table('articles');
+            
+            if (!empty($searchKeywords)) {
+                $articlesQuery->where(function($q) use ($searchKeywords) {
+                    foreach ($searchKeywords as $keyword) {
+                        $q->orWhere('title', 'ILIKE', '%' . $keyword . '%');
+                    }
+                });
+            } else {
+                $articlesQuery->orderBy('id', 'desc');
+            }
+            
+            $dbArticles = $articlesQuery->limit(3)->get();
+            
+            $relatedArticles = $dbArticles->map(function($art) {
+                $contentStr = strip_tags($art->content ?? '');
+                $wordCount = str_word_count($contentStr);
+                $readTime = ceil($wordCount / 200);
 
-                    return [
-                        'title'        => $art->title,
-                        'url'          => url('/artikel/' . $art->slug), // Asumsi URL artikelmu memakai prefix /artikel/
-                        'cover_image'  => $art->image_url,
-                        'category'     => $art->category ?? 'Skincare Tips',
-                        'excerpt'      => Str::limit($contentStr, 90),
-                        'published_at' => 'Artikel Pilihan',
-                        'read_time'    => ($readTime > 0 ? $readTime : 1) . ' min'
-                    ];
-                })->toArray();
-                // ====================================================================
+                return [
+                    'title'        => $art->title,
+                    'url'          => url('/artikel/' . $art->slug),
+                    'cover_image'  => $art->image_url,
+                    'category'     => $art->category ?? 'Skincare Tips',
+                    'excerpt'      => Str::limit($contentStr, 90),
+                    'published_at' => 'Artikel Pilihan',
+                    'read_time'    => ($readTime > 0 ? $readTime : 1) . ' min'
+                ];
+            })->toArray();
+            // ====================================================================
 
-                // Simpan ke Supabase
+            // 4. PENYIMPANAN DATA (USER VS GUEST)
+            $consultationId = null;
+
+            if (!$isGuest) {
+                // User Login: Simpan ke Database
                 $consultationId = DB::table('consultations')->insertGetId([
                     'user_id'           => $userId,
                     'product_result_id' => $topProductId,
@@ -139,28 +174,44 @@ class ConsultationController extends Controller
                         'constraints'        => $aiData['extracted_constraints'] ?? [],
                         'requested_products' => $aiData['extracted_products'] ?? [], 
                         'all_products'       => $recommendations,
-                        'related_articles'   => $relatedArticles // <-- ARTIKEL DISISIPKAN DI SINI
+                        'related_articles'   => $relatedArticles
                     ]),
                     'created_at'        => now(),
                     'updated_at'        => now()
                 ]);
+            } else {
+                // Tamu (Guest): Simpan ke Session Sementara
+                $guestResultData = [
+                    'created_at'        => now()->toIso8601String(),
+                    'skin_concern'      => $aiData['extracted_concerns'] ?? [],
+                    'ingredient_result' => [
+                        'cleaned_query'      => $aiData['cleaned_query'] ?? '',
+                        'constraints'        => $aiData['extracted_constraints'] ?? [],
+                        'requested_products' => $aiData['extracted_products'] ?? [], 
+                        'all_products'       => $recommendations,
+                        'related_articles'   => $relatedArticles
+                    ]
+                ];
+                
+                $consultationId = 'guest_' . Str::random(40);
+                session()->put($consultationId, $guestResultData);
+            }
 
-                return response()->json([
-                    'success'               => true,
-                    'consultation_id'       => $consultationId,
-                    'status'                => $aiData['status'] ?? 'success',
-                    'cleaned_query'         => $aiData['cleaned_query'] ?? '',
-                    'extracted_products'    => $aiData['extracted_products'] ?? [],
-                    'extracted_concerns'    => $aiData['extracted_concerns'] ?? [],
-                    'extracted_constraints' => $aiData['extracted_constraints'] ?? [],
-                    'recommendations'       => $recommendations
-                ]);
-            }); 
+            return response()->json([
+                'success'               => true,
+                'consultation_id'       => $consultationId,
+                'status'                => $aiData['status'] ?? 'success',
+                'cleaned_query'         => $aiData['cleaned_query'] ?? '',
+                'extracted_products'    => $aiData['extracted_products'] ?? [],
+                'extracted_concerns'    => $aiData['extracted_concerns'] ?? [],
+                'extracted_constraints' => $aiData['extracted_constraints'] ?? [],
+                'recommendations'       => $recommendations
+            ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false, 
-                'errors' => $e->errors()
+                'errors'  => $e->errors()
             ], 422);
         } catch (\Exception $e) {
             Log::error('Consultation send error: ' . $e->getMessage());
@@ -177,7 +228,15 @@ class ConsultationController extends Controller
     public function getHistory()
     {
         try {
-            $userId = Auth::id() ?? 1;
+            $userId = Auth::id();
+
+            // Tamu tidak punya history
+            if (!$userId) {
+                return response()->json([
+                    'success' => true,
+                    'data' => []
+                ]);
+            }
 
             $history = DB::table('consultations')
                 ->where('user_id', $userId)
@@ -205,17 +264,39 @@ class ConsultationController extends Controller
     }
 
     /**
-     * Tampilkan halaman hasil konsultasi berdasarkan ID di Supabase
+     * Tampilkan halaman hasil konsultasi berdasarkan ID (Database / Session Guest)
      */
     public function result($id)
     {
+        // 1. PENANGANAN TAMU (GUEST)
+        if (is_string($id) && str_starts_with($id, 'guest_')) {
+            if (!session()->has($id)) {
+                abort(404, 'Sesi konsultasi tamu telah kedaluwarsa.');
+            }
+
+            $sessionData = session()->get($id);
+            
+            // Palsukan bentuk object agar Blade Result tidak error
+            $consultation = (object) [
+                'id'                => $id,
+                'user_id'           => null,
+                'created_at'        => $sessionData['created_at'],
+                'skin_concern'      => json_encode($sessionData['skin_concern']),
+                'ingredient_result' => json_encode($sessionData['ingredient_result'])
+            ];
+
+            return view('pages.consultation-result', compact('consultation'));
+        }
+
+        // 2. PENANGANAN USER LOGIN (DATABASE)
         $consultation = DB::table('consultations')->where('id', $id)->first();
         
         if (!$consultation) {
             abort(404, 'Data konsultasi tidak ditemukan.');
         }
 
-        if (Auth::check() && $consultation->user_id !== Auth::id() && $consultation->user_id !== 1) {
+        // Mencegah user login melihat hasil orang lain
+        if (Auth::check() && $consultation->user_id !== Auth::id()) {
             abort(403, 'Akses ditolak.');
         }
 

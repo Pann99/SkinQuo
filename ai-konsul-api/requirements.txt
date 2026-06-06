@@ -1,9 +1,9 @@
-sentence-transformers
-Sastrawi
 fastapi
 uvicorn
 pydantic
+sentence-transformers
+Sastrawi
 rapidfuzz
-pandas 
+pandas
 supabase
 python-dotenv

@@ -19,7 +19,8 @@ Tidak boleh dilakukan di sini:
 
 from __future__ import annotations
 from rapidfuzz import fuzz
-from app.services.keyword_manager import keyword_manager  # IMPORT INI
+from app.services.keyword_manager import keyword_manager  
+import re
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Keyword repository
@@ -96,16 +97,12 @@ def _match_category(
     for kw in keywords:
         kw_lower = kw.lower()
 
-        if kw_lower in text_lower:
-            # Exact match — tidak perlu fuzzy check lagi
+        if re.search(r'\b' + re.escape(kw_lower) + r'\b', text_lower):
             exact_found.append(kw_lower)
         elif _is_fuzzy_candidate(text_lower, kw_lower):
-            # Fuzzy candidate — ditandai untuk dikirim ke fixing layer
             fixable_found.append(kw_lower)
 
     return exact_found, fixable_found
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Public API
 # ─────────────────────────────────────────────────────────────────────────────
@@ -120,7 +117,7 @@ def validate_query(text: str) -> dict:
     missing:           list[str]       = []
     fixable_keywords:  dict[str, list] = {}
 
-    # ✔️ MENGGUNAKAN KEYWORD MANAGER DI SINI
+    # ✔️ MENGGUNAKAN KEYWORD MANAGER 
     for category, keywords in keyword_manager.VALIDATION_KEYWORDS.items():
         exact_found, fixable_found = _match_category(text_lower, keywords)
 

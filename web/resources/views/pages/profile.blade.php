@@ -676,8 +676,9 @@
                         ? implode(', ', array_map('ucfirst', $concerns))
                         : 'Consultation';
                 @endphp
-                <a href="{{ route('consultation.index') }}"
-                   class="pf-consult-item">
+                <div class="pf-consult-item"
+                     onclick="openDetailModal({{ $c->id }})"
+                     style="cursor:pointer;">
                     <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
                     <span class="pf-consult-sep"></span>
                     <div style="flex:1;">
@@ -695,17 +696,26 @@
                             </div>
                         @endif
                     </div>
-                    <span class="pf-consult-link btn-primary">
+                    <span class="pf-consult-link">
                         View Details
                         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                             <path d="M2 6.5H11M11 6.5L7 2.5M11 6.5L7 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </span>
-                </a>
+                </div>
             @endforeach
         </div>
     @endif
 </div>
+{{-- /pf-card-history --}}
+
+    </div>
+    {{-- /pf-layout --}}
+
+</div>
+{{-- /pf-inner --}}
+</div>
+{{-- /pf-page --}}
 
 {{-- DETAIL MODAL --}}
 <div class="pf-modal-overlay" id="detailModalOverlay" onclick="closeModalOutside(event)">
