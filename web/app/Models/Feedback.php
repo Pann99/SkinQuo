@@ -18,17 +18,18 @@ class Feedback extends Model
         'user_id',
         'text',
         'rating',
-        
+        'is_reviewed'
     ];
 
     /**
      * ⚠️ IMPORTANT: This table in Supabase does NOT have created_at/updated_at columns.
      * Setting $timestamps = false prevents Eloquent from trying to update them.
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $casts = [
         'rating' => 'float',
+         'is_reviewed' => 'boolean',
     ];
 
     /**

@@ -36,7 +36,7 @@
         <article class="dashboard-stat-card">
             <p class="stat-card-label">Pending Feedback</p>
             <div class="stat-card-bottom">
-                <strong class="stat-card-value">{{ $totalFeedback ?? 0 }}</strong>
+                <strong class="stat-card-value">{{ $pendingFeedback ?? 0 }}</strong>
                 <img src="{{ asset('images/feedback.png') }}" alt="Feedback" class="stat-card-icon">
             </div>
         </article>
