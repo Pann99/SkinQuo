@@ -27,12 +27,11 @@ class AdminFeedbackController extends Controller
         // Get filter parameters from request
         $searchQuery = $request->get('q', '');
         $filterRating = $request->get('rating', '');
-        $filterStatus = $request->get('status', ''); // 'pending', 'reviewed', or ''
         $perPage = 15;
 
         // Build query with relationships
-        $query = Feedback::with(['user', 'consultation'])
-            ->orderByDesc('id'); // Order by ID DESC since no created_at
+        $query = Feedback::with(['user'])
+            ->orderByDesc('created_at'); // Order by ID DESC since no created_at
 
         // Search across username, email, and feedback text
         if ($searchQuery) {
@@ -50,36 +49,12 @@ class AdminFeedbackController extends Controller
             $query->where('rating', (int)$filterRating);
         }
 
-        // Check if is_reviewed column exists
-        $hasIsReviewedColumn = Schema::hasColumn('feedback', 'is_reviewed');
-
-        // Filter by review status (only if column exists)
-        if ($hasIsReviewedColumn) {
-            if ($filterStatus === 'pending') {
-                $query->where('is_reviewed', false);
-            } elseif ($filterStatus === 'reviewed') {
-                $query->where('is_reviewed', true);
-            }
-        }
-
-        // Get stats
-        $totalFeedback = Feedback::count();
-        $pendingReview = 0;
-
-        if ($hasIsReviewedColumn) {
-            try {
-                $pendingReview = Feedback::where('is_reviewed', false)->count();
-            } catch (\Exception $e) {
-                $pendingReview = 0;
-            }
-        }
-
         // Paginate
         $feedback = $query->paginate($perPage);
 
         $stats = [
-            'total' => $totalFeedback,
-            'pending' => $pendingReview,
+            'total' => Feedback::count(),
+            'pending' => 0,
         ];
 
         return view('admin.feedback.monitor', compact(
@@ -87,8 +62,6 @@ class AdminFeedbackController extends Controller
             'stats',
             'searchQuery',
             'filterRating',
-            'filterStatus',
-            'hasIsReviewedColumn'
         ));
     }
 
@@ -101,7 +74,7 @@ class AdminFeedbackController extends Controller
     public function show($id)
     {
         try {
-            $feedback = Feedback::with(['user', 'consultation'])->findOrFail($id);
+            $feedback = Feedback::with(['user'])->findOrFail($id);
             return response()->json($feedback);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Feedback not found'], 404);
@@ -118,13 +91,11 @@ class AdminFeedbackController extends Controller
     {
         try {
             $feedback = Feedback::findOrFail($id);
-            $feedback->is_reviewed = true;
             $feedback->save();
             
             return response()->json([
                 'success' => true,
                 'message' => 'Feedback sudah ditandai sebagai ditinjau',
-                'is_reviewed' => $feedback->is_reviewed
             ]);
         } catch (\Exception $e) {
             return response()->json([
