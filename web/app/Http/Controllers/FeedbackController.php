@@ -115,8 +115,8 @@ class FeedbackController extends Controller
                 'rating' => (float) $validated['rating'],
             ]);
 
-            return redirect()->back()->with('feedback_success', 
-                'Thank you! Your feedback has been received.');
+           return redirect()->to(url()->previous() . '#feedback-form')
+    ->with('feedback_success', 'Thank you! Your feedback has been received.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Return ke halaman sebelumnya dengan error

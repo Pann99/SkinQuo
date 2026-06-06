@@ -12,7 +12,7 @@ class ValidationKeywordController extends Controller
     private const CATEGORY_MAP = [
         'product'    => 'product',
         'problem'    => 'problem',
-        'constraint' => 'constraint',
+        'ingredient' => 'ingredient',
         'skin_type'  => 'skin_type',
     ];
 
@@ -38,11 +38,17 @@ class ValidationKeywordController extends Controller
      */
     public function upload(Request $request)
     {
+    try {
         $request->validate([
-            'type' => ['required', 'in:product,problem,constraint,skin_type'],
-            'file' => ['required', 'file', 'mimes:csv,txt', 'max:51200'], // max 50MB
+            'type' => ['required', 'in:product,problem,ingredient,skin_type'],
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:51200'],
         ]);
-
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => collect($e->errors())->flatten()->first(),
+        ], 422);
+    }
         $type     = $request->input('type');
         $category = self::CATEGORY_MAP[$type];
         $file     = $request->file('file');
@@ -72,95 +78,82 @@ class ValidationKeywordController extends Controller
      * Proses CSV dan insert ke Supabase, skip duplikat
      */
     private function processCSV(string $path, string $category): array
-    {
-        $handle = fopen($path, 'r');
-        if (!$handle) {
-            throw new \RuntimeException('Tidak bisa membuka file CSV.');
-        }
-
-        // Baca header
-        $header = fgetcsv($handle);
-        if (!$header) {
-            fclose($handle);
-            throw new \RuntimeException('File CSV kosong atau format tidak valid.');
-        }
-
-        // Normalize header (trim + lowercase)
-        $header = array_map(fn($h) => strtolower(trim($h)), $header);
-
-        // Validasi kolom wajib
-        $keywordIdx = array_search('keyword', $header);
-        if ($keywordIdx === false) {
-            fclose($handle);
-            throw new \RuntimeException('Kolom "keyword" tidak ditemukan di CSV. Pastikan menggunakan template yang benar.');
-        }
-
-        $precautionIdx = array_search('precaution_note', $header);
-
-        // Ambil semua keyword yang sudah ada untuk kategori ini (lowercase)
-        $existing = DB::table('validation_keywords')
-            ->where('category', $category)
-            ->pluck('keyword')
-            ->map(fn($k) => strtolower(trim($k)))
-            ->flip() // jadikan key untuk O(1) lookup
-            ->toArray();
-
-        $inserted  = 0;
-        $skipped   = 0;
-        $totalRows = 0;
-        $toInsert  = [];
-
-        while (($row = fgetcsv($handle)) !== false) {
-            // Skip baris kosong
-            if (empty(array_filter($row))) continue;
-
-            $totalRows++;
-
-            $keyword = strtolower(trim($row[$keywordIdx] ?? ''));
-            if (empty($keyword)) {
-                $skipped++;
-                continue;
-            }
-
-            // Skip jika sudah ada
-            if (isset($existing[$keyword])) {
-                $skipped++;
-                continue;
-            }
-
-            $precautionNote = null;
-            if ($precautionIdx !== false && isset($row[$precautionIdx])) {
-                $note = trim($row[$precautionIdx]);
-                $precautionNote = $note !== '' ? $note : null;
-            }
-
-            $toInsert[] = [
-                'category'       => $category,
-                'keyword'        => $keyword,
-                'precaution_note' => $precautionNote,
-                'created_at'     => now(),
-            ];
-
-            // Tandai sebagai sudah ada (cegah duplikat dalam file yang sama)
-            $existing[$keyword] = true;
-            $inserted++;
-        }
-
-        fclose($handle);
-
-        // Bulk insert dengan chunk 100
-        if (!empty($toInsert)) {
-            foreach (array_chunk($toInsert, 100) as $chunk) {
-                DB::table('validation_keywords')->insert($chunk);
-            }
-        }
-
-        return [
-            'inserted'   => $inserted,
-            'skipped'    => $skipped,
-            'total_rows' => $totalRows,
-        ];
+{
+    $handle = fopen($path, 'r');
+    if (!$handle) {
+        throw new \RuntimeException('Tidak bisa membuka file CSV.');
     }
+
+    // Baca header - skip baris non-header (judul & instruksi)
+    $header = null;
+    while (($row = fgetcsv($handle)) !== false) {
+        $normalized = array_map(fn($h) => strtolower(trim($h)), $row);
+        if (in_array('keyword', $normalized)) {
+            $header = $normalized;
+            break;
+        }
+    }
+
+    if (!$header) {
+        fclose($handle);
+        throw new \RuntimeException('Kolom "keyword" tidak ditemukan di CSV. Pastikan menggunakan template yang benar.');
+    }
+
+    $keywordIdx    = array_search('keyword', $header);
+    $precautionIdx = array_search('precaution_note', $header);
+
+    $existing = DB::table('validation_keywords')
+        ->where('category', $category)
+        ->pluck('keyword')
+        ->map(fn($k) => strtolower(trim($k)))
+        ->flip()
+        ->toArray();
+
+    $inserted  = 0;
+    $skipped   = 0;
+    $totalRows = 0;
+    $toInsert  = [];
+
+    while (($row = fgetcsv($handle)) !== false) {
+        if (empty(array_filter($row))) continue;
+        $totalRows++;
+
+        $keyword = strtolower(trim($row[$keywordIdx] ?? ''));
+        if (empty($keyword)) { $skipped++; continue; }
+
+        if (isset($existing[$keyword])) { $skipped++; continue; }
+
+        $precautionNote = null;
+        if ($precautionIdx !== false && isset($row[$precautionIdx])) {
+            $note = trim($row[$precautionIdx]);
+            $precautionNote = $note !== '' ? $note : null;
+        }
+
+        $toInsert[] = [
+            'category'        => $category,
+            'keyword'         => $keyword,
+            'precaution_note' => $precautionNote,
+            'created_at'      => now(),
+        ];
+
+        $existing[$keyword] = true;
+        $inserted++;
+    }
+
+    fclose($handle);
+
+    if (!empty($toInsert)) {
+        foreach (array_chunk($toInsert, 100) as $chunk) {
+            DB::table('validation_keywords')->insert($chunk);
+        }
+    }
+
+    return [
+        'inserted'   => $inserted,
+        'skipped'    => $skipped,
+        'total_rows' => $totalRows,
+    ];
+}
 
     /**
      * Hapus semua keyword untuk satu kategori

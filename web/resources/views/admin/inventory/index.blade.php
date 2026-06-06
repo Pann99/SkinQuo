@@ -763,6 +763,20 @@
     transition: all .5s ease;
 }
 
+.tpl-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--brown-dark);
+    text-decoration: none;
+    transition: background 0.15s;
+}
+.tpl-item:hover { background: #F5E8D0; }
+.hidden { display: none !important; }
+
 /* Animation */
 @keyframes fadeInDown {
     from {
@@ -990,106 +1004,113 @@
 
       <div class="dictionary-grid">
 
-        {{-- Product Dictionary --}}
-        <div class="dictionary-card">
-          <div class="dictionary-card-header">
-            <div class="dictionary-icon">
-              <i class="bi bi-bag"></i>
-            </div>
-            <div class="dictionary-title-group">
-              <h3>Product Dictionary</h3>
-              <p>Last updated: Today, 09:41 AM</p>
-            </div>
-            <span class="dictionary-badge">CSV ONLY</span>
-          </div>
-          <label class="dictionary-dropzone">
-            <input type="file" accept=".csv" hidden>
-            <span class="dictionary-upload-icon">
-              <i class="bi bi-file-earmark-arrow-up"></i>
-            </span>
-            <strong>Click to upload or drag and drop</strong>
-            <small>Max file size: 50MB</small>
-          </label>
-        </div>
+       {{-- Product Dictionary --}}
+<div class="dictionary-card">
+  <div class="dictionary-card-header">
+    <div class="dictionary-icon"><i class="bi bi-bag"></i></div>
+    <div class="dictionary-title-group">
+      <h3>Product Dictionary</h3>
+      <p id="last-updated-product">Last updated: Today, 09:41 AM</p>
+    </div>
+    <span class="dictionary-badge">CSV ONLY</span>
+  </div>
+  <label class="dictionary-dropzone" for="file-product" id="zone-product">
+    <span class="dictionary-upload-icon" id="zone-product-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
+    <strong id="zone-product-title">Click to upload</strong>
+    <small id="zone-product-sub">Max file size: 50MB</small>
+  </label>
+  <input type="file" id="file-product" accept=".csv" style="display:none" data-type="product">
+</div>
 
-        {{-- Constraint Dictionary --}}
-        <div class="dictionary-card">
-          <div class="dictionary-card-header">
-            <div class="dictionary-icon">
-              <i class="bi bi-exclamation-triangle"></i>
-            </div>
-            <div class="dictionary-title-group">
-              <h3>Constraint Dictionary</h3>
-              <p>Last updated: 1 week ago</p>
-            </div>
-            <span class="dictionary-badge">CSV ONLY</span>
-          </div>
-          <label class="dictionary-dropzone">
-            <input type="file" accept=".csv" hidden>
-            <span class="dictionary-upload-icon">
-              <i class="bi bi-file-earmark-arrow-up"></i>
-            </span>
-            <strong>Click to upload or drag and drop</strong>
-            <small>Max file size: 50MB</small>
-          </label>
-        </div>
+{{-- Ingredient Dictionary --}}
+<div class="dictionary-card">
+  <div class="dictionary-card-header">
+    <div class="dictionary-icon"><i class="bi bi-flask"></i></div>
+    <div class="dictionary-title-group">
+      <h3>Ingredient Dictionary</h3>
+      <p id="last-updated-constraint">Last updated: 1 week ago</p>
+    </div>
+    <span class="dictionary-badge">CSV ONLY</span>
+  </div>
+  <label class="dictionary-dropzone" for="file-constraint" id="zone-constraint">
+    <span class="dictionary-upload-icon" id="zone-constraint-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
+    <strong id="zone-constraint-title">Click to upload</strong>
+    <small id="zone-constraint-sub">Max file size: 50MB</small>
+  </label>
+  <input type="file" id="file-constraint" accept=".csv" style="display:none" data-type="ingredient">
+</div>
 
-        {{-- Skin Type Dictionary --}}
-        <div class="dictionary-card">
-          <div class="dictionary-card-header">
-            <div class="dictionary-icon">
-              <i class="bi bi-droplet"></i>
-            </div>
-            <div class="dictionary-title-group">
-              <h3>Skin Type Dictionary</h3>
-              <p>Last updated: Yesterday, 04:20 PM</p>
-            </div>
-            <span class="dictionary-badge">CSV ONLY</span>
-          </div>
-          <label class="dictionary-dropzone">
-            <input type="file" accept=".csv" hidden>
-            <span class="dictionary-upload-icon">
-              <i class="bi bi-file-earmark-arrow-up"></i>
-            </span>
-            <strong>Click to upload or drag and drop</strong>
-            <small>Max file size: 50MB</small>
-          </label>
-        </div>
+{{-- Skin Type Dictionary --}}
+<div class="dictionary-card">
+  <div class="dictionary-card-header">
+    <div class="dictionary-icon"><i class="bi bi-droplet"></i></div>
+    <div class="dictionary-title-group">
+      <h3>Skin Type Dictionary</h3>
+      <p id="last-updated-skintype">Last updated: Yesterday, 04:20 PM</p>
+    </div>
+    <span class="dictionary-badge">CSV ONLY</span>
+  </div>
+  <label class="dictionary-dropzone" for="file-skintype" id="zone-skintype">
+    <span class="dictionary-upload-icon" id="zone-skintype-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
+    <strong id="zone-skintype-title">Click to upload</strong>
+    <small id="zone-skintype-sub">Max file size: 50MB</small>
+  </label>
+  <input type="file" id="file-skintype" accept=".csv" style="display:none" data-type="skin_type">
+</div>
 
-        {{-- Ingredient Dictionary --}}
-        <div class="dictionary-card">
-          <div class="dictionary-card-header">
-            <div class="dictionary-icon">
-              <i class="bi bi-shield-check"></i>
-            </div>
-            <div class="dictionary-title-group">
-              <h3>Ingredient Dictionary</h3>
-              <p>Last updated: 1 week ago</p>
-            </div>
-            <span class="dictionary-badge">CSV ONLY</span>
-          </div>
-          <label class="dictionary-dropzone">
-            <input type="file" accept=".csv" hidden>
-            <span class="dictionary-upload-icon">
-              <i class="bi bi-file-earmark-arrow-up"></i>
-            </span>
-            <strong>Click to upload or drag and drop</strong>
-            <small>Max file size: 50MB</small>
-          </label>
-        </div>
+{{-- Problem Dictionary --}}
+<div class="dictionary-card">
+  <div class="dictionary-card-header">
+    <div class="dictionary-icon"><i class="bi bi-shield-check"></i></div>
+    <div class="dictionary-title-group">
+      <h3>Problem Dictionary</h3>
+      <p id="last-updated-ingredient">Last updated: 1 week ago</p>
+    </div>
+    <span class="dictionary-badge">CSV ONLY</span>
+  </div>
+  <label class="dictionary-dropzone" for="file-ingredient" id="zone-ingredient">
+    <span class="dictionary-upload-icon" id="zone-ingredient-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
+    <strong id="zone-ingredient-title">Click to upload</strong>
+    <small id="zone-ingredient-sub">Max file size: 50MB</small>
+  </label>
+  <input type="file" id="file-ingredient" accept=".csv" style="display:none" data-type="problem">
+</div>
 
       </div>
 
       <div class="dictionary-actions">
-        <a href="#" class="btn-download-template">
-          <i class="bi bi-download"></i>
-          Download Templates
-        </a>
-        <button type="button" class="btn-process-all">
-          <i class="bi bi-play-fill"></i>
-          Process All
+    <div style="position:relative;" id="tplDropdownWrap">
+        <button type="button" class="btn-download-template" onclick="document.getElementById('tplDropdown').classList.toggle('hidden')">
+            <i class="bi bi-download"></i>
+            Download Templates
         </button>
-      </div>
+        <div id="tplDropdown" class="hidden" style="
+            position:absolute;bottom:110%;left:0;
+            background:#fff;border:1.5px solid #D8BFA6;
+            border-radius:14px;padding:8px;
+            display:flex;flex-direction:column;gap:4px;
+            min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.08);
+            z-index:99;
+        ">
+            <a href="{{ asset('templates/template_product_dictionary.csv') }}" download class="tpl-item">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Product
+            </a>
+            <a href="{{ asset('templates/template_problem_dictionary.csv') }}" download class="tpl-item">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Problem
+            </a>
+            <a href="{{ asset('templates/template_ingredient_dictionary.csv') }}" download class="tpl-item">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Ingredient
+            </a>
+            <a href="{{ asset('templates/template_skin_type_dictionary.csv') }}" download class="tpl-item">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Skin Type
+            </a>
+        </div>
+    </div>
+    <button type="button" class="btn-process-all">
+        <i class="bi bi-play-fill"></i>
+        Process All
+    </button>
+</div>
 
     </section>
 
@@ -1137,52 +1158,182 @@
 
 @push('scripts')
 <script>
+
+// ── Load last updated dari localStorage saat halaman buka ──
+['product', 'constraint', 'skintype', 'ingredient'].forEach(suffix => {
+  const saved = localStorage.getItem(`dict_last_updated_${suffix}`);
+  const el    = document.getElementById(`last-updated-${suffix}`);
+  if (saved && el) el.textContent = saved;
+});
+
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ── Teleport modal ke <body> agar keluar dari semua scroll/stacking container ──
-  const backdrop = document.getElementById('deleteModalBackdrop');
+  // ── Teleport modal ke <body> ──
+  const backdrop    = document.getElementById('deleteModalBackdrop');
   const deleteModal = document.getElementById('deleteModal');
-  if (backdrop) document.body.appendChild(backdrop);
+  if (backdrop)    document.body.appendChild(backdrop);
   if (deleteModal) document.body.appendChild(deleteModal);
 
   // ── Delete Modal ──
-  const deleteButtons = document.querySelectorAll('.product-action-btn.delete');
   const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-  function openDeleteModal() {
-    backdrop.style.display = 'block';
-    deleteModal.classList.remove('hidden');
-  }
+  function openDeleteModal()  { backdrop.style.display = 'block'; deleteModal.classList.remove('hidden'); }
+  function closeDeleteModal() { backdrop.style.display = 'none';  deleteModal.classList.add('hidden'); }
 
-  function closeDeleteModal() {
-    backdrop.style.display = 'none';
-    deleteModal.classList.add('hidden');
-  }
-
-  deleteButtons.forEach(btn => {
-    btn.addEventListener('click', function(e) {
+  document.querySelectorAll('.product-action-btn.delete').forEach(btn => {
+    btn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      const productId = this.getAttribute('data-product-id');
-      const productName = this.getAttribute('data-product-name');
-      document.getElementById('delete-product-name').textContent = productName;
-      document.getElementById('delete-form').action = '/admin/products/' + productId;
+      document.getElementById('delete-product-name').textContent = this.dataset.productName;
+      document.getElementById('delete-form').action = '/admin/products/' + this.dataset.productId;
       openDeleteModal();
     });
   });
 
   if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-  if (backdrop) backdrop.addEventListener('click', closeDeleteModal);
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeDeleteModal();
-  });
+  if (backdrop)        backdrop.addEventListener('click', closeDeleteModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDeleteModal(); });
 
   // ── Flash alert auto-hide ──
-  const alert = document.getElementById('successAlert');
-  if (alert) {
-    setTimeout(() => { alert.classList.add('alert-hide'); }, 3000);
-    setTimeout(() => { alert.remove(); }, 3500);
+  const alertEl = document.getElementById('successAlert');
+  if (alertEl) {
+    setTimeout(() => alertEl.classList.add('alert-hide'), 3000);
+    setTimeout(() => alertEl.remove(), 3500);
   }
+
+  // ── Dictionary config ──
+  const dictMap = {
+    'product'    : 'product',
+    'constraint' : 'ingredient',
+    'skintype'   : 'skin_type',
+    'ingredient' : 'problem',
+  };
+
+  const suffixByType = {
+    'product'    : 'product',
+    'ingredient' : 'constraint',
+    'skin_type'  : 'skintype',
+    'problem'    : 'ingredient',
+  };
+
+  // Keyword yang HARUS ada di nama file sesuai kategori
+  const fileNameRules = {
+    'product'    : 'product',
+    'ingredient' : 'ingredient',
+    'skin_type'  : 'skin_type',
+    'problem'    : 'problem',
+  };
+
+  window.selectedDictFiles = {};
+
+  // ── Helper functions ──
+  function setDropzoneFile(suffix, fileName, sizeMB) {
+    document.getElementById(`zone-${suffix}-icon`).innerHTML =
+      '<i class="bi bi-file-earmark-check" style="color:#27AE60;"></i>';
+    const title = document.getElementById(`zone-${suffix}-title`);
+    title.textContent = fileName;
+    title.style.color = '#27AE60';
+    document.getElementById(`zone-${suffix}-sub`).textContent = `${sizeMB} MB — Ready`;
+  }
+
+  function resetDropzone(suffix) {
+    document.getElementById(`zone-${suffix}-icon`).innerHTML =
+      '<i class="bi bi-file-earmark-arrow-up"></i>';
+    const title = document.getElementById(`zone-${suffix}-title`);
+    title.textContent = 'Click to upload';
+    title.style.color = '';
+    document.getElementById(`zone-${suffix}-sub`).textContent = 'Max file size: 50MB';
+  }
+
+  function setLastUpdated(suffix) {
+    const now  = new Date();
+    const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    const text = `Last updated: Today, ${time}`;
+    const el   = document.getElementById(`last-updated-${suffix}`);
+    if (el) el.textContent = text;
+    localStorage.setItem(`dict_last_updated_${suffix}`, text);
+  }
+
+  // ── File select handler ──
+  Object.entries(dictMap).forEach(([inputSuffix, serverType]) => {
+    const input = document.getElementById('file-' + inputSuffix);
+    if (!input) return;
+
+    input.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      window.selectedDictFiles[serverType] = file;
+      const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+      setDropzoneFile(inputSuffix, file.name, sizeMB);
+    });
+  });
+
+  // ── Process All ──
+  document.querySelector('.btn-process-all')?.addEventListener('click', async function () {
+    const files = window.selectedDictFiles;
+    if (Object.keys(files).length === 0) {
+      alert('Pilih setidaknya satu file CSV terlebih dahulu.');
+      return;
+    }
+
+    const CSRF    = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const results = [];
+
+    for (const [type, file] of Object.entries(files)) {
+
+      // ── Validasi nama file harus sesuai kategori ──
+      const expectedKeyword = fileNameRules[type];
+      if (!file.name.toLowerCase().includes(expectedKeyword)) {
+        results.push({
+          type,
+          success: false,
+          message: `File "${file.name}" tidak sesuai untuk slot "${type}". Nama file harus mengandung kata "${expectedKeyword}".`,
+        });
+        continue; // skip, tidak diupload
+      }
+
+      // ── Upload ──
+      const formData = new FormData();
+      formData.append('type', type);
+      formData.append('file', file);
+      formData.append('_token', CSRF);
+
+      try {
+        const res  = await fetch('/admin/dictionary/upload', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData,
+        });
+        const data = await res.json();
+        results.push({ type, status: res.status, ...data });
+
+        if (data.success) {
+          const suffix = suffixByType[type];
+          if (data.inserted > 0) setLastUpdated(suffix);
+          resetDropzone(suffix);
+        }
+      } catch (err) {
+        results.push({ type, error: err.message });
+      }
+    }
+
+    const summary = results.map(r =>
+      r.success
+        ? `✅ ${r.category}: ${r.inserted} inserted, ${r.skipped} skipped`
+        : `❌ ${r.type}: ${r.message || r.error}`
+    ).join('\n');
+
+    alert(summary);
+    window.selectedDictFiles = {};
+  });
+
+  // ── Dropdown template ──
+  document.addEventListener('click', function (e) {
+    if (!document.getElementById('tplDropdownWrap')?.contains(e.target)) {
+      document.getElementById('tplDropdown')?.classList.add('hidden');
+    }
+  });
 
 });
 </script>
