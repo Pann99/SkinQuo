@@ -557,7 +557,7 @@
             : ($consultation->ingredient_result ?? []);
 
         $queryText     = $ingredientResult['original_query'] ?? $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
-        $constraints   = $ingredientResult['extracted_constraints'] ?? $ingredientResult['constraints'] ?? [];
+        $ingredient   = $ingredientResult['extracted_ingredients'] ?? $ingredientResult['ingredient'] ?? [];
         $products      = $ingredientResult['recommendations'] ?? $ingredientResult['all_products'] ?? [];
         $skinConcern   = $ingredientResult['extracted_concerns'] ?? [];
         $faceArea      = $ingredientResult['extracted_face_area'] ?? [];
@@ -615,13 +615,13 @@
                 @foreach($faceArea as $area)
                     <span class="cr-tag area">{{ ucwords($area) }}</span>
                 @endforeach
-                @foreach($constraints as $constraint)
+                @foreach($ingredient as $ingredients)
                     <span class="cr-tag block">
                         <svg viewBox="0 0 24 24" style="width:8px;height:8px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        {{ ucwords($constraint) }}
+                        {{ ucwords($ingredients) }}
                     </span>
                 @endforeach
-                @if(empty($extractedCats) && empty($skinConcern) && empty($constraints) && empty($faceArea))
+                @if(empty($extractedCats) && empty($skinConcern) && empty($ingredient) && empty($faceArea))
                     <span style="font-size:12px;color:var(--text-muted);">Sedang diproses...</span>
                 @endif
             </div>

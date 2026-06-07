@@ -29,7 +29,7 @@ import re
 LABEL_MAP: dict[str, str] = {
     "product":    "[Product] Jenis produk",
     "problem":    "[Problem] Keluhan kulit",
-    "constraint": "[Constraint] Kandungan aktif",
+    "ingredient": "[Ingredient] Kandungan aktif",
     "skin_type":  "[Area/Type] Jenis kulit",
 }
 

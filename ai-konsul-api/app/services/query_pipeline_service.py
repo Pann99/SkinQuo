@@ -56,22 +56,17 @@ class QueryPipelineService:
             fix_result = None
 
         # =====================================================================
-        # 3. LAYER EKSTRAKSI (Merespons Kekuatan #4 & #5: Multiple Preference)
+        # 3. LAYER EKSTRAKSI (Merespons 4 Kriteria Supabase Murni)
         # =====================================================================
         matched = query_check.get("matched", {})
         
-        # Ekstrak Kategori Produk (Bisa lebih dari satu, misal: Toner, Serum)
+        # Ekstrak 4 entitas secara independen sesuai tabel di Supabase
         product_exact = matched.get("product", {}).get("exact", [])
-        
-        # Ekstrak Keluhan & Tipe Kulit dan digabungkan menjadi Multiple Concern
-        problem_exact = matched.get("problem", {}).get("exact", [])
+        ingredient_exact = matched.get("ingredient", {}).get("exact", [])
         skin_type_exact = matched.get("skin_type", {}).get("exact", [])
-        extracted_concerns = list(set(problem_exact + skin_type_exact))
-        
-        # Ekstrak Prioritas Bahan / Constraint (Bisa lebih dari satu, misal: Niacinamide, AHA)
-        constraint_exact = matched.get("constraint", {}).get("exact", [])
+        problem_exact = matched.get("problem", {}).get("exact", [])
 
-        # (Opsional) Ekstrak Area Wajah jika Anda menaruhnya di kamus database
+        # (Opsional) Jika masih ada face_area
         face_area_exact = matched.get("face_area", {}).get("exact", [])
 
         return {
@@ -79,8 +74,9 @@ class QueryPipelineService:
             "status":                current_status,
             "matched_points":        matched,
             "extracted_products":    product_exact,
-            "extracted_concerns":    extracted_concerns,
-            "extracted_constraints": constraint_exact,
+            "extracted_ingredients": ingredient_exact,
+            "extracted_skin_types":  skin_type_exact,
+            "extracted_problems":    problem_exact,
             "extracted_face_area":   face_area_exact,
             "query_fixing":          fix_result,
         }

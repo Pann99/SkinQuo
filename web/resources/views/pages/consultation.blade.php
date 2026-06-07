@@ -435,6 +435,131 @@
     .lc-error-retry { display: inline-block; margin-top: 5px; font-size: 11.5px; font-weight: 600; color: #A32D2D; background: rgba(226,75,74,0.1); border: 1px solid rgba(226,75,74,0.2); padding: 3px 10px; border-radius: 8px; cursor: pointer; border-style: none; font-family: 'DM Sans', sans-serif; }
     .lc-error-retry:hover { background: rgba(226,75,74,0.15); }
 
+    /* ─── RATE LIMIT MODAL (Guest) ─── */
+    .ratelimit-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(61,32,16,0.45);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 300;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .ratelimit-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+    }
+    .ratelimit-card {
+        background: var(--white);
+        border-radius: 24px;
+        padding: 32px 28px 28px;
+        max-width: 380px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 24px 64px rgba(61,32,16,0.22);
+        transform: translateY(16px) scale(0.97);
+        transition: transform 0.3s ease;
+    }
+    .ratelimit-overlay.open .ratelimit-card {
+        transform: translateY(0) scale(1);
+    }
+    .ratelimit-emoji {
+        font-size: 36px;
+        margin-bottom: 12px;
+        display: block;
+    }
+    .ratelimit-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 19px;
+        color: var(--dark-brown);
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+    .ratelimit-desc {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin-bottom: 22px;
+    }
+    .ratelimit-desc strong {
+        color: var(--brown);
+        font-weight: 600;
+    }
+    .ratelimit-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .ratelimit-btn-login {
+        display: block;
+        background: var(--dark-brown);
+        color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 600;
+        padding: 13px 20px;
+        border-radius: 14px;
+        text-decoration: none;
+        transition: background 0.2s, transform 0.15s;
+    }
+    .ratelimit-btn-login:hover {
+        background: var(--accent);
+        transform: translateY(-1px);
+        color: var(--cream);
+    }
+    .ratelimit-btn-register {
+        display: block;
+        background: transparent;
+        color: var(--brown);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 11px 20px;
+        border-radius: 14px;
+        border: 1.5px solid var(--border-strong);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .ratelimit-btn-register:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(193,127,74,0.04);
+    }
+    .ratelimit-dismiss {
+        font-size: 11.5px;
+        color: var(--text-muted);
+        margin-top: 6px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        padding: 4px 0;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+    .ratelimit-dismiss:hover { color: var(--brown); }
+    .ratelimit-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #A32D2D;
+        background: rgba(226,75,74,0.07);
+        border: 1px solid rgba(226,75,74,0.18);
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-bottom: 14px;
+        font-weight: 700;
+    }
+
     .lc-hint {
         font-size: 11px;
         color: rgba(61,32,16,0.35);
@@ -653,13 +778,13 @@
 
             {{-- Title --}}
             <div class="analysis-header">
-                <h2 class="analysis-title">Menganalisis kondisi kulitmu...</h2>
-                <p class="analysis-subtitle">NLP pipeline sedang berjalan — mohon tunggu sebentar</p>
+                <h2 class="analysis-title">Sedang mencari produk untukmu...</h2>
+                <p class="analysis-subtitle">Sabar sebentar ya, kami sedang membaca kondisi kulitmu</p>
             </div>
 
             {{-- Query Echo: show user what we're processing --}}
             <div class="analysis-query-echo">
-                <div class="aqe-label">Kalimatmu yang sedang diproses</div>
+                <div class="aqe-label">Keluhanmu yang sedang kami baca</div>
                 <div class="aqe-text" id="analysisQueryEcho">—</div>
             </div>
 
@@ -670,8 +795,8 @@
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Normalisasi teks</div>
-                        <div class="step-sub">Analisis sintaks &amp; pembersihan kalimat (NLP)</div>
+                        <div class="step-label">Memahami ceritamu</div>
+                        <div class="step-sub">Kami membaca dan memahami setiap kata yang kamu tulis</div>
                     </div>
                     <div class="step-pulse" aria-hidden="true"></div>
                 </div>
@@ -680,8 +805,8 @@
                         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Ekstraksi entitas preferensi</div>
-                        <div class="step-sub">Memetakan kategori produk, keluhan, &amp; kandungan yang dihindari</div>
+                        <div class="step-label">Mengenali kondisi & kebutuhan kulitmu</div>
+                        <div class="step-sub">Kami mencatat jenis kulit, masalah, dan produk yang kamu cari</div>
                     </div>
                     <div class="step-pulse" aria-hidden="true"></div>
                 </div>
@@ -690,8 +815,8 @@
                         <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Kalkulasi matriks SAW</div>
-                        <div class="step-sub">Menghitung skor preferensi C1–C4 dari setiap alternatif produk</div>
+                        <div class="step-label">Mencocokkan dengan ribuan produk</div>
+                        <div class="step-sub">Kami membandingkan produk mana yang paling sesuai untukmu</div>
                     </div>
                     <div class="step-pulse" aria-hidden="true"></div>
                 </div>
@@ -700,8 +825,8 @@
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Menyusun laporan rekomendasi</div>
-                        <div class="step-sub">Ranking final &amp; argumentasi keputusan SAW</div>
+                        <div class="step-label">Menyiapkan rekomendasi terbaikmu</div>
+                        <div class="step-sub">Tinggal selangkah lagi — hasil rekomendasimu sudah hampir siap!</div>
                     </div>
                     <div class="step-pulse" aria-hidden="true"></div>
                 </div>
@@ -717,6 +842,27 @@
                 <button class="btn-retry" onclick="resetToLanding()">↩ Kembali &amp; Coba Lagi</button>
             </div>
 
+        </div>
+    </div>
+</div>
+
+{{-- ══ RATE LIMIT MODAL — Muncul saat kuota 3x konsultasi tamu habis ══ --}}
+<div class="ratelimit-overlay" id="rateLimitOverlay" role="dialog" aria-modal="true" aria-label="Batas konsultasi gratis habis">
+    <div class="ratelimit-card">
+        <span class="ratelimit-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Kuota Gratis Habis
+        </span>
+        <span class="ratelimit-emoji">🌿</span>
+        <h2 class="ratelimit-title">Konsultasi gratismu sudah dipakai semua</h2>
+        <p class="ratelimit-desc">
+            Kamu sudah mencoba <strong>3 kali konsultasi gratis</strong> hari ini — terima kasih sudah mempercayai SkinQuo!<br><br>
+            Daftar atau masuk sekarang untuk menikmati konsultasi <strong>tanpa batas</strong>, simpan riwayat perawatan kulitmu, dan dapatkan rekomendasi yang makin personal setiap harinya.
+        </p>
+        <div class="ratelimit-actions">
+            <a href="/login" class="ratelimit-btn-login">🔑 Masuk ke Akun</a>
+            <a href="/register" class="ratelimit-btn-register">✨ Buat Akun Gratis</a>
+            <button class="ratelimit-dismiss" onclick="closeRateLimitModal()">Nanti saja</button>
         </div>
     </div>
 </div>
@@ -768,7 +914,19 @@
         if (overlay && overlay.parentElement !== document.body) {
             document.body.appendChild(overlay);
         }
+        // Pindahkan rate limit modal ke body juga
+        const rlOverlay = document.getElementById('rateLimitOverlay');
+        if (rlOverlay && rlOverlay.parentElement !== document.body) {
+            document.body.appendChild(rlOverlay);
+        }
     });
+
+    function openRateLimitModal() {
+        document.getElementById('rateLimitOverlay').classList.add('open');
+    }
+    function closeRateLimitModal() {
+        document.getElementById('rateLimitOverlay').classList.remove('open');
+    }
 
     function openInfoPopup() {
         document.getElementById('infoOverlay').classList.add('open');
@@ -885,6 +1043,14 @@
             }
 
             if (!response.ok) {
+                // Tangani 429: kuota konsultasi tamu habis
+                if (response.status === 429) {
+                    showScreen('screen-landing');
+                    const btn = document.getElementById('btnSubmit');
+                    if (btn) btn.disabled = false;
+                    openRateLimitModal();
+                    return;
+                }
                 if (response.status === 422 && data.detail) throw new Error(data.detail);
                 throw new Error(data.message || 'Sistem mengalami gangguan. Silakan coba lagi.');
             }

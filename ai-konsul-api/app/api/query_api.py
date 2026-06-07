@@ -24,6 +24,7 @@ recommender = RecommenderService(df_clean)
 
 query_pipeline = QueryPipelineService()
 
+
 # =====================================================
 # HELPER FUNCTION: PENCARIAN ARTIKEL EDUKASI
 # =====================================================
@@ -34,108 +35,74 @@ def fetch_related_articles(extracted_products: list, extracted_concerns: list, t
     """
     if not extracted_products and not extracted_concerns:
         return []
-
-    search_terms = []
-    if extracted_products:
-        search_terms.extend(extracted_products)
-    if extracted_concerns:
-        search_terms.extend(extracted_concerns)
-
-    # Membentuk string OR untuk query Supabase (contoh: "title.ilike.%toner%,title.ilike.%komedo%")
-    or_conditions = []
-    for term in search_terms:
-        # Menggunakan ilike untuk pencarian case-insensitive yang fleksibel
-        or_conditions.append(f"title.ilike.%{term}%")
-    
-    or_string = ",".join(or_conditions)
-
+        
     try:
-        # Eksekusi query ke tabel "articles" di Supabase
+        # Gabungkan semua token pencarian untuk dicocokkan ke text search Supabase
+        search_tokens = list(set(extracted_products + extracted_concerns))
+        # Gabungkan token dengan separator ' | ' untuk sintaks textsearch postgres (OR logika)
+        search_query = " | ".join(search_tokens)
+        
         response = (
-            supabase.table("articles") 
-            .select("*")
-            .or_(or_string)
-            .eq("is_published", True)  # Filter agar hanya artikel yang sudah dipublikasikan yang ditarik
+            supabase
+            .table("educational_articles")
+            .select("id, title, category, content, image_url, created_at")
+            .textSearch("fts_content", search_query, config="english")
             .limit(top_n)
             .execute()
         )
-        
-        # Transformasi dan mapping struktur data dari database ke format UI Blade Laravel
-        formatted_articles = []
-        for row in response.data:
-            # 1. Membuat ringkasan (excerpt) otomatis dengan memotong isi penuh 'content'
-            raw_content = row.get("content", "")
-            excerpt = raw_content[:120] + "..." if len(raw_content) > 120 else raw_content
-
-            # 2. Menghitung estimasi waktu baca secara dinamis (Rata-rata manusia membaca 200 kata/menit)
-            word_count = len(raw_content.split())
-            read_time_mins = max(1, word_count // 200)
-
-            # 3. Membersihkan format penanggalan dari string 'created_at' bawaan Supabase
-            created_raw = row.get("created_at", "")
-            published_date = created_raw.split("T")[0] if "T" in created_raw else ""
-
-            formatted_articles.append({
-                "title": row.get("title", "Artikel Tanpa Judul"),
-                "category": row.get("category", "Skincare Tips"),
-                # Pastikan prefix /articles/ ini cocok dengan konfigurasi Route di web.php Laravel
-                "url": f"/articles/{row.get('slug', '')}",  
-                "cover_image": row.get("image_url", ""),    # Pemetaan dari kolom image_url
-                "excerpt": excerpt,                         # Menggunakan hasil potongan content
-                "published_at": published_date,             # Pemetaan tanggal pembuatan
-                "read_time": f"{read_time_mins} min",       # Hasil estimasi waktu baca
-                "tag": row.get("category", "")              # Fallback menggunakan category sebagai penanda tag
-            })
-        return formatted_articles
-        
+        return response.data if response.data else []
     except Exception as e:
-        print(f"[API] Error ketika memuat artikel terkait: {e}")
+        print(f"[API Warning] Gagal mengambil artikel edukasi: {str(e)}")
         return []
 
-# =====================================================
-# API ENDPOINT
-# =====================================================
 
-@router.post("/refresh-keywords")
-def refresh_keywords():
-    try:
-        keyword_manager.load_keywords_from_db()
-        return {"status": "success", "message": "Keywords berhasil di-refresh dari database."}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
+# =====================================================
+# ENDPOINT UTAMA: RECOMMENDATION SYSTEM
+# =====================================================
 @router.post("/recommend")
 def recommend_products(request: QueryRequest):
+    """
+    Endpoint utama untuk memproses query natural language dari user, 
+    melakukan normalisasi typo/semantik, mengekstrak entitas,
+    dan menghitung ranking produk terbaik menggunakan 5 Kriteria SAW.
+    """
     try:
-        # Menjalankan pembersihan teks, pengecekan typo, dan ekstraksi kata kunci
+        # Jalankan pipeline NLP (Cleaning -> Validasi -> Koreksi -> Ekstraksi)
         query_result = query_pipeline.run(request.query)
-
+        
+        # Jika status invalid (misal kurang keyword esensial), langsung return statusnya
         if query_result["status"] == "invalid":
             return {
                 "status": "invalid",
-                "message": "Query tidak valid atau berada di luar konteks perawatan kulit.",
+                "original_query": request.query,
+                "cleaned_query": query_result["cleaned_text"],
                 "missing_points": query_result.get("missing_points", []),
                 "matched_points": query_result.get("matched_points", {}),
-                "extracted_products": [],
-                "extracted_concerns": [],
-                "extracted_constraints": [],
-                "recommendations": [],
-                "query_fixing": query_result.get("query_fixing"),
-                "related_articles": []  # Mengembalikan array kosong jika status pencarian tidak valid
+                "recommendations": []
             }
 
-        # Mengambil hasil ekstraksi kata kunci yang telah diproses oleh pipeline
+        # Ambil hasil pembersihan teks dan ekstraksi entitas murni dari pipeline
         cleaned_query = query_result["cleaned_text"]
         extracted_products = query_result.get("extracted_products", [])
-        extracted_concerns = query_result.get("extracted_concerns", [])
-        extracted_constraints = query_result.get("extracted_constraints", [])
+        extracted_ingredients = query_result.get("extracted_ingredients", [])
+        
+        # Penyesuaian ke komponen 5 Kriteria SAW:
+        # Memisahkan kembali concerns menjadi skin_types dan problems jika disimpan terpisah,
+        # atau mengambil data penamaan entitas murni dari matched points.
+        matched_data = query_result.get("matched_points", {})
+        extracted_skin_types = matched_data.get("skin_type", {}).get("exact", [])
+        extracted_problems = matched_data.get("problem", {}).get("exact", [])
+        
+        # Fallback gabungan concern untuk pencarian artikel edukasi
+        extracted_concerns = list(set(extracted_skin_types + extracted_problems))
 
-        # 1. Menghitung kesamaan dan memproses rekomendasi produk (Content-Based + Boosting)
+        # 1. Menghitung kesamaan dan memproses rekomendasi produk (Content-Based + 5 Kriteria SAW)
         recommendations = recommender.recommend(
             cleaned_query=cleaned_query,
             extracted_products=extracted_products,
-            extracted_constraints=extracted_constraints,
-            extracted_concerns=extracted_concerns,
+            extracted_ingredients=extracted_ingredients,  # <-- SINKRON ✔️
+            extracted_skin_types=extracted_skin_types,    # <-- SINKRON ✔️
+            extracted_problems=extracted_problems,        # <-- SINKRON ✔️
             top_n=5
         )
 
@@ -151,8 +118,9 @@ def recommend_products(request: QueryRequest):
             "original_query": request.query,
             "cleaned_query": cleaned_query,
             "extracted_products": extracted_products,
-            "extracted_concerns": extracted_concerns, 
-            "extracted_constraints": extracted_constraints, 
+            "extracted_skin_types": extracted_skin_types,
+            "extracted_problems": extracted_problems, 
+            "extracted_ingredients": extracted_ingredients,
             "recommendations": recommendations,
             "query_fixing": query_result.get("query_fixing"),
             "related_articles": related_articles  # Menyisipkan daftar artikel terkait ke dalam payload JSON

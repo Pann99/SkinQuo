@@ -6,7 +6,7 @@ class KeywordManager:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(KeywordManager, cls).__new__(cls)
-            cls._instance.VALIDATION_KEYWORDS = {"product": [], "problem": [], "constraint": [], "skin_type": []}
+            cls._instance.VALIDATION_KEYWORDS = {"product": [], "problem": [], "ingredient": [], "skin_type": []}
             cls._instance.PROTECTED_KEYWORDS = set()
             cls._instance.SORTED_PROTECTED = []
             # ─── KUNCI AMAN: PASTIKAN ATRIBUT INI SUDAH TERDEKLARASI DI SINI ───
@@ -21,7 +21,7 @@ class KeywordManager:
             print("[API] Peringatan: Tabel validation_keywords kosong!")
             return
 
-        new_keywords = {"product": [], "problem": [], "constraint": [], "skin_type": []}
+        new_keywords = {"product": [], "problem": [], "ingredient": [], "skin_type": []}
         new_protected = set()
         new_precaution_map = {}
 

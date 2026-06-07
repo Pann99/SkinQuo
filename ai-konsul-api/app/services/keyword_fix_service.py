@@ -1,36 +1,3 @@
-"""
-keyword_fix_service.py
-======================
-Service koreksi keyword query — independen penuh dari validation layer.
-
-Tanggung jawab service ini:
-    ✔  Menerima query words + dict keyword per kategori dari pemanggil
-    ✔  Layer 1: RapidFuzz — koreksi typo karakter (primary)
-    ✔  Layer 2: MiniLM   — semantic fallback jika Layer 1 gagal
-    ✔  Rekonstruksi query hasil koreksi
-    ✔  Return correction result
-
-Tidak boleh mengetahui:
-    ✘  Status valid/invalid query
-    ✘  Missing category
-    ✘  Matched/unmatched validator result
-    ✘  validate_query() atau modul Quality_querycontrol secara langsung
-
-Kontrak input dari pemanggil (query_pipeline_service):
-    fix_query(
-        original_query  : str,
-        cleaned_text    : str,
-        fixable_keywords: dict[str, list[str]]
-            # Contoh: {
-            #     "problem":    ["jerawat", "komedo"],
-            #     "product":    ["toner"],
-            #     "constraint": ["niacinamide"],
-            #     "skin_type":  ["kulit berminyak"],
-            # }
-            # Disiapkan oleh Quality_querycontrol, diteruskan oleh pipeline.
-    )
-"""
-
 from __future__ import annotations
 
 import re
@@ -54,13 +21,12 @@ SEMANTIC_THRESHOLD:   float = 0.80  # cosine similarity — semantic fallback
 _CATEGORY_LABEL: dict[str, str] = {
     "product":    "[Product] Jenis produk",
     "problem":    "[Problem] Keluhan kulit",
-    "constraint": "[Constraint] Kandungan aktif",
-    "skin_type":  "[Area/Type] Jenis kulit",
+    "ingredient": "[Ingredient] Kandungan aktif",
+    "skin_type":  "[Skin Type] Jenis kulit",
 }
 
 
 def _category_label(category: str) -> str:
-    """Kembalikan label display untuk kategori. Fallback ke kategori itu sendiri."""
     return _CATEGORY_LABEL.get(category, category)
 
 
@@ -72,7 +38,6 @@ _MODEL: Optional[SentenceTransformer] = None
 
 
 def _get_model() -> SentenceTransformer:
-    """Lazy singleton — model tidak dimuat jika Layer 1 cukup untuk semua koreksi."""
     global _MODEL
     if _MODEL is None:
         _MODEL = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
@@ -85,10 +50,6 @@ def _get_model() -> SentenceTransformer:
 
 @lru_cache(maxsize=512)
 def _keyword_embedding(kw_baku: str):
-    """
-    Cache embedding per keyword baku.
-    Keyword yang sama antar request tidak di-encode ulang selama proses berjalan.
-    """
     return _get_model().encode([kw_baku], convert_to_tensor=True)
 
 
@@ -100,17 +61,7 @@ def _fuzzy_correct(
     query_words: list[str],
     kw_baku: str,
 ) -> Optional[tuple[str, float]]:
-    """
-    Cari kata typo di query menggunakan string distance (RapidFuzz).
 
-    Contoh kasus yang ditangani:
-        jerwawat   → jerawat
-        tonerr     → toner
-        niacinamde → niacinamide
-
-    Returns:
-        (kata_asli, score) jika typo ditemukan, else None.
-    """
     best = process.extractOne(
         kw_baku,
         query_words,
@@ -139,21 +90,7 @@ def _semantic_correct(
     query_embeddings,
     kw_baku: str,
 ) -> Optional[tuple[str, float]]:
-    """
-    Cari kata semantik serupa di query menggunakan cosine similarity (MiniLM).
 
-    Contoh kasus yang ditangani:
-        acne      → jerawat
-        oily      → berminyak
-        dull skin → kusam
-
-    Args:
-        query_embeddings: Tensor hasil encode query_words — harus di-encode
-                          di luar fungsi ini (satu kali per fix_query call).
-
-    Returns:
-        (kata_asli, score) jika match semantik ditemukan, else None.
-    """
     kw_emb = _keyword_embedding(kw_baku)
     scores = util.cos_sim(kw_emb, query_embeddings)[0]
 
@@ -170,8 +107,6 @@ def _semantic_correct(
         return None
 
     return kata_asli, round(best_score, 4)
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Correction Pipeline — orkestrasi Layer 1 → Layer 2
 # ─────────────────────────────────────────────────────────────────────────────
@@ -181,13 +116,6 @@ def _run_correction_pipeline(
     kw_baku:          str,
     query_embeddings,
 ) -> Optional[dict]:
-    """
-    Jalankan Layer 1. Jika gagal, lanjut ke Layer 2.
-    Layer 2 hanya dipanggil jika query_embeddings sudah tersedia.
-
-    Returns:
-        Dict detail koreksi, atau None jika tidak ada koreksi ditemukan.
-    """
     # Layer 1: RapidFuzz — typo karakter
     result = _fuzzy_correct(query_words, kw_baku)
     if result:
@@ -221,26 +149,13 @@ def _run_correction_pipeline(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _deduplicate_adjacent_tokens(text: str) -> str:
-    """
-    Hapus token identik yang langsung berurutan saja.
-
-        "acid acid jerawat"            → "acid jerawat"       ✔
-        "kulit berminyak kulit kering" → tidak berubah         ✔ (tidak berurutan)
-
-    Tidak menggunakan global unique — aman untuk frasa multi-token.
-    """
     return re.sub(r'\b(\w+)(?:\s+\1\b)+', r'\1', text, flags=re.IGNORECASE)
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Query Reconstruction — terapkan koreksi ke original_query
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _reconstruct_query(original_query: str, fix_result: dict) -> str:
-    """
-    Terapkan semua koreksi ke original_query, lalu jalankan deduplication.
-    Menggunakan word-boundary regex agar tidak mengganti substring parsial.
-    """
     fixed = original_query.lower()
 
     for info in fix_result.values():
@@ -286,50 +201,6 @@ def fix_query(
     cleaned_text:     str,
     fixable_keywords: dict[str, list[str]],
 ) -> dict:
-    """
-    Perbaiki typo dan ketidaksesuaian kata kunci pada query pengguna.
-
-    Service ini tidak mengetahui dan tidak memanggil validate_query().
-    Semua keputusan tentang keyword mana yang perlu di-fixing sudah
-    disiapkan oleh Quality_querycontrol dan diteruskan via `fixable_keywords`.
-
-    Args:
-        original_query:
-            Query asli dari pengguna. Digunakan untuk rekonstruksi output.
-
-        cleaned_text:
-            Query yang sudah dibersihkan (lowercase, tanpa stopword).
-            Digunakan sebagai sumber kata-kata yang akan dikoreksi.
-
-        fixable_keywords:
-            Dict keyword per kategori yang perlu dicocokkan.
-            Disiapkan oleh Quality_querycontrol, diteruskan oleh pipeline.
-
-            Format:
-                {
-                    "problem":    ["jerawat", "komedo"],
-                    "product":    ["toner"],
-                    "constraint": ["niacinamide"],
-                    "skin_type":  ["kulit berminyak"],
-                }
-
-    Returns:
-        {
-            "is_fixable":  bool,
-            "fix_result":  dict[str, dict],
-            "fixed_query": str | None,
-        }
-
-    Contoh output fix_result:
-        {
-            "[Problem] Keluhan kulit::jerawat": {
-                "kata_asli": "jerwawat",
-                "kata_baku": "jerawat",
-                "score":     0.9412,
-                "metode":    "string_distance",
-            }
-        }
-    """
     query_words = cleaned_text.split()
     fix_result: dict = {}
 
@@ -373,3 +244,4 @@ def fix_query(
         "fix_result":  fix_result,
         "fixed_query": fixed_query,
     }
+
