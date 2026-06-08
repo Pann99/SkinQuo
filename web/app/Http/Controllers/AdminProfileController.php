@@ -62,16 +62,18 @@ class AdminProfileController extends Controller
         $user = Auth::user();
 
         // Verify current password
-        if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Password saat ini tidak sesuai.']);
-        }
+       if (!Hash::check($request->current_password, $user->password)) {
+    return back()
+        ->withErrors(['current_password' => 'Current password does not match.'])
+        ->withInput(array_diff_key($request->all(), array_flip(['current_password', 'password', 'password_confirmation'])));
+}
 
         // Update password
         $user->update([
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.profile')->with('status', 'Password berhasil diubah.');
+        return redirect()->route('admin.profile')->with('status', 'Password successfully updated.');
     }
 
     /**

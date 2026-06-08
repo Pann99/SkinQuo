@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB; 
 
 
 class AdminProductController extends Controller
@@ -30,8 +31,16 @@ class AdminProductController extends Controller
             ->orderBy('product_id', 'desc')
             ->paginate(15);
 
-        return view('admin.inventory.index', compact('products'));
+       // ── Last updated per dictionary category ──
+    $lastUpdated = [];
+    foreach (['product', 'ingredient', 'skin_type', 'problem'] as $category) {
+        $lastUpdated[$category] = DB::table('validation_keywords')
+            ->where('category', $category)
+            ->max('created_at');
     }
+
+    return view('admin.inventory.index', compact('products', 'lastUpdated'));
+}
 
     /**
      * Show create form
