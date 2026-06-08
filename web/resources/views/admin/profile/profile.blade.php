@@ -2,6 +2,39 @@
 @section('title', 'Profile - The Sanctuary')
 @section('content')
 
+{{-- ===== SUCCESS TOAST ===== --}}
+@if(session('status'))
+<div id="toastSuccess"
+     style="position:fixed; top:28px; right:28px; z-index:9999;
+            background:#3C2010; color:#EDD9B8;
+            border-radius:999px; padding:14px 28px;
+            font-family:'Jost'; font-size:13px; font-weight:600; letter-spacing:0.06em;
+            box-shadow:0 8px 32px rgba(61,35,20,0.18);
+            display:flex; align-items:center; gap:10px;
+            animation: slideIn 0.4s ease;">
+  <i class="bi bi-check-circle-fill" style="font-size:16px; color:#A8D5A2;"></i>
+  {{ session('status') }}
+</div>
+
+<style>
+  @keyframes slideIn {
+    from { opacity:0; transform:translateY(-16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+</style>
+
+<script>
+  setTimeout(() => {
+    const toast = document.getElementById('toastSuccess');
+    if (toast) {
+      toast.style.transition = 'opacity 0.4s ease';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 400);
+    }
+  }, 3000);
+</script>
+@endif
+
 {{-- Profile data injected from AdminProfileController@show --}}
 {{-- $admin contains authenticated admin user with loaded relationships (role, sex) --}}
 

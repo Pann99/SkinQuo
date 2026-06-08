@@ -29,7 +29,7 @@
     <form action="{{ route('admin.profile.update-password') }}" method="POST"
           onsubmit="return validateForm()">
       @csrf
-      @method('PATCH')
+      @method('PUT')
 
       {{-- USER NAME — disabled, auto-filled --}}
       <div style="margin-bottom:28px;">
@@ -39,27 +39,38 @@
       </div>
 
       {{-- CURRENT PASSWORD --}}
-      <div style="margin-bottom:28px;">
-        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Current Password</label>
-        <div style="position:relative; width:100%;">
-          <input type="password" name="current_password" id="currentPasswordInput"
-                 style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
-                 placeholder="••••••••">
-        </div>
-        @error('current_password')
-          <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:block; margin-top:6px;">
-            {{ $message }}
-          </span>
-        @enderror
-      </div>
+<div style="margin-bottom:28px;">
+  <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Current Password</label>
+  <div style="position:relative; width:100%;">
+    <input type="password" name="current_password" id="currentPasswordInput"
+           style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 60px 18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
+           placeholder="••••••••"
+             value="{{ old('current_password') }}">
+    <button type="button" onclick="togglePasswordVisibility('currentPasswordInput', this)"
+            style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:18px; display:flex; align-items:center;">
+      <i class="bi bi-eye"></i>
+    </button>
+  </div>
+  {{-- Error JS untuk current password kosong --}}
+  <span id="currentError"
+        style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; margin-top:6px;">
+  </span>
+  @error('current_password')
+    <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:block; margin-top:6px;">
+      {{ $message }}
+    </span>
+  @enderror
+</div>
 
       {{-- NEW PASSWORD --}}
       <div style="margin-bottom:28px;">
         <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">New Password</label>
         <div style="position:relative; width:100%;">
-          <input type="password" name="new_password" id="newPasswordInput"
+          <input type="password" name="password" id="newPasswordInput"
                  style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 60px 18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
-                 placeholder="••••••••" oninput="checkStrength(this.value)">
+                 placeholder="••••••••" 
+                  oninput="checkStrength(this.value)"
+       value="{{ old('password') }}">
           <button type="button" onclick="togglePasswordVisibility('newPasswordInput', this)"
                   style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:18px; display:flex; align-items:center;">
             <i class="bi bi-eye"></i>
@@ -94,22 +105,37 @@
             </span>
           </div>
         </div>
+
+        <span id="newError"
+        style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; margin-top:6px;">
+  </span>
+
       </div>
 
       {{-- CONFIRM NEW PASSWORD --}}
-      <div style="margin-bottom:36px;">
-        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Confirm New Password</label>
-        <div style="position:relative; width:100%;">
-          <input type="password" name="new_password_confirmation" id="confirmPasswordInput"
-                 style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
-                 placeholder="••••••••">
-        </div>
-        <span id="matchError"
-              style="color:#C04444; font-size:12px; font-family:'Jost';
-                     display:none; margin-top:6px;">
-          Passwords do not match.
-        </span>
-      </div>
+<div style="margin-bottom:36px;">
+  <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Confirm New Password</label>
+  <div style="position:relative; width:100%;">
+   <input type="password" name="password_confirmation" id="confirmPasswordInput"
+       style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 60px 18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
+       placeholder="••••••••"
+       onpaste="event.preventDefault(); document.getElementById('pasteError').style.display='block';"
+       oninput="document.getElementById('pasteError').style.display='none';">
+    <button type="button" onclick="togglePasswordVisibility('confirmPasswordInput', this)"
+            style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:18px; display:flex; align-items:center;">
+      <i class="bi bi-eye"></i>
+    </button>
+  </div>
+  <span id="matchError"
+        style="color:#C04444; font-size:12px; font-family:'Jost';
+               display:none; margin-top:6px;">
+    Passwords do not match.
+  </span>
+  <span id="pasteError"
+      style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; margin-top:6px;">
+  Please type your confirm password manually.
+</span>
+</div>
 
       {{-- SUBMIT BUTTON --}}
       <button type="submit"
@@ -126,6 +152,14 @@
 @endsection
 
 @push('scripts')
+// Isi ulang field jika ada error dari server
+@if(session()->has('_old_input') || $errors->has('current_password'))
+  document.addEventListener('DOMContentLoaded', function() {
+    // Fokus ke current password field supaya user tahu harus isi ulang
+    document.getElementById('currentPasswordInput').focus();
+  });
+@endif
+
 <script>
 function togglePasswordVisibility(id, btn) {
   const input = document.getElementById(id);
@@ -176,16 +210,72 @@ function checkStrength(val) {
   document.getElementById('strengthLabel').textContent = label;
 }
 
+document.getElementById('newError').style.display = 'none';
+
 function validateForm() {
+  const cur = document.getElementById('currentPasswordInput').value;
   const np  = document.getElementById('newPasswordInput').value;
   const cp  = document.getElementById('confirmPasswordInput').value;
-  const err = document.getElementById('matchError');
-  if (np !== cp) {
+  const currentErr = document.getElementById('currentError');
+  const err        = document.getElementById('matchError');
+
+  // Reset semua error
+  currentErr.style.display = 'none';
+  err.style.display = 'none';
+
+  // Cek current password tidak boleh kosong
+  if (cur.trim() === '') {
+    currentErr.textContent = 'Current password is required.';
+    currentErr.style.display = 'block';
+    return false;
+  }
+
+  // Cek new password tidak boleh kosong
+if (np.trim() === '') {
+  document.getElementById('newError').textContent = 'New password is required.';
+  document.getElementById('newError').style.display = 'block';
+  return false;
+} else {
+  document.getElementById('newError').style.display = 'none';
+}
+
+// Cek confirm password tidak boleh kosong
+if (cp.trim() === '') {
+  err.textContent = 'Confirm password is required.';
+  err.style.display = 'block';
+  return false;
+}
+
+  const has8     = np.length >= 8;
+  const hasUpper = /[A-Z]/.test(np);
+  const hasSym   = /[^a-zA-Z0-9]/.test(np);
+
+  if (!has8) {
+    err.textContent = 'Password must be at least 8 characters.';
     err.style.display = 'block';
     return false;
   }
-  err.style.display = 'none';
+
+  if (!hasUpper || !hasSym) {
+    err.textContent = 'Password must contain uppercase letter and symbol.';
+    err.style.display = 'block';
+    return false;
+  }
+
+  if (cur === np) {
+    err.textContent = 'New password must be different from current password.';
+    err.style.display = 'block';
+    return false;
+  }
+
+  if (np !== cp) {
+    err.textContent = 'Passwords do not match.';
+    err.style.display = 'block';
+    return false;
+  }
+
   return true;
 }
+
 </script>
 @endpush

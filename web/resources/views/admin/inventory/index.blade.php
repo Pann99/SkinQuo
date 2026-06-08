@@ -1010,7 +1010,7 @@
     <div class="dictionary-icon"><i class="bi bi-bag"></i></div>
     <div class="dictionary-title-group">
       <h3>Product Dictionary</h3>
-      <p id="last-updated-product">Last updated: Today, 09:41 AM</p>
+      <p id="last-updated-product">Last updated: {{ $lastUpdated['product'] ? \Carbon\Carbon::parse($lastUpdated['product'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
     </div>
     <span class="dictionary-badge">CSV ONLY</span>
   </div>
@@ -1028,7 +1028,7 @@
     <div class="dictionary-icon"><i class="bi bi-flask"></i></div>
     <div class="dictionary-title-group">
       <h3>Ingredient Dictionary</h3>
-      <p id="last-updated-constraint">Last updated: 1 week ago</p>
+     <p id="last-updated-constraint">Last updated: {{ $lastUpdated['ingredient'] ? \Carbon\Carbon::parse($lastUpdated['ingredient'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
     </div>
     <span class="dictionary-badge">CSV ONLY</span>
   </div>
@@ -1046,7 +1046,7 @@
     <div class="dictionary-icon"><i class="bi bi-droplet"></i></div>
     <div class="dictionary-title-group">
       <h3>Skin Type Dictionary</h3>
-      <p id="last-updated-skintype">Last updated: Yesterday, 04:20 PM</p>
+     <p id="last-updated-skintype">Last updated: {{ $lastUpdated['skin_type'] ? \Carbon\Carbon::parse($lastUpdated['skin_type'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
     </div>
     <span class="dictionary-badge">CSV ONLY</span>
   </div>
@@ -1064,7 +1064,7 @@
     <div class="dictionary-icon"><i class="bi bi-shield-check"></i></div>
     <div class="dictionary-title-group">
       <h3>Problem Dictionary</h3>
-      <p id="last-updated-ingredient">Last updated: 1 week ago</p>
+    <p id="last-updated-ingredient">Last updated: {{ $lastUpdated['problem'] ? \Carbon\Carbon::parse($lastUpdated['problem'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
     </div>
     <span class="dictionary-badge">CSV ONLY</span>
   </div>
@@ -1163,7 +1163,21 @@
 ['product', 'constraint', 'skintype', 'ingredient'].forEach(suffix => {
   const saved = localStorage.getItem(`dict_last_updated_${suffix}`);
   const el    = document.getElementById(`last-updated-${suffix}`);
-  if (saved && el) el.textContent = saved;
+  if (!saved || !el) return;
+
+  try {
+    const { date, time } = JSON.parse(saved);
+    const today = new Date().toDateString();
+    if (date === today) {
+      el.textContent = `Last updated: Today, ${time}`;
+    } else {
+      const d     = new Date(date);
+      const label = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+      el.textContent = `Last updated: ${label}, ${time}`;
+    }
+  } catch (e) {
+    localStorage.removeItem(`dict_last_updated_${suffix}`);
+  }
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1216,7 +1230,6 @@ document.addEventListener('DOMContentLoaded', function () {
     'problem'    : 'ingredient',
   };
 
-  // Keyword yang HARUS ada di nama file sesuai kategori
   const fileNameRules = {
     'product'    : 'product',
     'ingredient' : 'ingredient',
@@ -1248,10 +1261,14 @@ document.addEventListener('DOMContentLoaded', function () {
   function setLastUpdated(suffix) {
     const now  = new Date();
     const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-    const text = `Last updated: Today, ${time}`;
     const el   = document.getElementById(`last-updated-${suffix}`);
-    if (el) el.textContent = text;
-    localStorage.setItem(`dict_last_updated_${suffix}`, text);
+    if (el) el.textContent = `Last updated: Today, ${time}`;
+
+    // Simpan dalam format JSON dengan tanggal
+    localStorage.setItem(`dict_last_updated_${suffix}`, JSON.stringify({
+      date: now.toDateString(),
+      time: time,
+    }));
   }
 
   // ── File select handler ──
@@ -1262,7 +1279,6 @@ document.addEventListener('DOMContentLoaded', function () {
     input.addEventListener('change', function () {
       const file = this.files[0];
       if (!file) return;
-
       window.selectedDictFiles[serverType] = file;
       const sizeMB = (file.size / 1024 / 1024).toFixed(1);
       setDropzoneFile(inputSuffix, file.name, sizeMB);
@@ -1282,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     for (const [type, file] of Object.entries(files)) {
 
-      // ── Validasi nama file harus sesuai kategori ──
+      // ── Validasi nama file ──
       const expectedKeyword = fileNameRules[type];
       if (!file.name.toLowerCase().includes(expectedKeyword)) {
         results.push({
@@ -1290,7 +1306,7 @@ document.addEventListener('DOMContentLoaded', function () {
           success: false,
           message: `File "${file.name}" tidak sesuai untuk slot "${type}". Nama file harus mengandung kata "${expectedKeyword}".`,
         });
-        continue; // skip, tidak diupload
+        continue;
       }
 
       // ── Upload ──
