@@ -9,13 +9,53 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   @vite(['resources/css/app.css', 'resources/css/admin.css'])
   @stack('styles')
+
+  {{-- ===== PERBAIKAN LAYOUT SCROLL DASHBOARD ===== --}}
+  <style>
+    /* 1. Kunci layar global agar tidak bocor (seperti aplikasi desktop) */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh !important;
+      overflow: hidden !important; 
+    }
+
+    /* 2. Wrapper mentok satu layar penuh */
+    .admin-wrapper {
+      display: flex;
+      width: 100vw;
+      height: 100vh !important;
+      overflow: hidden !important;
+    }
+
+    /* 3. Sidebar dikunci di kiri, full tinggi */
+    .admin-sidebar {
+      height: 100vh !important;
+      overflow-y: auto; /* Memungkinkan sidebar di-scroll sendiri kalau menunya sangat banyak */
+      flex-shrink: 0;
+    }
+
+    /* 4. INI KUNCINYA: Area Kanan (Konten) memiliki scroll-nya sendiri! */
+    .admin-content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh !important;
+      overflow-y: auto !important; /* Scroll bar muncul hanya di area konten */
+      overflow-x: hidden;
+    }
+    
+    /* Memastikan konten mendorong footer ke bawah */
+    .admin-main {
+      flex: 1; 
+    }
+  </style>
 </head>
 <body>
 
 <div class="admin-wrapper">
 
   {{-- ===== SIDEBAR ===== --}}
-  {{-- Sidebar berdiri sendiri full height, TIDAK dibungkus footer --}}
   @if(!request()->routeIs('admin.profile.change-password'))
   <aside class="admin-sidebar">
 
@@ -66,11 +106,9 @@
     <div style="margin-top:auto;">
       <a href="{{ route('logout') }}" class="nav-item-admin"
          onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-        {{-- TODO [BACKEND]: Wire logout to auth — POST method required --}}
         <i class="bi bi-box-arrow-right" style="font-size:16px;"></i>
         <span>Log Out</span>
       </a>
-      {{-- TODO [BACKEND]: Add logout form --}}
       <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
         @csrf
       </form>
@@ -79,17 +117,16 @@
   </aside>
   @endif
 
-  {{-- ===== MAIN AREA: content + footer (sidebar TIDAK ikut footer) ===== --}}
-  <div style="flex:1; display:flex; flex-direction:column; min-height:100vh;">
+  {{-- ===== MAIN AREA: Diubah menggunakan class 'admin-content-area' ===== --}}
+  <div class="admin-content-area">
 
     {{-- Main Content --}}
     <main class="admin-main">
       @yield('content')
     </main>
 
-    {{-- Footer HANYA di bawah main content, bukan di bawah sidebar --}}
+    {{-- Footer --}}
     <footer class="admin-footer">
-
       {{-- Left: SkinQuo Logo --}}
       <div style="display:flex; align-items:center; gap:8px;">
         <img src="{{ asset('images/logo_skinquo_cream.png') }}"
@@ -114,8 +151,8 @@
           <i class="bi bi-facebook"></i>
         </a>
       </div>
-
     </footer>
+    
   </div>
 
 </div>{{-- end admin-wrapper --}}

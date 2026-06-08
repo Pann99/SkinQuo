@@ -54,26 +54,33 @@ class AdminProfileController extends Controller
      */
     public function updatePassword(Request $request)
     {
+        // 1. Validasi disinkronkan dengan name="new_password" pada form Blade
         $request->validate([
             'current_password' => 'required',
-            'password' => 'required|min:8|confirmed',
+            'new_password'     => 'required|min:8|confirmed',
+        ], [
+            // Pesan error kustom agar lebih ramah dibaca pengguna
+            'new_password.confirmed' => 'The password confirmation does not match.',
+            'new_password.min'       => 'The new password must be at least 8 characters.',
+            'current_password.required' => 'Please enter your current password.'
         ]);
 
         $user = Auth::user();
 
-        // Verify current password
-       if (!Hash::check($request->current_password, $user->password)) {
-    return back()
-        ->withErrors(['current_password' => 'Current password does not match.'])
-        ->withInput(array_diff_key($request->all(), array_flip(['current_password', 'password', 'password_confirmation'])));
-}
+        // 2. Verifikasi kecocokan Current Password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()
+                ->withErrors(['current_password' => 'Incorrect current password. Please try again.'])
+                ->withInput(array_diff_key($request->all(), array_flip(['current_password', 'new_password', 'new_password_confirmation'])));
+        }
 
-        // Update password
+        // 3. Update password dengan input yang baru
         $user->update([
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($request->new_password),
         ]);
 
-        return redirect()->route('admin.profile')->with('status', 'Password successfully updated.');
+        // 4. Redirect ke rute admin.profile membawa session 'success' untuk memicu alert hijau
+        return redirect()->route('admin.profile')->with('success', 'Portal secured! Your password has been successfully updated.');
     }
 
     /**

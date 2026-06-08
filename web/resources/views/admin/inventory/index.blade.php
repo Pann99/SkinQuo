@@ -816,7 +816,7 @@
     <a href="{{ route('admin.inventory', ['tab' => 'skin-guide']) }}"
        class="inv-tab {{ $activeTab === 'skin-guide' ? 'active' : '' }}">
       <i class="bi bi-book"></i>
-      Skin Guide Articles
+      Knowledge Dictionary
     </a>
   </div>
 

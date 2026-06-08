@@ -1,281 +1,244 @@
 @extends('layouts.admin.admin')
-@section('title', 'Change Password - The Sanctuary')
+@section('title', 'Change Password - Admin Portal')
+
+@push('styles')
+<style>
+  .admin-main, .admin-footer {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: 100% !important;
+  }
+</style>
+@endpush
+
 @section('content')
+<div style="display: flex; flex-direction: column; align-items: center; padding: 48px 24px 60px; width: 100%; box-sizing: border-box;">
+  <div style="width: 100%; max-width: 680px;">
 
-<div style="max-width:960px; margin:0 auto; padding:60px 32px;">
+    {{-- BACK TO PROFILE ADMIN --}}
+    <div style="margin-bottom: 28px;">
+      <a href="{{ route('admin.profile') }}"
+         style="font-family:'Jost'; font-size:13px; color:var(--brown-mid); text-decoration:none; display:inline-flex; align-items:center; gap:6px; letter-spacing:0.04em; transition:color 0.2s;"
+         onmouseover="this.style.color='var(--brown-dark)'"
+         onmouseout="this.style.color='var(--brown-mid)'">
+        <i class="bi bi-arrow-left"></i> Back to Profile
+      </a>
+    </div>
 
-  {{-- ===== BACK TO PROFILE — LEFT ALIGNED ===== --}}
-  <div style="text-align:left; margin-bottom:24px; padding-left:20px;">
-    <a href="{{ route('admin.profile') }}" class="back-link">
-      <i class="bi bi-arrow-left"></i> Back to Profile
-    </a>
-  </div>
+    {{-- HERO TEXT --}}
+    <div style="margin-bottom: 36px;">
+      <h1 style="font-family:'Playfair Display'; font-style:italic; font-weight:700; font-size:36px; color:var(--brown-dark); margin-bottom:10px; line-height:1.15;">
+        Secure Your Portal
+      </h1>
+      <p style="font-family:'Jost'; font-size:15px; color:var(--brown-mid); line-height:1.6; margin:0;">
+        Keep your admin access protected with a strong, regularly updated password.
+      </p>
+    </div>
 
-  {{-- ===== HERO TEXT — LEFT ALIGNED ===== --}}
-  <div style="text-align:left; margin-bottom:40px; padding-left:20px;">
-    <h1 style="font-family:'Playfair Display'; font-style:italic; font-weight:700;
-               font-size:48px; color:var(--brown-dark); margin-bottom:16px; line-height:1.1;">
-      Secure Your Sanctuary
-    </h1>
-    <p style="font-family:'Jost'; font-size:16px; color:var(--brown-mid);
-              line-height:1.6; margin:0;">
-      Ensure your personal ritual remains private with a strong, updated password.
-    </p>
-  </div>
-
-  {{-- ===== FORM CARD ===== --}}
-  <div style="background:#FAF4EB; border-radius:40px; padding:48px; box-shadow:0 24px 64px rgba(61,35,20,0.04); border:1px solid rgba(124, 90, 60, 0.12);">
-    
-    <form action="{{ route('admin.profile.update-password') }}" method="POST"
-          onsubmit="return validateForm()">
-      @csrf
-      @method('PUT')
-
-      {{-- USER NAME — disabled, auto-filled --}}
-      <div style="margin-bottom:28px;">
-        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">User Name</label>
-        <input type="text" value="Dr. Elara Vance" disabled placeholder="Dr. Elara Vance"
-               style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); opacity: 0.8;">
+    {{-- SUCCESS MESSAGE DARI BACKEND --}}
+    @if(session('status') === 'password-updated' || session('success'))
+      <div style="background:#EEF7EE; border:1px solid #A8D5A2; border-radius:16px; padding:16px 24px; margin-bottom:28px; display:flex; align-items:center; gap:12px;">
+        <i class="bi bi-check-circle-fill" style="color:#4A9B5A; font-size:18px;"></i>
+        <span style="font-family:'Jost'; font-size:14px; color:#2D6B36; font-weight:500;">
+          {{ session('success') ?? 'Password updated successfully.' }}
+        </span>
       </div>
+    @endif
 
-      {{-- CURRENT PASSWORD --}}
-<div style="margin-bottom:28px;">
-  <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Current Password</label>
-  <div style="position:relative; width:100%;">
-    <input type="password" name="current_password" id="currentPasswordInput"
-           style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 60px 18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
-           placeholder="••••••••"
-             value="{{ old('current_password') }}">
-    <button type="button" onclick="togglePasswordVisibility('currentPasswordInput', this)"
-            style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:18px; display:flex; align-items:center;">
-      <i class="bi bi-eye"></i>
-    </button>
-  </div>
-  {{-- Error JS untuk current password kosong --}}
-  <span id="currentError"
-        style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; margin-top:6px;">
-  </span>
-  @error('current_password')
-    <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:block; margin-top:6px;">
-      {{ $message }}
-    </span>
-  @enderror
-</div>
+    {{-- JAVASCRIPT ERROR ALERT BOX (Hidden by default) --}}
+    <div id="jsErrorAlert" style="display:none; background:#FFF5F5; border:1px solid #FC8181; border-radius:16px; padding:16px 24px; margin-bottom:28px; align-items:flex-start; gap:12px;">
+      <i class="bi bi-exclamation-triangle-fill" style="color:#C04444; font-size:18px; margin-top:2px;"></i>
+      <div style="font-family:'Jost'; font-size:14px; color:#9B2335;">
+        <span style="font-weight:600; display:block; margin-bottom:4px;">Action Required:</span>
+        <ul id="jsErrorList" style="margin:0; padding-left:16px; line-height:1.6;"></ul>
+      </div>
+    </div>
 
-      {{-- NEW PASSWORD --}}
-      <div style="margin-bottom:28px;">
-        <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">New Password</label>
-        <div style="position:relative; width:100%;">
-          <input type="password" name="password" id="newPasswordInput"
-                 style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 60px 18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
-                 placeholder="••••••••" 
-                  oninput="checkStrength(this.value)"
-       value="{{ old('password') }}">
-          <button type="button" onclick="togglePasswordVisibility('newPasswordInput', this)"
-                  style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:18px; display:flex; align-items:center;">
-            <i class="bi bi-eye"></i>
-          </button>
+    {{-- FORM CARD ADMIN --}}
+    <div style="background:#FAF4EB; border-radius:32px; padding:40px 44px; box-shadow:0 16px 48px rgba(61,35,20,0.05); border:1px solid rgba(124,90,60,0.12);">
+      <form action="{{ route('admin.profile.update-password') }}" method="POST" onsubmit="return validateForm()">
+        @csrf
+        @method('PUT')
+
+        {{-- ADMIN NAME --}}
+        <div style="margin-bottom:24px;">
+          <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:8px; font-weight:600;">
+            Admin Name
+          </label>
+          <input type="text" value="{{ auth()->user()->name ?? 'Administrator' }}" disabled style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); opacity:0.75; cursor:not-allowed; box-sizing:border-box;">
         </div>
 
-        {{-- Password Strength UI --}}
-        <div style="margin-top:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="font-family:'Jost'; font-size:12px; color:#7A5C43; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">
-              Ritual Strength
-            </span>
-            <span id="strengthLabel"
-                  style="font-family:'Jost'; font-size:12px; color:#3C2010; font-weight:700;">
-              —
-            </span>
+        {{-- CURRENT PASSWORD --}}
+        <div style="margin-bottom:24px;">
+          <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:8px; font-weight:600;">
+            Current Password
+          </label>
+          <div style="position:relative; width:100%;">
+            <input type="password" name="current_password" id="currentPasswordInput" style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" placeholder="••••••••" required>
+            <button type="button" onclick="togglePasswordVisibility('currentPasswordInput', this)" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:17px; display:flex; align-items:center; padding:0;">
+              <i class="bi bi-eye"></i>
+            </button>
           </div>
-          <div style="background:#EADBBF; border-radius:999px; height:6px; width:100%;">
-            <div id="strengthBar"
-                 style="background:#3C2010; border-radius:999px;
-                        height:6px; width:0%; transition:width 0.35s ease;">
+          @error('current_password')
+            <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:flex; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
+          @enderror
+        </div>
+
+        {{-- NEW PASSWORD --}}
+        <div style="margin-bottom:24px;">
+          <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:8px; font-weight:600;">
+            New Password
+          </label>
+          <div style="position:relative; width:100%;">
+            <input type="password" name="new_password" id="newPasswordInput" style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" placeholder="••••••••" oninput="checkStrength(this.value); checkMatch();" required>
+            <button type="button" onclick="togglePasswordVisibility('newPasswordInput', this)" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:17px; display:flex; align-items:center; padding:0;">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+
+          {{-- Strength Meter --}}
+          <div style="margin-top:14px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:7px;">
+              <span style="font-family:'Jost'; font-size:11px; color:#7A5C43; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Password Strength</span>
+              <span id="strengthLabel" style="font-family:'Jost'; font-size:12px; color:#3C2010; font-weight:700;">—</span>
+            </div>
+            <div style="background:#EADBBF; border-radius:999px; height:5px; width:100%;">
+              <div id="strengthBar" style="background:var(--brown-dark); border-radius:999px; height:5px; width:0%; transition:width 0.35s ease, background 0.35s ease;"></div>
+            </div>
+            <div style="display:flex; gap:24px; margin-top:10px; flex-wrap:wrap;">
+              <span id="check8char" style="font-family:'Jost'; font-size:12px; color:#A89482; display:inline-flex; align-items:center; gap:5px; transition:color 0.2s;"><i class="bi bi-circle"></i> 8+ characters</span>
+              <span id="checkUpper" style="font-family:'Jost'; font-size:12px; color:#A89482; display:inline-flex; align-items:center; gap:5px; transition:color 0.2s;"><i class="bi bi-circle"></i> Uppercase letter</span>
+              <span id="checkSymbol" style="font-family:'Jost'; font-size:12px; color:#A89482; display:inline-flex; align-items:center; gap:5px; transition:color 0.2s;"><i class="bi bi-circle"></i> Symbol</span>
             </div>
           </div>
-          <div style="display:flex; gap:28px; margin-top:12px;">
-            <span id="check8char"
-                  style="font-family:'Jost'; font-size:13px; color:#A89482; display:inline-flex; align-items:center; gap:6px; transition:color 0.2s;">
-              <i class="bi bi-circle"></i> 8+ characters
-            </span>
-            <span id="checkSymbol"
-                  style="font-family:'Jost'; font-size:13px; color:#A89482; display:inline-flex; align-items:center; gap:6px; transition:color 0.2s;">
-              <i class="bi bi-circle"></i> Uppercase & Symbols
-            </span>
-          </div>
+          @error('new_password')
+            <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:flex; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
+          @enderror
         </div>
 
-        <span id="newError"
-        style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; margin-top:6px;">
-  </span>
+        {{-- CONFIRM NEW PASSWORD --}}
+        <div style="margin-bottom:32px;">
+          <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:8px; font-weight:600;">
+            Confirm New Password
+          </label>
+          <div style="position:relative; width:100%;">
+            <input type="password" name="new_password_confirmation" id="confirmPasswordInput" style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" placeholder="••••••••" oninput="checkMatch()" required>
+            <button type="button" onclick="togglePasswordVisibility('confirmPasswordInput', this)" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:17px; display:flex; align-items:center; padding:0;">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          <span id="matchError" style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-exclamation-circle-fill"></i> Passwords do not match.</span>
+          <span id="matchSuccess" style="color:#4A9B5A; font-size:12px; font-family:'Jost'; display:none; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-check-circle-fill"></i> Passwords match.</span>
+        </div>
 
-      </div>
+        {{-- ACTIONS --}}
+        <div style="display:flex; gap:12px;">
+          <a href="{{ route('admin.profile') }}" style="flex:1; background:transparent; color:var(--brown-dark); border:1.5px solid rgba(124,90,60,0.35); padding:15px; border-radius:999px; font-family:'Jost'; font-size:12px; letter-spacing:0.10em; text-transform:uppercase; cursor:pointer; font-weight:600; text-align:center; text-decoration:none; display:block; transition: background 0.2s;">Cancel</a>
+          <button type="submit" style="flex:2; background:var(--brown-dark); color:white; border:none; padding:15px; border-radius:999px; font-family:'Jost'; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; font-weight:600; text-align:center; transition: background 0.2s;" onmouseover="this.style.background='var(--brown-mid)'" onmouseout="this.style.background='var(--brown-dark)'"><i class="bi bi-shield-lock" style="margin-right:6px;"></i> Save New Password</button>
+        </div>
+      </form>
+    </div>
 
-      {{-- CONFIRM NEW PASSWORD --}}
-<div style="margin-bottom:36px;">
-  <label style="font-family:'Jost'; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:10px; font-weight:600;">Confirm New Password</label>
-  <div style="position:relative; width:100%;">
-   <input type="password" name="password_confirmation" id="confirmPasswordInput"
-       style="background:#FFFFFF; border:none; border-radius:999px; padding:18px 60px 18px 28px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);"
-       placeholder="••••••••"
-       onpaste="event.preventDefault(); document.getElementById('pasteError').style.display='block';"
-       oninput="document.getElementById('pasteError').style.display='none';">
-    <button type="button" onclick="togglePasswordVisibility('confirmPasswordInput', this)"
-            style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:18px; display:flex; align-items:center;">
-      <i class="bi bi-eye"></i>
-    </button>
   </div>
-  <span id="matchError"
-        style="color:#C04444; font-size:12px; font-family:'Jost';
-               display:none; margin-top:6px;">
-    Passwords do not match.
-  </span>
-  <span id="pasteError"
-      style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; margin-top:6px;">
-  Please type your confirm password manually.
-</span>
 </div>
-
-      {{-- SUBMIT BUTTON --}}
-      <button type="submit"
-              style="width:100%; background:var(--brown-dark); color:white; border:none; padding:18px; border-radius:999px; font-family:'Jost'; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; font-weight:600; text-align:center; transition:background 0.2s;"
-              onmouseover="this.style.background='var(--brown-mid)'" onmouseout="this.style.background='var(--brown-dark)'">
-        Save New Password
-      </button>
-
-    </form>
-  </div>
-
-</div>
-
 @endsection
 
 @push('scripts')
-// Isi ulang field jika ada error dari server
-@if(session()->has('_old_input') || $errors->has('current_password'))
-  document.addEventListener('DOMContentLoaded', function() {
-    // Fokus ke current password field supaya user tahu harus isi ulang
-    document.getElementById('currentPasswordInput').focus();
-  });
-@endif
-
 <script>
 function togglePasswordVisibility(id, btn) {
   const input = document.getElementById(id);
-  const icon = btn.querySelector('i');
-  if (input.type === 'password') {
-    input.type = 'text';
-    icon.classList.remove('bi-eye');
-    icon.classList.add('bi-eye-slash');
-  } else {
-    input.type = 'password';
-    icon.classList.remove('bi-eye-slash');
-    icon.classList.add('bi-eye');
-  }
+  const icon  = btn.querySelector('i');
+  if (input.type === 'password') { input.type = 'text'; icon.className = 'bi bi-eye-slash'; } 
+  else { input.type = 'password'; icon.className = 'bi bi-eye'; }
 }
 
 function checkStrength(val) {
-  const has8     = val.length >= 8;
-  const hasUpper = /[A-Z]/.test(val);
-  const hasSym   = /[^a-zA-Z0-9]/.test(val);
-
-  // Check8char label & color
-  const charElem = document.getElementById('check8char');
-  charElem.innerHTML = (has8
-    ? '<i class="bi bi-check-circle-fill" style="color:#3C2010;"></i>'
-    : '<i class="bi bi-circle"></i>')
-    + ' 8+ characters';
-  charElem.style.color = has8 ? '#3C2010' : '#A89482';
-  charElem.style.fontWeight = has8 ? '600' : 'normal';
-
-  // CheckSymbol label & color
-  const symElem = document.getElementById('checkSymbol');
-  symElem.innerHTML = (hasUpper && hasSym
-    ? '<i class="bi bi-check-circle-fill" style="color:#3C2010;"></i>'
-    : '<i class="bi bi-circle"></i>')
-    + ' Uppercase & Symbols';
-  symElem.style.color = (hasUpper && hasSym) ? '#3C2010' : '#A89482';
-  symElem.style.fontWeight = (hasUpper && hasSym) ? '600' : 'normal';
-
-  // Strength level
-  let width = 0, label = '—';
-  if (val.length === 0) { width = 0;   label = '—'; }
-  else if (!has8)       { width = 25;  label = 'Fragile'; }
-  else if (has8 && !(hasUpper && hasSym)) { width = 50; label = 'Balanced'; }
-  else if (has8 && (hasUpper || hasSym))  { width = 75; label = 'Harmonious'; }
-  if (has8 && hasUpper && hasSym)         { width = 100; label = 'Fortified'; }
-
-  document.getElementById('strengthBar').style.width  = width + '%';
-  document.getElementById('strengthLabel').textContent = label;
+  const has8 = val.length >= 8, hasUpper = /[A-Z]/.test(val), hasSym = /[^a-zA-Z0-9]/.test(val);
+  
+  const setCheck = (id, passed, label) => {
+    const el = document.getElementById(id);
+    el.innerHTML = (passed ? '<i class="bi bi-check-circle-fill" style="color:var(--brown-dark);"></i>' : '<i class="bi bi-circle"></i>') + ' ' + label;
+    el.style.color = passed ? 'var(--brown-dark)' : '#A89482';
+  };
+  
+  setCheck('check8char', has8, '8+ characters');
+  setCheck('checkUpper', hasUpper, 'Uppercase letter');
+  setCheck('checkSymbol', hasSym, 'Symbol');
+  
+  const score = [has8, hasUpper, hasSym].filter(Boolean).length;
+  const map = { 
+    0: { w: 0, l: '—', c: 'var(--brown-dark)' }, 
+    1: { w: 33, l: 'Weak', c: '#C04444' }, 
+    2: { w: 66, l: 'Moderate', c: '#B07830' }, 
+    3: { w: 100, l: 'Strong', c: '#4A9B5A' } 
+  };
+  const level = val.length === 0 ? 0 : Math.max(score, 1);
+  const cfg = map[Math.min(level, 3)];
+  
+  document.getElementById('strengthBar').style.width = cfg.w + '%';
+  document.getElementById('strengthBar').style.background = cfg.color;
+  document.getElementById('strengthLabel').textContent = cfg.label;
+  document.getElementById('strengthLabel').style.color = cfg.color;
 }
 
-document.getElementById('newError').style.display = 'none';
+function checkMatch() {
+  const np = document.getElementById('newPasswordInput').value;
+  const cp = document.getElementById('confirmPasswordInput').value;
+  
+  const err = document.getElementById('matchError');
+  const ok  = document.getElementById('matchSuccess');
 
-function validateForm() {
-  const cur = document.getElementById('currentPasswordInput').value;
-  const np  = document.getElementById('newPasswordInput').value;
-  const cp  = document.getElementById('confirmPasswordInput').value;
-  const currentErr = document.getElementById('currentError');
-  const err        = document.getElementById('matchError');
-
-  // Reset semua error
-  currentErr.style.display = 'none';
-  err.style.display = 'none';
-
-  // Cek current password tidak boleh kosong
-  if (cur.trim() === '') {
-    currentErr.textContent = 'Current password is required.';
-    currentErr.style.display = 'block';
-    return false;
+  if (cp.length === 0) {
+    err.style.display = 'none';
+    ok.style.display  = 'none';
+  } else if (np !== cp) {
+    err.style.display = 'inline-flex';
+    ok.style.display  = 'none';
+  } else {
+    err.style.display = 'none';
+    ok.style.display  = 'inline-flex';
   }
-
-  // Cek new password tidak boleh kosong
-if (np.trim() === '') {
-  document.getElementById('newError').textContent = 'New password is required.';
-  document.getElementById('newError').style.display = 'block';
-  return false;
-} else {
-  document.getElementById('newError').style.display = 'none';
 }
 
-// Cek confirm password tidak boleh kosong
-if (cp.trim() === '') {
-  err.textContent = 'Confirm password is required.';
-  err.style.display = 'block';
-  return false;
-}
-
+// FUNGSI VALIDASI FINAL SAAT TOMBOL SAVE DIKLIK
+function validateForm() {
+  const np = document.getElementById('newPasswordInput').value;
+  const cp = document.getElementById('confirmPasswordInput').value;
+  const errAlert = document.getElementById('jsErrorAlert');
+  const errList  = document.getElementById('jsErrorList');
+  
+  // Cek Kriteria
   const has8     = np.length >= 8;
   const hasUpper = /[A-Z]/.test(np);
   const hasSym   = /[^a-zA-Z0-9]/.test(np);
 
-  if (!has8) {
-    err.textContent = 'Password must be at least 8 characters.';
-    err.style.display = 'block';
-    return false;
+  let errors = [];
+
+  if (!has8) errors.push("Password minimal harus 8 karakter.");
+  if (!hasUpper) errors.push("Password harus mengandung minimal satu huruf kapital (Uppercase).");
+  if (!hasSym) errors.push("Password harus mengandung minimal satu simbol.");
+  if (np !== cp) errors.push("Konfirmasi password tidak cocok dengan password baru.");
+
+  // Jika ada error, hentikan submit & tampilkan kotak merah
+  if (errors.length > 0) {
+    errList.innerHTML = '';
+    errors.forEach(msg => {
+      let li = document.createElement('li');
+      li.textContent = msg;
+      errList.appendChild(li);
+    });
+    
+    errAlert.style.display = 'flex';
+    
+    // Scroll layar ke atas supaya user lihat pesan error-nya
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    return false; // Mencegah form tersubmit
   }
 
-  if (!hasUpper || !hasSym) {
-    err.textContent = 'Password must contain uppercase letter and symbol.';
-    err.style.display = 'block';
-    return false;
-  }
-
-  if (cur === np) {
-    err.textContent = 'New password must be different from current password.';
-    err.style.display = 'block';
-    return false;
-  }
-
-  if (np !== cp) {
-    err.textContent = 'Passwords do not match.';
-    err.style.display = 'block';
-    return false;
-  }
-
+  // Jika aman, sembunyikan error dan biarkan form tersubmit
+  errAlert.style.display = 'none';
   return true;
 }
-
 </script>
 @endpush
