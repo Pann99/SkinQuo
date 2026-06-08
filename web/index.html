@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkinQuo – Because Every Skin Has Its Own Quo</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream:      #FFEAC5;
+            --peach:      #FFDBB5;
+            --brown:      #6C4E31;
+            --dark-brown: #603F26;
+        }
+
+        /* ═══════════════════════════════
+           PAGE LOADER & ANTI-FOUC
+        ═══════════════════════════════ */
+        html { visibility: hidden; scroll-behavior: smooth; } /* Anti-FOUC */
+        
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+
+        #page-loader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-inner { text-align: center; }
+
+        .loader-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark-brown);
+            margin-bottom: 1rem;
+        }
+
+        .loader-brand span {
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .loader-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .loader-dots span {
+            width: 10px;
+            height: 10px;
+            background-color: var(--dark-brown);
+            border-radius: 50%;
+            animation: loaderBounce 1.4s infinite ease-in-out both;
+        }
+
+        .loader-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loader-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes loaderBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        #app-content {
+            opacity: 0;
+            transition: opacity 0.45s ease;
+        }
+
+        #app-content.visible {
+            opacity: 1;
+        }
+
+        /* ═══════════════════════════════
+           BASE STYLES
+        ═══════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--cream);
+            overflow-x: hidden;
+        }
+        body.no-scroll {
+            overflow: hidden;
+            height: 100vh;
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* ═══════════════════════════════
+           NAVBAR
+        ═══════════════════════════════ */
+        .navbar-wrap {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 800px;
+            z-index: 9999;
+            padding-top: 20px;
+            pointer-events: none;
+        }
+
+        .navbar-pill {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            pointer-events: auto;
+            padding: 11px 30px;
+            border-radius: 999px;
+            background: rgba(255, 219, 181, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.60);
+            box-shadow:
+                0 2px 8px   rgba(96, 63, 38, 0.08),
+                0 8px 24px  rgba(96, 63, 38, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.75);
+        }
+
+        .nav-link {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--brown);
+            text-decoration: none;
+            position: relative;
+            padding-bottom: 2px;
+            transition: color 0.2s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 0; height: 1.5px;
+            background: var(--dark-brown);
+            border-radius: 2px;
+            transition: width 0.28s ease;
+        }
+        .nav-link:hover { color: var(--dark-brown); }
+        .nav-link:hover::after { width: 100%; }
+        .nav-link.active { color: var(--dark-brown); }
+        .nav-link.active::after { width: 100%; }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            transition: opacity 0.2s;
+        }
+        .nav-logo:hover { opacity: 0.72; }
+
+        /* ═══════════════════════════════
+           FOOTER
+        ═══════════════════════════════ */
+        .footer-link {
+            font-size: 0.82rem;
+            color: rgba(255, 219, 181, 0.72);
+            text-decoration: none;
+            transition: color 0.2s;
+            display: inline-block;
+            margin-bottom: 0.55rem;
+        }
+        .footer-link:hover { color: var(--peach); }
+
+        .social-btn {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            background: rgba(255, 219, 181, 0.10);
+            border: 1px solid rgba(255, 219, 181, 0.22);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--peach);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .social-btn:hover { background: rgba(255, 219, 181, 0.22); }
+
+        /* ═══════════════════════════════
+           HOME SPECIFIC STYLES
+        ═══════════════════════════════ */
+        .hero-section {
+            background: #FFEAC5;
+            min-height: 100vh;
+            padding-top: 4rem;
+            padding-bottom: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem 0;
+            display: grid;
+            grid-template-columns: 1.2fr 420px 1.2fr;
+            gap: 2rem;
+            align-items: flex-end;
+            min-height: calc(100vh - 4rem);
+        }
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-self: flex-end;
+            padding-bottom: 23rem;
+        }
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-start;
+            align-self: flex-end;
+            padding-bottom: 12rem;
+            gap: 1.25rem;
+        }
+        .hero-image-col {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            align-self: flex-end;
+            position: relative;
+        }
+        @media (max-width: 1024px) {
+            .hero-grid { grid-template-columns: 1fr 380px 1fr; }
+        }
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr 1fr;
+                align-items: center;
+                padding-bottom: 3rem;
+            }
+            .hero-image-col { grid-column: 1 / -1; order: -1; }
+        }
+        @media (max-width: 500px) {
+            .hero-grid { grid-template-columns: 1fr; padding: 2rem 1.5rem 3rem; }
+        }
+
+        .articles-section {
+            background: var(--dark-brown);
+            padding: 5rem 2rem;
+        }
+        .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .cat-badge {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: rgba(108, 78, 49, 0.13);
+            color: var(--brown);
+        }
+
+        .art-card {
+            flex: 0 0 262px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: var(--cream);
+            text-decoration: none;
+            display: block;
+            transition: transform 0.32s ease, box-shadow 0.32s ease;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+        }
+        .art-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 44px rgba(96, 63, 38, 0.24);
+        }
+        .art-thumb {
+            height: 144px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #dfc9ad;
+        }
+        .art-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        .carousel-btn {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 219, 181, 0.45);
+            background: transparent;
+            color: var(--peach);
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .carousel-btn:hover { background: rgba(255, 219, 181, 0.12); }
+
+        .btn-outline-light {
+            display: inline-block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--cream);
+            border: 1.5px solid rgba(255, 234, 197, 0.55);
+            padding: 10px 34px;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: background 0.22s, border-color 0.22s;
+        }
+        .btn-outline-light:hover {
+            background: rgba(255, 234, 197, 0.10);
+            border-color: var(--cream);
+        }
+
+        .bestseller-section {
+            background: var(--cream);
+            padding: 5rem 2rem;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        @media (max-width: 900px) { .product-grid { grid-template-columns: repeat(2,1fr); } }
+        @media (max-width: 560px) { .product-grid { grid-template-columns: 1fr; } }
+
+        .prod-card {
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--peach);
+            border: 2px solid var(--dark-brown);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.32s ease, box-shadow 0.32s ease;
+        }
+        .prod-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 22px 52px rgba(96, 63, 38, 0.26);
+        }
+        .prod-thumb {
+            height: 220px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(96, 63, 38, 0.12);
+        }
+        .prod-thumb img {
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(96,63,38,0.12));
+        }
+
+        .title-divider {
+            width: 56px; height: 3px;
+            background: var(--dark-brown);
+            border-radius: 4px;
+            margin: 12px auto 0;
+        }
+
+        .reflections-section {
+            background: var(--cream);
+            padding: 5rem 2rem 4rem;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        @media (max-width: 900px) { .testimonial-grid { grid-template-columns: repeat(2,1fr); } }
+        @media (max-width: 560px) { .testimonial-grid { grid-template-columns: 1fr; } }
+
+        .testi-card {
+            background: var(--peach);
+            border: 1.5px solid rgba(108, 78, 49, 0.12);
+            border-radius: 20px;
+            padding: 1.75rem;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .testi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 48px rgba(96, 63, 38, 0.14);
+        }
+        .testi-card.featured {
+            background: var(--dark-brown);
+        }
+        .quote-mark {
+            font-family: Georgia, serif;
+            font-size: 4.5rem;
+            line-height: 0.7;
+            font-weight: 700;
+            color: rgba(108, 78, 49, 0.18);
+            display: block;
+            margin-bottom: 0.75rem;
+            user-select: none;
+        }
+        .testi-card.featured .quote-mark {
+            color: rgba(255, 219, 181, 0.18);
+        }
+        .testi-avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: rgba(108, 78, 49, 0.15);
+            color: var(--dark-brown);
+            flex-shrink: 0;
+        }
+        .testi-card.featured .testi-avatar-placeholder {
+            background: rgba(255, 219, 181, 0.18);
+            color: var(--cream);
+        }
+        .star-row {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 0.85rem;
+        }
+        .star { font-size: 0.75rem; }
+
+        .share-section {
+            background: var(--cream);
+            padding: 0 2rem 5rem;
+        }
+        .share-inner {
+            max-width: 680px;
+            margin: 0 auto;
+            background: var(--dark-brown);
+            border-radius: 28px;
+            padding: 3.5rem 3rem;
+        }
+        @media (max-width: 600px) {
+            .share-inner { padding: 2.5rem 1.75rem; }
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 219, 181, 0.6);
+        }
+        .form-input {
+            background: rgba(255, 234, 197, 0.07);
+            border: 1.5px solid rgba(255, 219, 181, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            color: var(--cream);
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .form-input::placeholder { color: rgba(255, 219, 181, 0.35); }
+        .form-input:focus { border-color: rgba(255, 219, 181, 0.55); }
+        textarea.form-input {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 8px;
+        }
+        .rating-star {
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: rgba(255, 219, 181, 0.22);
+            transition: color 0.15s, transform 0.15s;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+        .rating-star:hover,
+        .rating-star.active {
+            color: #f5c842;
+            transform: scale(1.18);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(255, 219, 181, 0.45);
+            background: transparent;
+            color: var(--cream);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.22s, border-color 0.22s;
+        }
+        .btn-submit:hover {
+            background: rgba(255, 234, 197, 0.10);
+            border-color: var(--cream);
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="page-loader">
+        <div class="loader-inner">
+            <div class="loader-brand">Skin<span>Quo</span></div>
+            <div class="loader-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content">
+        
+        <div class="navbar-wrap">
+            <nav class="navbar-pill">
+                <div style="display:flex; gap:1.75rem; align-items:center; justify-content:flex-start;">
+                    <a href="#" class="nav-link">Skin Guide</a>
+                    <a href="#" class="nav-link">Catalog</a>
+                </div>
+
+                <div style="display:flex; justify-content:center;">
+                    <a href="#" class="nav-logo">SkinQuo</a>
+                </div>
+
+                <div style="display:flex; gap:1.75rem; align-items:center; justify-content:flex-end;">
+                    <a href="#" class="nav-link">Consultation</a>
+                    <a href="#" class="nav-link">Login</a>
+                </div>
+            </nav>
+        </div>
+
+        <section class="hero-section">
+            <div class="hero-grid">
+                <div class="hero-left">
+                    <h1 class="font-serif"
+                        style="font-size:clamp(2rem,2.6vw,2.4rem);font-weight:700;line-height:1.25;color:var(--dark-brown);margin:0;white-space:nowrap;">
+                        Because Every Skin<br>
+                        <em style="font-style:italic;font-weight:600;">Has Its Own Quo.</em>
+                    </h1>
+                </div>
+
+                <div class="hero-image-col">
+                    <img src="/web/public/images/hero-model.png"
+                         alt="Model dengan kulit glowing"
+                         style="width:100%;max-width:480px;object-fit:contain;object-position:top;display:block;">
+                </div>
+
+                <div class="hero-right">
+                    <p style="font-size:0.95rem;line-height:1.75;color:var(--dark-brown);margin:0;white-space:nowrap;">
+                        Experience Gentle Skincare<br>
+                        That Nourishes, Protects, and Enhances<br>
+                        Your Natural Beauty
+                    </p>
+                    <a href="#"
+                       style="font-size:0.95rem;font-weight:600;color:var(--dark-brown);text-decoration:underline;text-underline-offset:4px;">
+                        Try It Now
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="articles-section">
+            <div class="section-inner" x-data="{ scroll: 0 }">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem;">
+                    <div>
+                        <p style="font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--peach);margin-bottom:0.55rem;">
+                            ✦ Education
+                        </p>
+                        <h2 class="font-serif"
+                            style="font-size:clamp(1.7rem,3.2vw,2.5rem);font-weight:700;color:var(--cream);line-height:1.25;">
+                            Learn More About<br>
+                            <em style="font-style:italic;font-weight:600;">Skin Health &amp; Beauty Care</em>
+                        </h2>
+                    </div>
+
+                    <div style="display:flex;gap:8px;margin-top:6px;">
+                        <button class="carousel-btn" @click="$refs.artScroll.scrollLeft -= 300" aria-label="Previous Article">‹</button>
+                        <button class="carousel-btn" @click="$refs.artScroll.scrollLeft += 300" aria-label="Next Article">›</button>
+                    </div>
+                </div>
+
+                <div x-ref="artScroll"
+                     class="no-scrollbar"
+                     style="display:flex;gap:1.1rem;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;">
+
+                    <div class="art-card" style="padding:0;">
+                        <a href="#" style="display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit;">
+                            <div class="art-thumb">
+                                <img src="https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=500&q=80" alt="Winter Skin Care">
+                            </div>
+                            <div style="padding:1.1rem;flex:1;display:flex;flex-direction:column;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                                    <span class="cat-badge">Moisturizing</span>
+                                    <span style="font-size:0.62rem;color:var(--brown);">Mar 15, 2025</span>
+                                </div>
+                                <h3 class="font-serif" style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
+                                    Winter Skin Care: Navigating the Chilly Season with Healthy Skin
+                                </h3>
+                                <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;">
+                                    Can Supplements Cause Acne? While hormonal imbalances, genetics, and poor skincare habits are well-known causes...
+                                </p>
+                                <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);text-decoration:underline;text-underline-offset:3px;display:inline-block;">
+                                    Read More →
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="art-card" style="padding:0;">
+                        <a href="#" style="display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit;">
+                            <div class="art-thumb">
+                                <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=500&q=80" alt="Buying Skincare">
+                            </div>
+                            <div style="padding:1.1rem;flex:1;display:flex;flex-direction:column;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                                    <span class="cat-badge">Industry</span>
+                                    <span style="font-size:0.62rem;color:var(--brown);">Jan 21, 2025</span>
+                                </div>
+                                <h3 class="font-serif" style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
+                                    When Buying Skincare, What Are You Really Paying For?
+                                </h3>
+                                <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;">
+                                    Ever wondered what's behind the price tag of your skincare product? Are you just forking out for fancy ingredients...
+                                </p>
+                                <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);text-decoration:underline;text-underline-offset:3px;display:inline-block;">
+                                    Read More →
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="art-card" style="padding:0;">
+                        <a href="#" style="display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit;">
+                            <div class="art-thumb">
+                                <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80" alt="Retinoids for Rosacea">
+                            </div>
+                            <div style="padding:1.1rem;flex:1;display:flex;flex-direction:column;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                                    <span class="cat-badge">Anti-Aging</span>
+                                    <span style="font-size:0.62rem;color:var(--brown);">Mar 23, 2025</span>
+                                </div>
+                                <h3 class="font-serif" style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
+                                    Can You Use Retinoids for Rosacea-Prone Skin?
+                                </h3>
+                                <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;">
+                                    If you've been grappling with rosacea, you may have been advised to steer clear of retinoids...
+                                </p>
+                                <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);text-decoration:underline;text-underline-offset:3px;display:inline-block;">
+                                    Read More →
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="art-card" style="padding:0;">
+                        <a href="#" style="display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit;">
+                            <div class="art-thumb">
+                                <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=500&q=80" alt="Topical Skincare">
+                            </div>
+                            <div style="padding:1.1rem;flex:1;display:flex;flex-direction:column;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                                    <span class="cat-badge">Moisturizing</span>
+                                    <span style="font-size:0.62rem;color:var(--brown);">Mar 23, 2025</span>
+                                </div>
+                                <h3 class="font-serif" style="font-size:0.84rem;font-weight:600;color:var(--dark-brown);line-height:1.45;margin-bottom:0.5rem;">
+                                    Can Topical Skincare Improve Skin Texture & Tone?
+                                </h3>
+                                <p style="font-size:0.72rem;color:var(--brown);line-height:1.65;margin-bottom:0.9rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;">
+                                    Discover the truth about skincare effectiveness and the key components that give real, lasting results...
+                                </p>
+                                <span style="font-size:0.72rem;font-weight:600;color:var(--dark-brown);text-decoration:underline;text-underline-offset:3px;display:inline-block;">
+                                    Read More →
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div style="text-align:center;margin-top:2.5rem;">
+                    <a href="#" class="btn-outline-light">View More</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="bestseller-section">
+            <div style="max-width:1100px;margin:0 auto;">
+                <div style="text-align:center;margin-bottom:3.5rem;">
+                    <p style="font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--brown);margin-bottom:0.6rem;">
+                        Our Products
+                    </p>
+                    <h2 class="font-serif"
+                        style="font-size:clamp(1.9rem,3.8vw,3rem);font-weight:700;color:var(--dark-brown);line-height:1.2;">
+                        ✦ Choose Our<br>
+                        <em style="font-style:italic;">Best Seller</em> Products
+                    </h2>
+                    <div class="title-divider"></div>
+                </div>
+
+                <div class="product-grid">
+                    <a href="#" class="prod-card">
+                        <div class="prod-thumb">
+                            <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80" alt="Herbivore Botanicals">
+                        </div>
+                        <div style="padding:1.25rem;background:var(--peach);flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+                            <p style="font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--brown);margin-bottom:6px;">
+                                Serum
+                            </p>
+                            <h3 style="font-size:0.88rem;font-weight:600;color:var(--dark-brown);line-height:1.4;margin-bottom:6px;">
+                                Herbivore Botanicals Smoothing Serum.
+                            </h3>
+                            <p style="font-size:0.8rem;color:var(--brown);font-weight:500;margin-top:auto;">
+                                $23.08 USD
+                            </p>
+                        </div>
+                    </a>
+
+                    <a href="#" class="prod-card">
+                        <div class="prod-thumb">
+                            <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80" alt="Facial Wash">
+                        </div>
+                        <div style="padding:1.25rem;background:var(--peach);flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+                            <p style="font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--brown);margin-bottom:6px;">
+                                Facial Wash
+                            </p>
+                            <h3 style="font-size:0.88rem;font-weight:600;color:var(--dark-brown);line-height:1.4;margin-bottom:6px;">
+                                Renew You Anti Aging Facial Wash
+                            </h3>
+                            <p style="font-size:0.8rem;color:var(--brown);font-weight:500;margin-top:auto;">
+                                $15.56 USD
+                            </p>
+                        </div>
+                    </a>
+
+                    <a href="#" class="prod-card">
+                        <div class="prod-thumb">
+                            <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80" alt="Ampoule">
+                        </div>
+                        <div style="padding:1.25rem;background:var(--peach);flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+                            <p style="font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--brown);margin-bottom:6px;">
+                                Ampoule
+                            </p>
+                            <h3 style="font-size:0.88rem;font-weight:600;color:var(--dark-brown);line-height:1.4;margin-bottom:6px;">
+                                SKIN1004 Madagascar Centella Ampoule
+                            </h3>
+                            <p style="font-size:0.8rem;color:var(--brown);font-weight:500;margin-top:auto;">
+                                $21.83 USD
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="reflections-section" id="community-voices">
+            <div style="max-width:1100px;margin:0 auto;">
+                <div style="text-align:center;margin-bottom:3.5rem;">
+                    <p style="font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--brown);margin-bottom:0.6rem;">
+                        Trusted by Many
+                    </p>
+                    <h2 class="font-serif" style="font-size:clamp(1.9rem,3.8vw,3rem);font-weight:700;color:var(--dark-brown);line-height:1.2;margin-bottom:0.75rem;">
+                        What Our Community<br>
+                        <em style="font-style:italic;">Is Saying</em>
+                    </h2>
+                    <p style="font-size:0.9rem;color:var(--brown);line-height:1.75;max-width:460px;margin:0 auto;">
+                        Real experiences from real people. Unfiltered, unsponsored, and from the heart of our growing skin-care family.
+                    </p>
+                    <div class="title-divider"></div>
+                </div>
+
+                <div class="testimonial-grid">
+                    <div class="testi-card">
+                        <span class="quote-mark">"</span>
+                        <div class="star-row">
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:rgba(108,78,49,0.2);">★</span>
+                        </div>
+                        <p style="font-size:0.855rem;line-height:1.8;margin-bottom:1.5rem;color:var(--brown);">
+                            "I've struggled with finding products for my sensitive skin. The guide here really helped me understand what ingredients to look for."
+                        </p>
+                        <div style="display:flex;align-items:center;gap:12px;padding-top:1rem;border-top:1px solid rgba(108,78,49,0.10);">
+                            <div class="testi-avatar-placeholder">AM</div>
+                            <div>
+                                <p style="font-size:0.78rem;font-weight:700;letter-spacing:0.04em;color:var(--dark-brown);margin:0;">AMANDA M.</p>
+                                <p style="font-size:0.7rem;margin:2px 0 0;color:var(--brown);">SkinQuo User</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testi-card featured">
+                        <span class="quote-mark">"</span>
+                        <div class="star-row">
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                        </div>
+                        <p style="font-size:0.855rem;line-height:1.8;margin-bottom:1.5rem;color:rgba(255,234,197,0.88);">
+                            "The consultation was an absolute game changer! Finally, a simple routine that actually brings out my natural glow without irritating my skin."
+                        </p>
+                        <div style="display:flex;align-items:center;gap:12px;padding-top:1rem;border-top:1px solid rgba(255,219,181,0.12);">
+                            <div class="testi-avatar-placeholder">JD</div>
+                            <div>
+                                <p style="font-size:0.78rem;font-weight:700;letter-spacing:0.04em;color:var(--cream);margin:0;">JANE DOE</p>
+                                <p style="font-size:0.7rem;margin:2px 0 0;color:rgba(255,219,181,0.55);">Verified Consultation</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testi-card">
+                        <span class="quote-mark">"</span>
+                        <div class="star-row">
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                            <span class="star" style="color:#f5c842;">★</span>
+                        </div>
+                        <p style="font-size:0.855rem;line-height:1.8;margin-bottom:1.5rem;color:var(--brown);">
+                            "Such a great approach to skincare. The products recommended actually suit my skin type perfectly. No more wasting money on trends!"
+                        </p>
+                        <div style="display:flex;align-items:center;gap:12px;padding-top:1rem;border-top:1px solid rgba(108,78,49,0.10);">
+                            <div class="testi-avatar-placeholder">RK</div>
+                            <div>
+                                <p style="font-size:0.78rem;font-weight:700;letter-spacing:0.04em;color:var(--dark-brown);margin:0;">RYAN K.</p>
+                                <p style="font-size:0.7rem;margin:2px 0 0;color:var(--brown);">SkinQuo User</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="share-section" id="feedback-form">
+            <div class="share-inner">
+                <div style="text-align:center;margin-bottom:2.5rem;">
+                    <p style="font-size:0.65rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,219,181,0.5);margin-bottom:0.6rem;">
+                        We Value Your Opinion
+                    </p>
+                    <h2 class="font-serif" style="font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;color:var(--cream);line-height:1.25;margin-bottom:0.75rem;">
+                        How Was Your<br>
+                        <em style="font-style:italic;">SkinQuo Experience?</em>
+                    </h2>
+                    <p style="font-size:0.82rem;color:rgba(255,219,181,0.5);line-height:1.7;max-width:380px;margin:0 auto;">
+                        Your honest feedback helps us refine every product, every consultation, and every detail of your journey with us.
+                    </p>
+                </div>
+
+                <form action="#" method="POST" style="display:flex;flex-direction:column;gap:1.2rem;">
+                    <div class="form-field">
+                        <label class="form-label" for="fb-text">Your Feedback</label>
+                        <textarea class="form-input" id="fb-text" name="text"
+                                  placeholder="Tell us about your experience — your skin journey, the products you tried, or the consultation you received..."
+                                  required></textarea>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label">Overall Rating</label>
+                        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                            <div class="rating-stars" id="ratingStars" role="group" aria-label="Overall rating">
+                                <button type="button" class="rating-star" data-value="1" aria-label="1 star">★</button>
+                                <button type="button" class="rating-star" data-value="2" aria-label="2 stars">★</button>
+                                <button type="button" class="rating-star" data-value="3" aria-label="3 stars">★</button>
+                                <button type="button" class="rating-star" data-value="4" aria-label="4 stars">★</button>
+                                <button type="button" class="rating-star" data-value="5" aria-label="5 stars">★</button>
+                            </div>
+                            <span id="ratingLabel" style="font-size:0.75rem;color:rgba(255,219,181,0.35);font-style:italic;transition:color 0.2s;">
+                                Tap a star to rate
+                            </span>
+                        </div>
+                        <input type="hidden" name="rating" id="ratingValue" value="">
+                    </div>
+
+                    <div style="border-top:1px solid rgba(255,219,181,0.1);margin:0.25rem 0;"></div>
+
+                    <button type="submit" class="btn-submit">
+                        Submit Feedback
+                    </button>
+                    <p style="text-align:center;font-size:0.7rem;color:rgba(255,219,181,0.3);margin:0;">
+                        Your feedback is anonymous and will never be shared without your consent.
+                    </p>
+                </form>
+            </div>
+        </section>
+
+        <footer style="background:var(--dark-brown); padding:4rem 2rem 2rem;">
+            <div style="max-width:1100px; margin:0 auto;">
+                <div style="display:grid; grid-template-columns:1.6fr 1fr 1fr 1.4fr; gap:2.5rem; padding-bottom:2.5rem; border-bottom:1px solid rgba(255,219,181,0.15);">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:1rem;">
+                            <img src="/web/public/images/logo_skinquo_cream.png" alt="SkinQuo Logo" style="width:48px; height:48px; object-fit:contain;">
+                            <h3 class="font-serif" style="font-size:2rem; font-weight:700; color:var(--cream); margin:0;">
+                                SkinQuo
+                            </h3>
+                        </div>
+                        <p style="font-size:0.8rem; line-height:1.75; color:rgba(255,219,181,0.65); max-width:190px;">
+                            Because Every Skin Has Its Own Quo. Gentle skincare for every skin type.
+                        </p>
+                        <div style="display:flex; gap:8px; margin-top:1.25rem;">
+                            <a href="#" class="social-btn" aria-label="Instagram">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-btn" aria-label="Facebook">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size:0.68rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--cream); margin-bottom:1.1rem;">INFO</h4>
+                        <div style="display:flex; flex-direction:column;">
+                            <a href="#" class="footer-link">Skin Guide</a>
+                            <a href="#" class="footer-link">Catalog</a>
+                            <a href="#" class="footer-link">Consultation</a>
+                            <a href="#community-voices" class="footer-link">Feedback</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size:0.68rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--cream); margin-bottom:1.1rem;">ABOUT</h4>
+                        <div style="display:flex; flex-direction:column;">
+                            <a href="#" class="footer-link">About Us</a>
+                            <a href="#" class="footer-link">How It Works</a>
+                            <a href="#" class="footer-link">Privacy Policy</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size:0.68rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--cream); margin-bottom:1.1rem;">CONTACT US</h4>
+                        <address style="font-style:normal;">
+                            <p style="font-size:0.82rem; color:rgba(255,219,181,0.72); line-height:1.8;">
+                                Jl. Soekarno Hatta No. 9<br>
+                                Kota Malang, Jawa Timur
+                            </p>
+                            <p style="font-size:0.82rem; color:rgba(255,219,181,0.72); line-height:1.8; margin-top:0.75rem;">
+                                (0341) 662345<br>
+                                skinquo@gmail.com
+                            </p>
+                        </address>
+                    </div>
+                </div>
+
+                <div style="text-align:center; padding-top:1.75rem;">
+                    <p style="font-size:0.72rem; color:rgba(255,219,181,0.38);">
+                        © 2026 SkinQuo. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // --- Page Loader Script ---
+        function revealPage() {
+            document.documentElement.style.visibility = 'visible';
+            var loader = document.getElementById('page-loader');
+            var content = document.getElementById('app-content');
+
+            function doReveal() {
+                setTimeout(function() {
+                    if (loader) loader.classList.add('fade-out');
+                    if (content) content.classList.add('visible');
+                    
+                    setTimeout(function() {
+                        if (loader) loader.style.display = 'none';
+                    }, 450);
+                }, 450);
+            }
+
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(doReveal);
+            } else {
+                window.addEventListener('load', doReveal);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', revealPage);
+
+        // --- Rating Stars Script ---
+        (function () {
+            const stars  = document.querySelectorAll('#ratingStars .rating-star');
+            const hidden = document.getElementById('ratingValue');
+            const label  = document.getElementById('ratingLabel');
+            const labels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
+            let selected = 0;
+
+            stars.forEach(btn => {
+                btn.addEventListener('mouseenter', () => highlight(+btn.dataset.value));
+                btn.addEventListener('mouseleave', () => highlight(selected));
+                btn.addEventListener('click', () => {
+                    selected = +btn.dataset.value;
+                    hidden.value = selected;
+                    highlight(selected);
+                    label.textContent = labels[selected];
+                    label.style.color = 'rgba(255,219,181,0.65)';
+                });
+            });
+
+            function highlight(n) {
+                stars.forEach(b => b.classList.toggle('active', +b.dataset.value <= n));
+            }
+        })();
+    </script>
+</body>
+</html>
