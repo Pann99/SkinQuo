@@ -9,26 +9,65 @@
        HERO
     ═══════════════════════════════════════════ */
     .hero-section {
-        background: linear-gradient(148deg, #FFEAC5 48%, #ffd9a8 100%);
+        background: #FFEAC5;
         min-height: 100vh;
-        padding-top: 7.5rem;
-        padding-bottom: 3rem;
+        padding-top: 4rem;
+        padding-bottom: 0;
         position: relative;
         overflow: hidden;
     }
     .hero-grid {
-        max-width: 1100px;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 0 2rem;
+        padding: 3rem 2rem 0;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        align-items: center;
-        min-height: 80vh;
+        grid-template-columns: 1.2fr 420px 1.2fr;
+        gap: 2rem;
+        align-items: flex-end;
+        min-height: calc(100vh - 4rem);
+    }
+    .hero-left {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-self: flex-end;
+        padding-bottom: 23rem;
+    }
+    .hero-right {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+        align-self: flex-end;
+        padding-bottom: 12rem;
+        gap: 1.25rem;
+    }
+    .hero-image-col {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        align-self: flex-end;
+        position: relative;
+    }
+    .hero-image-col {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        position: relative;
+    }
+    @media (max-width: 1024px) {
+        .hero-grid { grid-template-columns: 1fr 380px 1fr; }
     }
     @media (max-width: 768px) {
-        .hero-grid { grid-template-columns: 1fr; min-height: auto; padding-top: 2rem; }
-        .hero-image-col { order: -1; }
+        .hero-grid {
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            padding-bottom: 3rem;
+        }
+        .hero-image-col { grid-column: 1 / -1; order: -1; }
+    }
+    @media (max-width: 500px) {
+        .hero-grid { grid-template-columns: 1fr; padding: 2rem 1.5rem 3rem; }
     }
 
     .orb {
@@ -413,88 +452,38 @@
      HERO SECTION
 ══════════════════════════════════════════════════════ --}}
 <section class="hero-section">
-
-    <div class="orb" style="width:440px;height:440px;background:#ffd9a8;opacity:0.42;top:-100px;right:-100px;"></div>
-    <div class="orb" style="width:280px;height:280px;background:#FFDBB5;opacity:0.32;bottom:40px;left:-80px;"></div>
-    <div class="orb" style="width:160px;height:160px;background:#e8c49a;opacity:0.25;top:45%;left:42%;"></div>
-
     <div class="hero-grid">
 
-        {{-- Kolom Kiri: Teks --}}
-        <div>
-            <div class="anim-1" style="display:inline-flex;align-items:center;gap:9px;margin-bottom:1.5rem;">
-                <span style="display:block;width:30px;height:1.5px;background:var(--brown);border-radius:2px;"></span>
-                <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.13em;text-transform:uppercase;color:var(--brown);">
-                    Gentle Skincare
-                </span>
-            </div>
-
-            <h1 class="font-serif anim-2"
-                style="font-size:clamp(2.2rem,4.2vw,3.5rem);font-weight:700;line-height:1.15;color:var(--dark-brown);margin-bottom:1.5rem;">
+        {{-- Kolom Kiri: H1 saja --}}
+        <div class="hero-left">
+            <h1 class="font-serif"
+                style="font-size:clamp(2rem,2.6vw,2.4rem);font-weight:700;line-height:1.25;color:var(--dark-brown);margin:0;white-space:nowrap;">
                 Because Every Skin<br>
                 <em style="font-style:italic;font-weight:600;">Has Its Own Quo.</em>
             </h1>
-
-            <p class="anim-3"
-               style="font-size:1rem;line-height:1.85;color:var(--brown);margin-bottom:2.5rem;">
-                Experience Gentle Skincare that Nourishes,<br>
-                Protects, and Enhances Your Natural Beauty.
-            </p>
-
-            <div class="anim-4" style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
-                <a href="{{ route('consultation.index') }}" class="btn-primary">
-                    Try It Now
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                        <path d="M2 6.5H11M11 6.5L7 2.5M11 6.5L7 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </a>
-                <a href="{{ route('catalog.index') }}" class="btn-secondary">
-                    Lihat Catalog
-                </a>
-            </div>
         </div>
 
-        {{-- Kolom Kanan: Gambar + Badge --}}
-        <div class="hero-image-col"
-             style="display:flex;justify-content:center;align-items:flex-end;position:relative;min-height:460px;">
-
-            <div style="position:absolute;width:340px;height:340px;border-radius:50%;
-                        background:radial-gradient(circle,#FFDBB5 0%,transparent 70%);
-                        top:50%;left:50%;transform:translate(-50%,-50%);"></div>
-
-            <div class="float-slow3"
-                 style="position:absolute;width:375px;height:375px;border-radius:50%;
-                        border:1.5px dashed rgba(108,78,49,0.18);
-                        top:50%;left:50%;transform:translate(-50%,-50%);"></div>
-
+        {{-- Kolom Tengah: Gambar model --}}
+        <div class="hero-image-col">
             <img src="{{ asset('images/hero-model.png') }}"
                  alt="Model dengan kulit glowing"
-                 class="float-slow"
-                 style="position:relative;z-index:2;width:290px;max-width:90%;
-                        object-fit:contain;
-                        filter:drop-shadow(0 28px 60px rgba(96,63,38,0.20));">
+                 style="width:100%;max-width:480px;
+                        object-fit:contain;object-position:top;
+                        display:block;">
+        </div>
 
-            {{-- Badge kiri bawah: Skin Score --}}
-            <div class="hero-badge float-slow2"
-                 style="bottom:44px;left:-8px;background:white;
-                        box-shadow:0 8px 32px rgba(96,63,38,0.16);">
-                <span style="font-size:1.35rem;">✨</span>
-                <div>
-                    <p style="font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--brown);">Skin Score</p>
-                    <p style="font-size:0.8rem;font-weight:700;color:var(--dark-brown);">92 / 100 Glowing</p>
-                </div>
-            </div>
-
-            {{-- Badge kanan atas: 100% Natural --}}
-            <div class="hero-badge float-slow3"
-                 style="top:44px;right:-12px;background:var(--dark-brown);
-                        box-shadow:0 8px 32px rgba(96,63,38,0.26);">
-                <span style="font-size:1.35rem;">🌿</span>
-                <div>
-                    <p style="font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--peach);">Formula</p>
-                    <p style="font-size:0.8rem;font-weight:700;color:var(--cream);">100% Natural</p>
-                </div>
-            </div>
+        {{-- Kolom Kanan: Deskripsi + Link --}}
+        <div class="hero-right">
+            <p style="font-size:0.95rem;line-height:1.75;color:var(--dark-brown);margin:0;white-space:nowrap;">
+                Experience Gentle Skincare<br>
+                That Nourishes, Protects, and Enhances<br>
+                Your Natural Beauty
+            </p>
+            <a href="{{ route('consultation.index') }}"
+               style="font-size:0.95rem;font-weight:600;color:var(--dark-brown);
+                      text-decoration:underline;text-underline-offset:4px;">
+                Try It Now
+            </a>
         </div>
 
     </div>
