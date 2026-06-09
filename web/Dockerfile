@@ -37,7 +37,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip gd bcmath
 
-# 2. Aktifkan mod_rewrite Apache agar routing Laravel (URL) berfungsi normal
+# 2. Cegah bentrok MPM Apache (Fix error: More than one MPM loaded) & aktifkan rewrite
+RUN a2dismod mpm_event || true
+RUN a2dismod mpm_worker || true
+RUN a2enmod mpm_prefork || true
 RUN a2enmod rewrite
 
 # 3. Arahkan Document Root Apache langsung ke folder /public milik Laravel
@@ -64,7 +67,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # 9. Buka port 80 agar bisa diakses oleh Railway
 EXPOSE 80
 
-# 10. Optimasi Laravel, jalankan migrasi Supabase, dan nyalakan server Apache
+# 10. Optimasi Laravel dan nyalakan server Apache (Tanpa Migrasi)
 CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
