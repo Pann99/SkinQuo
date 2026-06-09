@@ -1,19 +1,5 @@
 @extends('layouts.admin.admin')
 @section('title', 'Profile - The Sanctuary')
-
-@push('styles')
-<style>
-  .admin-content-area{
-      overflow-y:hidden !important;
-  }
-
-  .admin-main{
-      min-height:auto !important;
-      height:auto !important;
-  }
-</style>
-@endpush
-
 @section('content')
 
 {{-- ===== SUCCESS TOAST ===== --}}

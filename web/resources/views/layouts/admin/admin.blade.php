@@ -13,47 +13,42 @@
   {{-- ===== PERBAIKAN LAYOUT SCROLL DASHBOARD ===== --}}
   <style>
     /* 1. Kunci layar global agar tidak bocor (seperti aplikasi desktop) */
-   html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh !important;
+      overflow: hidden !important; 
+    }
 
     /* 2. Wrapper mentok satu layar penuh */
-  .admin-wrapper {
-  display: flex;
-  height: 100vh;
-}
+    .admin-wrapper {
+      display: flex;
+      width: 100vw;
+      height: 100vh !important;
+      overflow: hidden !important;
+    }
 
-   .admin-sidebar {
-  height: 100vh;
-  flex-shrink: 0;
-}
+    /* 3. Sidebar dikunci di kiri, full tinggi */
+    .admin-sidebar {
+      height: 100vh !important;
+      overflow-y: auto; /* Memungkinkan sidebar di-scroll sendiri kalau menunya sangat banyak */
+      flex-shrink: 0;
+    }
 
-.admin-content-area {
-  flex: 1;
-  display:flex;
-    flex-direction:column;
-    min-height:100%
-}
-
-
-.admin-main {
-  min-height: 100%;
-  
-
-}
-
-.admin-footer {
-    width: 100%;
-    margin-top: 51px;
-
-    margin-left: 0;
-    margin-right: 0;
-    box-sizing: border-box;
-}
-
+    /* 4. INI KUNCINYA: Area Kanan (Konten) memiliki scroll-nya sendiri! */
+    .admin-content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh !important;
+      overflow-y: auto !important; /* Scroll bar muncul hanya di area konten */
+      overflow-x: hidden;
+    }
+    
+    /* Memastikan konten mendorong footer ke bawah */
+    .admin-main {
+      flex: 1; 
+    }
   </style>
 </head>
 <body>
@@ -128,7 +123,7 @@
     {{-- Main Content --}}
     <main class="admin-main">
       @yield('content')
-    
+    </main>
 
     {{-- Footer --}}
     <footer class="admin-footer">
@@ -159,9 +154,8 @@
     </footer>
     
   </div>
- </main>
-</div>{{-- end admin-wrapper --}}
 
+</div>{{-- end admin-wrapper --}}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @stack('scripts')
