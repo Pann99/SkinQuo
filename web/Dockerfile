@@ -22,13 +22,14 @@ RUN npm run build
 # ==============================================================================
 FROM php:8.3-apache
 
-# 1. Install system dependencies & ekstensi PHP untuk Laravel dan PostgreSQL (Supabase)
+# 1. Install system dependencies, PostgreSQL Client, & ekstensi PHP
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
     libpq-dev \
+    postgresql-client \
     zip \
     unzip \
     git \
