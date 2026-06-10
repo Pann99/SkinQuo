@@ -615,5 +615,7 @@
             }
         });
     });
+
+
 </script>
 @endsection

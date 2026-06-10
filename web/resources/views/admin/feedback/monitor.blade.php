@@ -289,7 +289,7 @@
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary close-modal-btn">Tutup</button>
+                <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
             </div>
         </div>
     </div>
@@ -343,11 +343,11 @@
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary close-modal-btn">Tutup</button>
+                <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
                 @if($hasIsReviewedColumn ?? false)
                     <button type="button" class="btn btn-primary" id="detailMarkReviewedBtn">
                         <i class="bi bi-check-circle"></i>
-                        <span>Tandai Sudah Ditinjau</span>
+                        <span>Mark as Reviewed</span>
                     </button>
                 @endif
             </div>
@@ -1229,71 +1229,6 @@
   margin: 8px 0;
 }
 
-/* Toast Notification System */
-.feedback-page .toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  pointer-events: none;
-}
-
-.feedback-page .toast {
-  background: white;
-  border-radius: 12px;
-  padding: 16px 20px;
-  box-shadow: 0 8px 24px rgba(74, 36, 19, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 300px;
-  max-width: 400px;
-  animation: slideInRight 0.3s ease-out;
-  pointer-events: auto;
-}
-
-.feedback-page .toast.success {
-  border-left: 4px solid #2D8659;
-}
-
-.feedback-page .toast.success .toast-icon {
-  color: #2D8659;
-}
-
-.feedback-page .toast.error {
-  border-left: 4px solid #C05C5C;
-}
-
-.feedback-page .toast.error .toast-icon {
-  color: #C05C5C;
-}
-
-.feedback-page .toast.info {
-  border-left: 4px solid #7A5030;
-}
-
-.feedback-page .toast.info .toast-icon {
-  color: #7A5030;
-}
-
-.feedback-page .toast-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.feedback-page .toast-message {
-  color: #3C2010;
-  font-size: 13px;
-  flex: 1;
-  font-family: 'Jost', sans-serif;
-}
-
-.feedback-page .toast.removing {
-  animation: slideOutRight 0.3s ease-out forwards;
-}
 
 /* Responsive */
 @media (max-width: 760px) {
@@ -1332,85 +1267,69 @@
   }
 }
 
-@keyframes slideInRight {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+@keyframes feedbackFadeIn {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideOutRight {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(400px);
-    opacity: 0;
-  }
+@keyframes feedbackFadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-10px); }
 }
 </style>
 @endpush
 
 @push('scripts')
 <script>
-    // ===== TOAST NOTIFICATION SYSTEM =====
-    class ToastManager {
-        constructor() {
-            this.container = null;
-            this.initContainer();
-        }
+// ===== TOAST NOTIFICATION SYSTEM =====
+class ToastManager {
+    show(message, type = 'info', duration = 3000) {
+        const existing = document.getElementById('feedbackFlashMsg');
+        if (existing) existing.remove();
 
-        initContainer() {
-            let container = document.querySelector('.toast-container');
-            if (!container) {
-                container = document.createElement('div');
-                container.className = 'toast-container';
-                document.body.appendChild(container);
-            }
-            this.container = container;
-        }
+        const el = document.createElement('div');
+        el.id = 'feedbackFlashMsg';
+        el.style.cssText = `
+            background: #FFF8F1;
+            border: 1px solid #E8C49A;
+            color: #7A5030;
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Jost', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 6px 18px rgba(122, 80, 48, 0.08);
+            animation: feedbackFadeIn 0.4s ease;
+        `;
 
-        show(message, type = 'info', duration = 3000) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            let icon = '✓';
-            if (type === 'success') icon = '✓';
-            else if (type === 'error') icon = '✕';
-            else if (type === 'info') icon = 'ⓘ';
+        const iconClass = type === 'error' ? 'bi bi-exclamation-circle-fill' : 'bi bi-check-circle-fill';
+        const iconColor = type === 'error' ? '#A65252' : '#A67C52';
 
-            toast.innerHTML = `
-                <span class="toast-icon">${icon}</span>
-                <span class="toast-message">${message}</span>
-            `;
+        el.innerHTML = `
+            <i class="${iconClass}" style="font-size:18px; color:${iconColor}; flex-shrink:0;"></i>
+            <span>${message}</span>
+        `;
 
-            this.container.appendChild(toast);
+        const page = document.querySelector('.feedback-page');
+        page.insertBefore(el, page.firstChild);
 
-            setTimeout(() => {
-                toast.classList.add('removing');
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-
-        success(message, duration = 3000) {
-            this.show(message, 'success', duration);
-        }
-
-        error(message, duration = 4000) {
-            this.show(message, 'error', duration);
-        }
-
-        info(message, duration = 3000) {
-            this.show(message, 'info', duration);
-        }
+        setTimeout(() => {
+            el.style.animation = 'feedbackFadeOut 0.5s ease forwards';
+            setTimeout(() => el.remove(), 500);
+        }, duration);
     }
 
-    const toast = new ToastManager();
+    success(message, duration = 3000) { this.show(message, 'success', duration); }
+    error(message, duration = 4000)   { this.show(message, 'error', duration); }
+    info(message, duration = 3000)    { this.show(message, 'info', duration); }
+}
+
+const toast = new ToastManager();
+
 
     // ===== DEBOUNCE FUNCTION =====
     function debounce(func, wait) {

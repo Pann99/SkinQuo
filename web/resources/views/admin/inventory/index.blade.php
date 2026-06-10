@@ -593,6 +593,7 @@
 
   .dictionary-actions {
     margin-top: 26px;
+    margin-bottom: -32px;
     display: flex;
     justify-content: flex-end;
     gap: 14px;
@@ -1004,15 +1005,20 @@
 
       <div class="dictionary-grid">
 
-       {{-- Product Dictionary --}}
+     {{-- Product Dictionary --}}
 <div class="dictionary-card">
-  <div class="dictionary-card-header">
+ <div class="dictionary-card-header" style="align-items:flex-start; gap:12px;">
     <div class="dictionary-icon"><i class="bi bi-bag"></i></div>
     <div class="dictionary-title-group">
-      <h3>Product Dictionary</h3>
-      <p id="last-updated-product">Last updated: {{ $lastUpdated['product'] ? \Carbon\Carbon::parse($lastUpdated['product'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <h3 style="margin:-2px 0 -5px;">Product Dictionary</h3>
+      <p id="last-updated-product" style="margin:2px 0 2px;">Last updated : {{ $lastUpdated['product'] ? \Carbon\Carbon::parse($lastUpdated['product'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <span style="font-family:'Jost'; font-size:9px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#7A5C43; background:#F1D6B8; padding:3px 8px; border-radius:999px; margin-left:-3px;">CSV ONLY</span>
     </div>
-    <span class="dictionary-badge">CSV ONLY</span>
+    <a href="{{ asset('templates/template_product_dictionary.csv') }}" download
+       style="background:transparent; border:1.5px solid #D8BFA6; color:#7A5030; border-radius:999px; padding:6px 14px; font-family:'Jost'; font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:6px; white-space:nowrap; transition:all 0.2s;"
+       onmouseover="this.style.background='#FFF8EE'" onmouseout="this.style.background='transparent'">
+      <i class="bi bi-download"></i> Template
+    </a>
   </div>
   <label class="dictionary-dropzone" for="file-product" id="zone-product">
     <span class="dictionary-upload-icon" id="zone-product-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
@@ -1024,13 +1030,18 @@
 
 {{-- Ingredient Dictionary --}}
 <div class="dictionary-card">
-  <div class="dictionary-card-header">
-    <div class="dictionary-icon"><i class="bi bi-flask"></i></div>
+  <div class="dictionary-card-header" style="align-items:flex-start; gap:12px;">
+<div class="dictionary-icon" ><i class="bi bi-capsule"></i></div>
     <div class="dictionary-title-group">
-      <h3>Ingredient Dictionary</h3>
-     <p id="last-updated-constraint">Last updated: {{ $lastUpdated['ingredient'] ? \Carbon\Carbon::parse($lastUpdated['ingredient'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <h3 style="margin:-2px 0 -5px;">Ingredient Dictionary</h3>
+      <p id="last-updated-constraint" style="margin:2px 0 2px;">Last updated: {{ $lastUpdated['ingredient'] ? \Carbon\Carbon::parse($lastUpdated['ingredient'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <span style="font-family:'Jost'; font-size:9px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#7A5C43; background:#F1D6B8; padding:3px 8px; border-radius:999px; margin-left:-3px;">CSV ONLY</span>
     </div>
-    <span class="dictionary-badge">CSV ONLY</span>
+    <a href="{{ asset('templates/template_ingredient_dictionary.csv') }}" download
+       style="background:transparent; border:1.5px solid #D8BFA6; color:#7A5030; border-radius:999px; padding:6px 14px; font-family:'Jost'; font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:6px; white-space:nowrap; transition:all 0.2s;"
+       onmouseover="this.style.background='#FFF8EE'" onmouseout="this.style.background='transparent'">
+      <i class="bi bi-download"></i> Template
+    </a>
   </div>
   <label class="dictionary-dropzone" for="file-constraint" id="zone-constraint">
     <span class="dictionary-upload-icon" id="zone-constraint-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
@@ -1042,13 +1053,18 @@
 
 {{-- Skin Type Dictionary --}}
 <div class="dictionary-card">
-  <div class="dictionary-card-header">
+  <div class="dictionary-card-header" style="align-items:flex-start; gap:12px;">
     <div class="dictionary-icon"><i class="bi bi-droplet"></i></div>
     <div class="dictionary-title-group">
-      <h3>Skin Type Dictionary</h3>
-     <p id="last-updated-skintype">Last updated: {{ $lastUpdated['skin_type'] ? \Carbon\Carbon::parse($lastUpdated['skin_type'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <h3 style="margin:-2px 0 -5px;">Skin Type Dictionary</h3>
+      <p id="last-updated-skintype" style="margin:2px 0 2px;">Last updated: {{ $lastUpdated['skin_type'] ? \Carbon\Carbon::parse($lastUpdated['skin_type'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <span style="font-family:'Jost'; font-size:9px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#7A5C43; background:#F1D6B8; padding:3px 8px; border-radius:999px; margin-left:-3px;">CSV ONLY</span>
     </div>
-    <span class="dictionary-badge">CSV ONLY</span>
+    <a href="{{ asset('templates/template_skin_type_dictionary.csv') }}" download
+       style="background:transparent; border:1.5px solid #D8BFA6; color:#7A5030; border-radius:999px; padding:6px 14px; font-family:'Jost'; font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:6px; white-space:nowrap; transition:all 0.2s;"
+       onmouseover="this.style.background='#FFF8EE'" onmouseout="this.style.background='transparent'">
+      <i class="bi bi-download"></i> Template
+    </a>
   </div>
   <label class="dictionary-dropzone" for="file-skintype" id="zone-skintype">
     <span class="dictionary-upload-icon" id="zone-skintype-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
@@ -1060,13 +1076,18 @@
 
 {{-- Problem Dictionary --}}
 <div class="dictionary-card">
-  <div class="dictionary-card-header">
+  <div class="dictionary-card-header" style="align-items:flex-start; gap:12px;">
     <div class="dictionary-icon"><i class="bi bi-shield-check"></i></div>
     <div class="dictionary-title-group">
-      <h3>Problem Dictionary</h3>
-    <p id="last-updated-ingredient">Last updated: {{ $lastUpdated['problem'] ? \Carbon\Carbon::parse($lastUpdated['problem'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <h3 style="margin:-2px 0 -5px;">Problem Dictionary</h3>
+      <p id="last-updated-ingredient" style="margin:2px 0 2px;">Last updated: {{ $lastUpdated['problem'] ? \Carbon\Carbon::parse($lastUpdated['problem'])->timezone('Asia/Jakarta')->format('d M Y, H:i') : 'Never' }}</p>
+      <span style="font-family:'Jost'; font-size:9px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#7A5C43; background:#F1D6B8; padding:3px 8px; border-radius:999px; margin-left:-3px;">CSV ONLY</span>
     </div>
-    <span class="dictionary-badge">CSV ONLY</span>
+    <a href="{{ asset('templates/template_problem_dictionary.csv') }}" download
+       style="background:transparent; border:1.5px solid #D8BFA6; color:#7A5030; border-radius:999px; padding:6px 14px; font-family:'Jost'; font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:6px; white-space:nowrap; transition:all 0.2s;"
+       onmouseover="this.style.background='#FFF8EE'" onmouseout="this.style.background='transparent'">
+      <i class="bi bi-download"></i> Template
+    </a>
   </div>
   <label class="dictionary-dropzone" for="file-ingredient" id="zone-ingredient">
     <span class="dictionary-upload-icon" id="zone-ingredient-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
@@ -1080,10 +1101,6 @@
 
       <div class="dictionary-actions">
     <div style="position:relative;" id="tplDropdownWrap">
-        <button type="button" class="btn-download-template" onclick="document.getElementById('tplDropdown').classList.toggle('hidden')">
-            <i class="bi bi-download"></i>
-            Download Templates
-        </button>
         <div id="tplDropdown" class="hidden" style="
             position:absolute;bottom:110%;left:0;
             background:#fff;border:1.5px solid #D8BFA6;
@@ -1092,18 +1109,6 @@
             min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.08);
             z-index:99;
         ">
-            <a href="{{ asset('templates/template_product_dictionary.csv') }}" download class="tpl-item">
-                <i class="bi bi-file-earmark-spreadsheet"></i> Product
-            </a>
-            <a href="{{ asset('templates/template_problem_dictionary.csv') }}" download class="tpl-item">
-                <i class="bi bi-file-earmark-spreadsheet"></i> Problem
-            </a>
-            <a href="{{ asset('templates/template_ingredient_dictionary.csv') }}" download class="tpl-item">
-                <i class="bi bi-file-earmark-spreadsheet"></i> Ingredient
-            </a>
-            <a href="{{ asset('templates/template_skin_type_dictionary.csv') }}" download class="tpl-item">
-                <i class="bi bi-file-earmark-spreadsheet"></i> Skin Type
-            </a>
         </div>
     </div>
     <button type="button" class="btn-process-all">

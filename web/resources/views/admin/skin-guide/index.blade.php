@@ -553,6 +553,29 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.alert-success-custom {
+    background: #FFF8F1;
+    border: 1px solid #E8C49A;
+    color: #7A5030;
+    padding: 16px 20px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 6px 18px rgba(122, 80, 48, 0.08);
+    animation: fadeInDown .4s ease;
+}
+.alert-success-custom i { color: #A67C52; font-size: 18px; }
+.alert-hide { opacity: 0; transform: translateY(-10px); transition: all .5s ease; }
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 </style>
 @endpush
 
@@ -561,16 +584,12 @@
 <div class="skin-guide-page">
 
   {{-- Flash Messages --}}
-  @if(session('success'))
-    <div
-    id="success-alert"
-    class="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg
-           bg-[#F5EEE6] border border-[#DCC5B2] text-[#8B6B4A]
-           transition-opacity duration-1000"
->
+ @if(session('success'))
+<div class="alert-success-custom" id="successAlert">
+    <i class="bi bi-check-circle-fill"></i>
     {{ session('success') }}
 </div>
-  @endif
+@endif
   @if(session('error'))
     <div class="skin-guide-alert skin-guide-alert--error">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
@@ -714,17 +733,13 @@
               onclick="openPreview('{{ $item->slug }}')">
         <i class="bi bi-eye"></i>
       </button>
-      <form action="{{ route('admin.skin-guide.destroy', $item->id) }}" method="POST"
-            style="display: inline;">
-        @csrf @method('DELETE')
-        <button type="submit"
-                class="skin-guide-action skin-guide-action--del"
-                title="Delete Article"
-                aria-label="Delete Article"
-                onclick="return confirm('Hapus skin guide ini? Tindakan ini tidak dapat dibatalkan.');">
-          <i class="bi bi-trash"></i>
-        </button>
-      </form>
+      <button type="button"
+        class="skin-guide-action skin-guide-action--del"
+        title="Delete Article"
+        aria-label="Delete Article"
+        onclick="openDeleteModal('{{ $item->id }}', '{{ addslashes($item->title) }}')">
+  <i class="bi bi-trash"></i>
+</button>
     </div>
   </td>
 </tr>
@@ -820,17 +835,43 @@
   </div>
 </div>
 
+{{-- DELETE CONFIRMATION MODAL --}}
+<div id="sgDeleteModal" style="display:none; position:fixed; inset:0; z-index:10000; background:rgba(61,35,20,0.45); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#FFFDF9; border-radius:28px; width:100%; max-width:480px; padding:40px; box-shadow:0 24px 80px rgba(74,36,19,0.25); position:relative;">
+    
+    {{-- Close --}}
+    <button onclick="closeSgDeleteModal()" style="position:absolute; top:20px; right:20px; background:transparent; border:none; font-size:28px; color:#3D2314; cursor:pointer; width:36px; height:36px; display:grid; place-items:center; transition:all 0.2s ease; border-radius:8px;">×</button>
+
+    {{-- Title --}}
+    <h2 style="margin:0 0 16px; font-family:'Playfair Display',serif; font-size:1.75rem; color:#3D2314; line-height:1.2;">Hapus Skin Guide</h2>
+
+    {{-- Body --}}
+    <p style="margin:0 0 8px; font-size:14px; color:#5E402C; line-height:1.6;">Apakah Anda yakin ingin menghapus artikel ini?</p>
+    <p style="margin:0 0 4px; font-size:14px; font-weight:600; color:#3D2314;" id="sgDeleteTitle"></p>
+    <p style="margin:8px 0 0; font-size:13px; color:#D4841C; font-weight:600;">Artikel yang sudah dihapus tidak dapat dikembalikan.</p>
+
+    {{-- Hidden form --}}
+    <form id="sgDeleteForm" method="POST" style="display:none;">
+      @csrf
+      @method('DELETE')
+    </form>
+
+    {{-- Actions --}}
+    <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:32px; padding-top:24px; border-top:1px solid #F0EAE3;">
+      <button onclick="closeSgDeleteModal()" style="padding:14px 28px; border-radius:12px; border:none; background:#F0EAE3; color:#7A5030; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:600; cursor:pointer; transition:all 0.2s ease;">Batal</button>
+      <button onclick="confirmSgDelete()" style="padding:14px 28px; border-radius:12px; border:none; background:#D9A599; color:white; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:600; cursor:pointer; transition:all 0.2s ease;">Hapus</button>
+    </div>
+  </div>
+</div>
+
 @push('scripts')
 <script>
 // Auto-hide success alert
-setTimeout(() => {
-    const alert = document.getElementById('success-alert');
-    if (alert) {
-        alert.style.opacity = '0';
-        setTimeout(() => alert.remove(), 1000);
-    }
-}, 3000);
-
+const alertEl = document.getElementById('successAlert');
+if (alertEl) {
+    setTimeout(() => alertEl.classList.add('alert-hide'), 3000);
+    setTimeout(() => alertEl.remove(), 3500);
+}
 // Modal logic
 const modal = document.getElementById('articleModal');
 
@@ -903,6 +944,40 @@ modal.addEventListener('click', e => {
 // Close on Escape
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closePreview();
+});
+
+// ===== SKIN GUIDE DELETE MODAL =====
+const sgDeleteModal = document.getElementById('sgDeleteModal');
+let sgDeleteUrl = null;
+
+function openDeleteModal(id, title) {
+    sgDeleteUrl = `/admin/skin-guide/${id}`;
+    document.getElementById('sgDeleteTitle').textContent = `"${title}"`;
+    sgDeleteModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSgDeleteModal() {
+    sgDeleteModal.style.display = 'none';
+    document.body.style.overflow = '';
+    sgDeleteUrl = null;
+}
+
+function confirmSgDelete() {
+    if (!sgDeleteUrl) return;
+    const form = document.getElementById('sgDeleteForm');
+    form.action = sgDeleteUrl;
+    form.submit();
+}
+
+// Close on backdrop click
+sgDeleteModal.addEventListener('click', e => {
+    if (e.target === sgDeleteModal) closeSgDeleteModal();
+});
+
+// Close on Escape (extend existing keydown listener or add new one)
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sgDeleteModal.style.display === 'flex') closeSgDeleteModal();
 });
 </script>
 @endpush

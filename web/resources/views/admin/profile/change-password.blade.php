@@ -200,6 +200,24 @@ function checkMatch() {
   }
 }
 
+document.getElementById('confirmPasswordInput').addEventListener('paste', function(e) {
+    e.preventDefault();
+    
+    const existing = document.getElementById('pasteError');
+    if (!existing) {
+        const msg = document.createElement('span');
+        msg.id = 'pasteError';
+        msg.style.cssText = 'color:#C04444; font-size:12px; font-family:"Jost"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
+        msg.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Paste is not allowed. Please type manually.';
+        this.closest('div').parentElement.appendChild(msg);
+    }
+});
+
+document.getElementById('confirmPasswordInput').addEventListener('input', function() {
+    const existing = document.getElementById('pasteError');
+    if (existing) existing.remove();
+});
+
 // FUNGSI VALIDASI FINAL SAAT TOMBOL SAVE DIKLIK
 function validateForm() {
   const np = document.getElementById('newPasswordInput').value;
@@ -240,5 +258,6 @@ function validateForm() {
   errAlert.style.display = 'none';
   return true;
 }
+
 </script>
 @endpush
