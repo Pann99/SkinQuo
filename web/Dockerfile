@@ -13,7 +13,7 @@ RUN npm run build
 # ==============================================================================
 FROM php:8.3-apache
 
-# 1. Install dependencies inti (TANPA postgresql-client agar bebas konflik MPM)
+# 1. Install dependencies dasar (Sangat bersih tanpa paket tambahan yang memicu konflik)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libjpeg-dev \
@@ -28,10 +28,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip gd bcmath \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Proteksi Ganda: Pastikan hanya mpm_prefork yang aktif & hidupkan rewrite URL
-RUN a2dismod mpm_event mpm_worker || true \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_worker.load \
-    && a2enmod mpm_prefork rewrite
+# 2. FIX TOTAL & AGRESIF: Hancurkan fisik semua file MPM lain, paksa hanya prefork yang hidup
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf || true \
+    && cp /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/ || true \
+    && (cp /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/ || true) \
+    && a2enmod rewrite
 
 # 3. Arahkan Document Root Apache langsung ke folder /public milik Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -52,11 +53,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # 7. Atur permission folder storage & cache Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 8. Buka port standar
+# 8. Buka port standar Railway
 EXPOSE 80
 
-# 9. Jalankan optimasi & paksa hapus sisa file MPM jika masih ada saat container dinyalakan
-CMD rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_worker.load || true \
+# 9. Proteksi Terakhir: Hapus sisa file MPM ilegal tepat 1 detik sebelum Apache dinyalakan
+CMD rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* || true \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \
