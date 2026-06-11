@@ -37,18 +37,32 @@
 
     /* 4. INI KUNCINYA: Area Kanan (Konten) memiliki scroll-nya sendiri! */
     .admin-content-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh !important;
-      overflow-y: auto !important; /* Scroll bar muncul hanya di area konten */
-      overflow-x: hidden;
-    }
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;  /* ← ganti height jadi min-height */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
     
     /* Memastikan konten mendorong footer ke bawah */
     .admin-main {
       flex: 1; 
     }
+
+    body {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-footer{
+    flex-shrink: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    margin-top: 50px;
+}
+
   </style>
 </head>
 <body>
@@ -123,7 +137,7 @@
     {{-- Main Content --}}
     <main class="admin-main">
       @yield('content')
-    </main>
+    
 
     {{-- Footer --}}
     <footer class="admin-footer">
@@ -152,7 +166,7 @@
         </a>
       </div>
     </footer>
-    
+    </main>
   </div>
 
 </div>{{-- end admin-wrapper --}}

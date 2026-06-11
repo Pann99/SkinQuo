@@ -80,7 +80,10 @@ class AdminProfileController extends Controller
         ]);
 
         // 4. Redirect ke rute admin.profile membawa session 'success' untuk memicu alert hijau
-        return redirect()->route('admin.profile')->with('success', 'Portal secured! Your password has been successfully updated.');
+      // AdminProfileController.php — updatePassword()
+return redirect()
+    ->route('admin.profile')
+    ->with('password_updated', true);  
     }
 
     /**

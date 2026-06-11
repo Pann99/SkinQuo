@@ -370,17 +370,36 @@
         @if (session('status'))
             <div class="cp-alert cp-alert-success">{{ session('status') }}</div>
         @endif
-        @if ($errors->any())
-            <div class="cp-alert cp-alert-error">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
-        <form method="POST" action="{{ route('profile.password.update') }}" id="cpForm">
+        @if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorMap = {
+                'current_password': @json($errors->first('current_password')),
+                'password':         @json($errors->first('password')),
+                'password_confirmation': @json($errors->first('password_confirmation')),
+            };
+            Object.entries(errorMap).forEach(([id, msg]) => {
+                if (!msg) return;
+                const field = document.getElementById(id);
+                if (!field) return;
+                const existing = field.closest('.cp-input-wrap').parentElement.querySelector('.cp-inline-error');
+                if (existing) existing.remove();
+                const el = document.createElement('span');
+                el.className = 'cp-inline-error';
+                el.style.cssText = 'color:#8b3020; font-size:0.78rem; font-family:"Poppins"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
+                el.innerHTML = '⚠ ' + msg;
+                field.closest('.cp-input-wrap').parentElement.appendChild(el);
+
+                // scroll ke error pertama
+                const firstError = document.querySelector('.cp-inline-error');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+    </script>
+@endif
+
+      <form method="POST" action="{{ route('profile.password.update') }}" id="cpForm" onsubmit="return validateForm()" novalidate>
             @csrf
             @method('PUT')
 
@@ -479,15 +498,19 @@
                         <div class="cp-strength-bar-fill" id="strengthBar"></div>
                     </div>
                     <div class="cp-strength-checks">
-                        <div class="cp-check-item" id="check-length">
-                            <div class="cp-check-icon"></div>
-                            8+ characters
-                        </div>
-                        <div class="cp-check-item" id="check-uppercase">
-                            <div class="cp-check-icon"></div>
-                            Uppercase &amp; Symbols
-                        </div>
-                    </div>
+    <div class="cp-check-item" id="check-length">
+        <div class="cp-check-icon"></div>
+        8+ characters
+    </div>
+    <div class="cp-check-item" id="check-uppercase">
+        <div class="cp-check-icon"></div>
+        Uppercase letter
+    </div>
+    <div class="cp-check-item" id="check-symbol">
+        <div class="cp-check-icon"></div>
+        Symbol
+    </div>
+</div>
                 </div>
             </div>
 
@@ -560,43 +583,45 @@
     });
 
     function updateStrength(val) {
-        var bar      = document.getElementById('strengthBar');
-        var word     = document.getElementById('strengthWord');
-        var checkLen = document.getElementById('check-length');
-        var checkUp  = document.getElementById('check-uppercase');
+    var bar       = document.getElementById('strengthBar');
+    var word      = document.getElementById('strengthWord');
+    var checkLen  = document.getElementById('check-length');
+    var checkUp   = document.getElementById('check-uppercase');
+    var checkSym  = document.getElementById('check-symbol');
 
-        var hasLength = val.length >= 8;
-        var hasUpper  = /[A-Z]/.test(val);
-        var hasSymbol = /[^A-Za-z0-9]/.test(val) || /[0-9]/.test(val);
+    var hasLength = val.length >= 8;
+    var hasUpper  = /[A-Z]/.test(val);
+    var hasSymbol = /[^A-Za-z0-9]/.test(val) || /[0-9]/.test(val);
 
-        checkLen.classList.toggle('met', hasLength);
-        checkUp.classList.toggle('met',  hasUpper && hasSymbol);
+    checkLen.classList.toggle('met', hasLength);
+    checkUp.classList.toggle('met', hasUpper);
+    checkSym.classList.toggle('met', hasSymbol);
 
-        if (val.length === 0) {
-            bar.style.width  = '0%';
-            word.textContent = '—';
-            word.style.color = '';
-            return;
-        }
-
-        var score = 0;
-        if (hasLength)        score++;
-        if (val.length >= 12) score++;
-        if (hasUpper)         score++;
-        if (hasSymbol)        score++;
-
-        var levels = [
-            { pct: 25,  label: 'Awakening',  color: '#e07050' },
-            { pct: 50,  label: 'Balanced',   color: '#c08040' },
-            { pct: 75,  label: 'Harmonious', color: '#8a6030' },
-            { pct: 100, label: 'Radiant',    color: '#603F26' },
-        ];
-        var level = levels[Math.min(score - 1, 3)];
-        bar.style.width      = level.pct + '%';
-        bar.style.background = level.color;
-        word.textContent     = level.label;
-        word.style.color     = level.color;
+    if (val.length === 0) {
+        bar.style.width  = '0%';
+        word.textContent = '—';
+        word.style.color = '';
+        return;
     }
+
+    var score = 0;
+    if (hasLength)        score++;
+    if (val.length >= 12) score++;
+    if (hasUpper)         score++;
+    if (hasSymbol)        score++;
+
+    var levels = [
+        { pct: 25,  label: 'Awakening',  color: '#e07050' },
+        { pct: 50,  label: 'Balanced',   color: '#c08040' },
+        { pct: 75,  label: 'Harmonious', color: '#8a6030' },
+        { pct: 100, label: 'Radiant',    color: '#603F26' },
+    ];
+    var level = levels[Math.min(score - 1, 3)];
+    bar.style.width      = level.pct + '%';
+    bar.style.background = level.color;
+    word.textContent     = level.label;
+    word.style.color     = level.color;
+}
 
     document.querySelectorAll('.cp-eye-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -616,6 +641,77 @@
         });
     });
 
+    // ===== DISABLE PASTE ALL FIELDS =====
+['current_password', 'password', 'password_confirmation'].forEach(function(id) {
+    const el = document.getElementById(id);
+    
+    el.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const existing = document.getElementById('pasteError-' + id);
+        if (!existing) {
+            const msg = document.createElement('span');
+            msg.id = 'pasteError-' + id;
+            msg.style.cssText = 'color:#8b3020; font-size:0.78rem; font-family:"Poppins"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
+            msg.innerHTML = '⚠ Paste is not allowed. Please type manually.';
+            this.closest('.cp-input-wrap').parentElement.appendChild(msg);
+        }
+    });
+
+    el.addEventListener('input', function() {
+        const existing = document.getElementById('pasteError-' + id);
+        if (existing) existing.remove();
+    
+         const inlineErr = this.closest('.cp-input-wrap').parentElement
+                          .querySelector('.cp-inline-error');
+    if (inlineErr) inlineErr.remove();
+    
+    });
+});
+
+// ===== VALIDASI FORM =====
+function validateForm() {
+    const cur = document.getElementById('current_password').value;
+    const np  = document.getElementById('password').value;
+    const cp  = document.getElementById('password_confirmation').value;
+
+    document.querySelectorAll('.cp-inline-error').forEach(el => el.remove());
+
+    
+    const has8      = np.length >= 8;
+    const hasUpper  = /[A-Z]/.test(np);
+    const hasSymbol = /[^A-Za-z0-9]/.test(np) || /[0-9]/.test(np);
+
+    let hasError = false;
+
+    
+
+    function showInlineError(fieldId, message) {
+        const msg = document.createElement('span');
+        msg.className = 'cp-inline-error';
+        msg.style.cssText = 'color:#8b3020; font-size:0.78rem; font-family:"Poppins"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
+        msg.innerHTML = '⚠ ' + message;
+        document.getElementById(fieldId).closest('.cp-input-wrap').parentElement.appendChild(msg);
+        hasError = true;
+    }
+
+    if (!cur)            showInlineError('current_password', 'Current password is required.');
+    if (!has8)           showInlineError('password', 'Password must be at least 8 characters.');
+    else if (!hasUpper)  showInlineError('password', 'Password must contain at least one uppercase letter.');
+    else if (!hasSymbol) showInlineError('password', 'Password must contain at least one number or symbol.');
+   else if (cur && np && cur === np) showInlineError('password', 'New password must be different from your current password.');  // ← tambah ini
+        if (!cp)                    showInlineError('password_confirmation', 'Please confirm your new password.');
+        else if (np && np !== cp)   showInlineError('password_confirmation', 'Confirmation password does not match.');
+
+    if (hasError) {
+    const firstError = document.querySelector('.cp-inline-error');
+    if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return false;
+}
+
+    return true;
+}
 
 </script>
 @endsection
