@@ -61,31 +61,31 @@
     }
 
     .pf-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-    align-items: stretch;
-    }   
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        align-items: stretch;
+    }
 
     @media (max-width: 820px) {
         .pf-layout { grid-template-columns: 1fr; }
     }
 
     .pf-card {
-    background: #603F26;
-    border-radius: 20px;
-    padding: 1.75rem 1.85rem 2.25rem;
-    height: 100%;
+        background: #603F26;
+        border-radius: 20px;
+        padding: 1.75rem 1.85rem 2.25rem;
+        display: flex;
+        flex-direction: column;
     }
 
-    /* ===== FIX: History card sama tinggi dengan profile card ===== */
     .pf-card-history {
-    background: #603F26;
-    border-radius: 20px;
-    padding: 1.75rem 1.85rem;
-    display: flex;
-    flex-direction: column;
-    height: 560px;
+        background: #603F26;
+        border-radius: 20px;
+        padding: 1.75rem 1.85rem;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
     }
 
     .pf-card-title {
@@ -193,10 +193,9 @@
 
     /* ===== SCROLLABLE HISTORY LIST ===== */
     .pf-consult-scroll {
-    flex: 1;
-    overflow-y: auto;
-    max-height: 480px;
-    min-height: 0;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
 
     .pf-consult-scroll::-webkit-scrollbar {
@@ -221,6 +220,7 @@
         cursor: pointer;
         text-decoration: none;
         transition: transform 0.15s, box-shadow 0.15s;
+        overflow: hidden;
     }
 
     .pf-consult-item:last-child { margin-bottom: 0; }
@@ -250,10 +250,11 @@
         font-size: 0.75rem;
         font-weight: 500;
         color: #603F26;
-        flex: 1;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        display: block;
+        width: 100%;
     }
 
     .pf-consult-link {
@@ -263,6 +264,9 @@
         white-space: nowrap;
         flex-shrink: 0;
         text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 2px;
     }
 
     .pf-empty {
@@ -656,58 +660,59 @@
         </div>
 
        {{-- RIGHT: History Consultation (scrollable) --}}
-<div class="pf-card-history">
-    <div class="pf-card-title"><span>History Consultation</span></div>
+        <div class="pf-card-history">
+            <div class="pf-card-title"><span>History Consultation</span></div>
 
-    @if(($consultations ?? collect())->isEmpty())
-        <div class="pf-empty">
-            <p>No consultations yet.</p>
-            <a href="{{ route('consultation.index') }}">Start Consultation</a>
-        </div>
-    @else
-        <div class="pf-consult-scroll">
-            @foreach($consultations as $c)
-                @php
-                    $concerns = $c->skin_concern_parsed ?? [];
-                    $ingredientResult = $c->ingredient_result_parsed ?? [];
-                    $products = $ingredientResult['all_products'] ?? [];
-                    $firstProduct = $products[0]['product_name'] ?? null;
-                    $concernLabel = is_array($concerns) && count($concerns)
-                        ? implode(', ', array_map('ucfirst', $concerns))
-                        : 'Consultation';
-                @endphp
-                <div class="pf-consult-item"
-                     onclick="openDetailModal({{ $c->id }})"
-                     style="cursor:pointer;">
-                    <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
-                    <span class="pf-consult-sep"></span>
-                    <div style="flex:1;">
-                        <div class="pf-consult-topic">
-                            {{ $concernLabel }}
-                        </div>
-
-                        @if($firstProduct)
-                            <div style="
-                                font-size:11px;
-                                color:rgba(96,63,38,.6);
-                                margin-top:2px;
-                            ">
-                                Product: {{ $firstProduct }}
-                            </div>
-                        @endif
-                    </div>
-                    <span class="pf-consult-link">
-                        View Details
-                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                            <path d="M2 6.5H11M11 6.5L7 2.5M11 6.5L7 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
+            @if(($consultations ?? collect())->isEmpty())
+                <div class="pf-empty">
+                    <p>No consultations yet.</p>
+                    <a href="{{ route('consultation.index') }}">Start Consultation</a>
                 </div>
-            @endforeach
+            @else
+                <div class="pf-consult-scroll">
+                    @foreach($consultations as $c)
+                        @php
+                            // Mendukung schema lama & baru, membaca string JSON dan mengubahnya menjadi array
+                            $rawConcerns = $c->extracted_concerns ?? $c->skin_concern ?? '[]';
+                            $concerns = is_string($rawConcerns) ? json_decode($rawConcerns, true) : (array)$rawConcerns;
+                            
+                            $rawResponse = $c->ai_response ?? $c->ingredient_result ?? '{}';
+                            $ingredientResult = is_string($rawResponse) ? json_decode($rawResponse, true) : (array)$rawResponse;
+
+                            $products = $ingredientResult['all_products'] ?? [];
+                            $firstProduct = $products[0]['product_name'] ?? null;
+                            $concernLabel = !empty($concerns) && is_array($concerns)
+                                ? Str::limit(implode(', ', array_map('ucfirst', $concerns)), 55)
+                                : Str::limit($ingredientResult['cleaned_query'] ?? 'Consultation', 55);
+                        @endphp
+                        <div class="pf-consult-item"
+                            onclick="openDetailModal({{ $c->id }})"
+                            style="cursor:pointer;">
+                            <span class="pf-consult-date">{{ $c->created_at?->format('d M Y') }}</span>
+                            <span class="pf-consult-sep"></span>
+                            <div style="flex:1; min-width:0;">
+                                <div class="pf-consult-topic">
+                                    {{ $concernLabel }}
+                                </div>
+
+                                @if($firstProduct)
+                                    <div style="font-size:11px; color:rgba(96,63,38,.6); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                        Product: {{ Str::limit($firstProduct, 40) }}
+                                    </div>
+                                @endif
+                            </div>
+                            <span class="pf-consult-link">
+                                View Details
+                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                    <path d="M2 6.5H11M11 6.5L7 2.5M11 6.5L7 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
-    @endif
-</div>
-{{-- /pf-card-history --}}
+        {{-- /pf-card-history --}}
 
     </div>
     {{-- /pf-layout --}}
@@ -757,12 +762,16 @@
 </div>
 
 @php
+// Setup Data Payload untuk diparsing ke JavaScript Sidebar Modal
 $consultationData = ($consultations ?? collect())->map(function ($c) {
+    $rawConcerns = $c->extracted_concerns ?? $c->skin_concern ?? '[]';
+    $rawResponse = $c->ai_response ?? $c->ingredient_result ?? '{}';
+    
     return [
         'id' => $c->id,
         'created_at' => $c->created_at,
-        'skin_concern' => $c->skin_concern_parsed ?? [],
-        'ingredient_result' => $c->ingredient_result_parsed ?? [],
+        'skin_concern' => is_string($rawConcerns) ? json_decode($rawConcerns, true) : (array)$rawConcerns,
+        'ingredient_result' => is_string($rawResponse) ? json_decode($rawResponse, true) : (array)$rawResponse,
     ];
 })->values()->toArray();
 @endphp
@@ -825,11 +834,15 @@ function openDetailModal(id) {
     var products =
         (ir.all_products || []).slice(0, 6);
 
+    // Dapatkan data kandungan aktif (Bisa dari properti constraints lama, atau display_explainability yang baru)
     var constraints = ir.constraints || [];
+    if(constraints.length === 0 && ir.display_explainability && ir.display_explainability['Kandungan Aktif']) {
+        constraints = ir.display_explainability['Kandungan Aktif'];
+    }
 
     document.getElementById('modalIngredients').textContent =
         constraints.length
-            ? 'Menggunakan bahan aktif: ' + constraints.join(', ')
+            ? 'Bahan Aktif yang Disarankan: ' + constraints.join(', ')
             : 'Rekomendasi produk berdasarkan kondisi kulit Anda.';
 
     // Precaution
