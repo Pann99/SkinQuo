@@ -1,4 +1,6 @@
 import pandas as pd
+import time
+import httpx
 
 from app.core.supabase_client import supabase
 
@@ -7,30 +9,54 @@ from app.utils.Database_processing import (
     extract_ingredients,
     extract_category,
     extract_usage,
+    extract_price,
     create_content_feature,   
     print_summary,
 )
 
-
 def run_pipeline_supabase() -> pd.DataFrame:
     print("[API] Menarik data produk dari Supabase...")
 
-    # =====================================================
-    # FETCH DATA
-    # =====================================================
-    response = (
-        supabase
-        .table("products")
-        .select("*")
-        .execute()
-    )
-    if not response.data:
+    # =========================================================================
+    # [NEW] SISTEM AUTO-RETRY UNTUK MENCEGAH "SERVER DISCONNECTED"
+    # =========================================================================
+    max_retries = 3
+    response = None
+    
+    for attempt in range(max_retries):
+        try:
+            if attempt > 0:
+                print(f"[API] Mencoba ulang menarik data... (Percobaan {attempt + 1}/{max_retries})")
+            
+            response = (
+                supabase
+                .table("products")
+                .select("*")
+                .execute()
+            )
+            break  # Jika berhasil, langsung keluar dari loop retry
+            
+        except httpx.RemoteProtocolError as e:
+            print(f"❌ [DATABASE ERROR] Koneksi terputus (RemoteProtocolError): {str(e)}")
+            if attempt < max_retries - 1:
+                print("⏳ Menunggu 3 detik sebelum mencoba lagi...")
+                time.sleep(3)
+            else:
+                print("🚨 [CRITICAL ERROR] Gagal terhubung ke Supabase setelah 3 percobaan.")
+                raise e
+        except Exception as e:
+            print(f"❌ [DATABASE ERROR] Terjadi kesalahan jaringan tak terduga: {str(e)}")
+            if attempt < max_retries - 1:
+                print("⏳ Menunggu 3 detik sebelum mencoba lagi...")
+                time.sleep(3)
+            else:
+                raise e
+    # =========================================================================
+
+    if not response or not response.data:
         print("Error: Tidak ada data ditemukan di Supabase.")
         return pd.DataFrame()
 
-    # =====================================================
-    # RAW DATAFRAME
-    # =====================================================
     df = pd.DataFrame(response.data)
     df.columns = (
         df.columns
@@ -39,66 +65,28 @@ def run_pipeline_supabase() -> pd.DataFrame:
     )
     print("\n========== RAW DF ==========")
     print(df.head(2))
-    print("\nCOLUMNS:")
-    print(df.columns.tolist())
-    print("============================")
 
-    # =====================================================
-    # DESCRIPTION CLEANING
-    # =====================================================
     df = extract_description(df)
-
-    print("\n========== AFTER DESCRIPTION ==========")
-    print(df.columns.tolist())
-    print("=======================================")
-
-    # =====================================================
-    # INGREDIENT CLEANING
-    # =====================================================
     df = extract_ingredients(df)
-
-    print("\n========== AFTER INGREDIENT ==========")
-    print(df.columns.tolist())
-    print("======================================")
-
-    # =====================================================
-    # CATEGORY CLEANING
-    # =====================================================
     df = extract_category(df)
-
-    print("\n========== AFTER CATEGORY ==========")
-    print(df.columns.tolist())
-    print("====================================")
-
-    # =====================================================
-    # CARA PAKAI CLEANING (KUNCI PERBAIKAN)
-    # =====================================================
-    # Fungsi ini wajib dieksekusi agar kolom 'cara_pakai_clean' terbentuk!
     df = extract_usage(df)
+    
+    # [NEW] Pipeline Harga
+    df = extract_price(df)
 
-    print("\n========== AFTER CARA PAKAI ==========")
-    print(df.columns.tolist())
-    print("======================================")
-
-    # =====================================================
-    # CONTENT METADATA — Bag of Words untuk TF-IDF
-    # =====================================================
     df = create_content_feature(df)
 
-    print("\n========== AFTER CONTENT METADATA ==========")
-    print(df.columns.tolist())
-    print("=============================================")
-
-    # =====================================================
-    # VALIDASI FINAL
-    # =====================================================
+    # Validasi Final
     required_columns = [
+        "product_id",
         "nama_produk",
         "nama_brand",
         "deskripsi_clean",
         "kandungan_clean",
         "kategori_clean",
-        "cara_pakai_clean",  # <-- Sekarang validasi ini akan lolos dengan aman
+        "cara_pakai_clean",  
+        "harga_min_clean",    # <-- Wajib
+        "harga_max_clean",    # <-- Wajib
         "content_metadata",   
     ]
 
@@ -114,9 +102,4 @@ def run_pipeline_supabase() -> pd.DataFrame:
         )
 
     print_summary(df)
-    print("\n========== FINAL DF ==========")
-    print(df.head(2))
-    print(df.columns.tolist())
-    print("==============================")
-
     return df

@@ -1,25 +1,27 @@
 @extends('layouts.app')
 
-@section('title', 'Konsultasi Skincare — SkinQuo')
+@section('title', 'Skincare Consultation — SkinQuo')
 
 @push('styles')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
 
 <style>
     :root {
-        --cream: #FAF3E8;
-        --cream-dark: #F2E8D5;
+        --cream: #F5EDE0;
+        --cream-light: #FAF3E8;
+        --cream-bg: #EDE0CE;
         --brown: #6C4E31;
         --dark-brown: #3D2010;
         --accent: #C17F4A;
         --accent-light: #E8C89A;
+        --text-primary: #2A1A0E;
         --text-muted: rgba(61,32,16,0.45);
-        --border: rgba(108,78,49,0.15);
-        --border-strong: rgba(108,78,49,0.25);
+        --border: rgba(108,78,49,0.18);
+        --border-strong: rgba(108,78,49,0.3);
         --white: #FFFFFF;
-        --surface: rgba(255,255,255,0.7);
+        --surface: rgba(255,255,255,0.75);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,12 +29,11 @@
     html, body {
         background: var(--cream);
         font-family: 'DM Sans', sans-serif;
-        color: var(--dark-brown);
+        color: var(--text-primary);
         height: 100%;
         overflow: hidden;
     }
 
-    /* ─── SCREEN SYSTEM ─── */
     .screen {
         position: fixed;
         inset: 0;
@@ -47,39 +48,45 @@
         transform: translateY(12px);
     }
 
-    /* ─── SHARED NAV ─── */
     .sq-nav {
         position: fixed;
-        top: 0; left: 0; right: 0;
+        top: 16px; left: 50%; 
+        transform: translateX(-50%);
+        width: calc(100% - 64px);
+        max-width: 900px;
         height: 56px;
-        background: rgba(250,243,232,0.92);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border);
+        background: #F5C992;
+        border-radius: 40px;
+        border: none;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 32px;
+        padding: 0 28px;
         z-index: 100;
+        box-shadow: 0 2px 16px rgba(108,78,49,0.12);
     }
     .sq-nav-logo {
         font-family: 'Playfair Display', serif;
         font-size: 18px;
         font-weight: 700;
-        color: var(--dark-brown);
+        color: var(--text-primary);
         letter-spacing: -0.3px;
         text-decoration: none;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
     }
     .sq-nav-links {
         display: flex;
         align-items: center;
-        gap: 28px;
+        gap: 24px;
     }
     .sq-nav-link {
         font-size: 13px;
-        color: var(--text-muted);
+        color: var(--brown);
         text-decoration: none;
         transition: color 0.2s;
+        font-weight: 500;
     }
     .sq-nav-link:hover { color: var(--dark-brown); }
     .sq-nav-link.active {
@@ -93,335 +100,237 @@
         bottom: -4px;
         left: 0; right: 0;
         height: 2px;
-        background: var(--accent);
+        background: var(--dark-brown);
         border-radius: 1px;
     }
+    .sq-nav-user {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--dark-brown);
+    }
+    .sq-nav-user img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255,255,255,0.6);
+    }
 
-    /* ═══════════════════════════════════
-       SCREEN A — LANDING / QUERY INPUT
-    ═══════════════════════════════════ */
     #screen-landing {
         background: var(--cream);
-        /* padding-top sudah di-handle oleh landing-content, bukan di sini */
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         overflow: hidden;
     }
-    #screen-landing::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
-        pointer-events: none;
-        z-index: 0;
-        opacity: 0.5;
-    }
-    #screen-landing > * { position: relative; z-index: 1; }
 
     .landing-content {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         width: 100%;
-        /* 56px = tinggi navbar — konten dimulai tepat di bawah navbar */
-        padding: 56px 20px 20px;
-        gap: 18px;
+        max-width: 720px;
+        padding: 88px 32px 48px;
         height: 100vh;
-        overflow: hidden;
         box-sizing: border-box;
-    }
-
-    /* Hero Text */
-    .lc-hero {
-        text-align: center;
-        max-width: 560px;
-        width: 100%;
-    }
-    .lc-eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 10px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--accent);
-        background: rgba(193,127,74,0.09);
-        border: 1px solid rgba(193,127,74,0.2);
-        padding: 5px 14px;
-        border-radius: 20px;
-        margin-bottom: 10px;
-        font-weight: 700;
-    }
-    .lc-title {
-        font-family: 'Playfair Display', serif;
-        font-size: clamp(20px, 2.8vw, 34px);
-        color: var(--dark-brown);
-        line-height: 1.18;
-        margin-bottom: 0;
-        letter-spacing: -0.3px;
-    }
-    .lc-title em { color: var(--accent); font-style: italic; }
-    .lc-subtitle {
-        font-size: 13.5px;
-        color: var(--text-muted);
-        max-width: 460px;
-        line-height: 1.6;
-        margin: 0 auto;
-    }
-
-    /* ─── INFO BUTTON (i) ─── */
-    .lc-info-btn {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        border: 1.5px solid rgba(61,32,16,0.25);
-        background: transparent;
-        color: var(--text-muted);
-        font-size: 11px;
-        font-weight: 700;
-        font-family: 'DM Sans', sans-serif;
-        display: inline-flex;
-        align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        flex-shrink: 0;
-        line-height: 1;
-        padding: 0;
-    }
-    .lc-info-btn:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-        background: rgba(193,127,74,0.06);
+        gap: 0;
     }
 
-    /* ─── INFO POPUP OVERLAY ─── */
-    .lc-info-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(61,32,16,0.35);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        z-index: 200;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.25s ease;
-    }
-    .lc-info-overlay.open {
-        opacity: 1;
-        pointer-events: all;
-    }
-    .lc-info-popup {
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 24px 22px 20px;
-        max-width: 420px;
-        width: 100%;
-        box-shadow: 0 16px 48px rgba(61,32,16,0.18);
-        transform: translateY(12px) scale(0.97);
-        transition: transform 0.25s ease;
-        position: relative;
-    }
-    .lc-info-overlay.open .lc-info-popup {
-        transform: translateY(0) scale(1);
-    }
-    .lc-info-popup-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 16px;
-    }
-    .lc-info-popup-title {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 1.8px;
-        text-transform: uppercase;
-        color: var(--accent);
-    }
-    .lc-info-popup-close {
-        width: 26px;
-        height: 26px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-        background: var(--cream-dark);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 14px;
-        color: var(--text-muted);
-        transition: all 0.15s;
-        line-height: 1;
-    }
-    .lc-info-popup-close:hover { color: var(--dark-brown); background: var(--cream); }
-    .lc-how-rows {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    .lc-how-row {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    .lc-how-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        margin-top: 1px;
-    }
-    .lc-how-icon.green { background: rgba(99,153,34,0.1); }
-    .lc-how-icon.amber { background: rgba(193,127,74,0.1); }
-    .lc-how-icon.red   { background: rgba(226,75,74,0.08); }
-    .lc-how-icon svg { width: 13px; height: 13px; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-    .lc-how-icon.green svg { stroke: #3B6D11; }
-    .lc-how-icon.amber svg { stroke: #854F0B; }
-    .lc-how-icon.red svg   { stroke: #A32D2D; }
-    .lc-how-text {
-        font-size: 12.5px;
-        color: var(--dark-brown);
-        line-height: 1.6;
-    }
-    .lc-how-text strong { font-weight: 600; color: var(--dark-brown); }
-    .lc-how-text .muted { color: var(--text-muted); }
-
-    /* ─── INPUT AREA ─── */
-    .lc-input-area {
-        max-width: 600px;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    /* Template Chips */
-    .lc-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 7px;
-    }
-    .lc-chip {
+    .skincare-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: var(--white);
-        border: 1px solid var(--border);
-        color: var(--dark-brown);
-        font-size: 11.5px;
-        font-family: 'DM Sans', sans-serif;
-        padding: 6px 13px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.2s;
-        box-shadow: 0 1px 4px rgba(61,32,16,0.03);
-        white-space: nowrap;
+        background: rgba(255,255,255,0.6);
+        border: 1px solid var(--border-strong);
+        border-radius: 24px;
+        padding: 6px 16px;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--brown);
+        margin-bottom: 24px;
     }
-    .lc-chip:hover {
-        border-color: var(--accent);
-        background: var(--cream-dark);
-        transform: translateY(-1px);
+    .skincare-badge svg {
+        width: 12px; height: 12px;
+        stroke: var(--brown);
+        fill: none;
+        stroke-width: 2.2;
     }
-    .lc-chip svg { width: 10px; height: 10px; fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; }
 
-    /* Main Input Box */
-    .lc-input-box {
-        background: var(--white);
-        border: 1.5px solid var(--border);
-        border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(61,32,16,0.04);
-        transition: border-color 0.25s, box-shadow 0.25s;
-        position: relative;
+    .lc-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 36px;
     }
-    .lc-input-box:focus-within {
-        border-color: var(--brown);
-        box-shadow: 0 4px 20px rgba(108,78,49,0.1);
+
+    .lc-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 46px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.18;
+        letter-spacing: -0.8px;
+        text-align: center;
     }
-    #userQuery {
+    .lc-title .title-italic {
+        font-style: italic;
+        color: var(--accent);
+    }
+
+    .ai-bottom-container {
         width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+    }
+
+    .sq-input-wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .sq-input-box {
+        width: 100%;
+        background: #FFFFFF;
+        border: 1.5px solid rgba(108,78,49,0.22);
+        border-radius: 50px;
+        box-shadow: 0 4px 20px rgba(108,78,49,0.1);
+        display: flex;
+        align-items: center;
+        padding: 5px 6px;
+        gap: 4px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .sq-input-box:focus-within {
+        border-color: rgba(108,78,49,0.4);
+        box-shadow: 0 4px 24px rgba(108,78,49,0.15);
+    }
+
+    .sq-info-btn {
+        flex-shrink: 0;
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(108,78,49,0.25);
+        background: transparent;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--brown);
+        font-family: 'DM Sans', sans-serif;
+        transition: background 0.2s, border-color 0.2s;
+        line-height: 1;
+    }
+    .sq-info-btn:hover {
+        background: rgba(193,127,74,0.1);
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    #userQuery {
+        flex: 1;
         border: none;
         outline: none;
         font-family: 'DM Sans', sans-serif;
-        font-size: 14.5px;
-        color: var(--dark-brown);
+        font-size: 14px;
+        color: var(--text-primary);
         background: transparent;
-        padding: 16px 18px 8px;
+        padding: 10px 6px;
         resize: none;
-        min-height: 72px;
-        max-height: 200px;
-        line-height: 1.6;
-        display: block;
+        height: 44px;
+        min-height: 44px;
+        max-height: 120px;
+        line-height: 1.5;
+        box-sizing: border-box;
         scrollbar-width: none;
-        word-break: break-word;
     }
     #userQuery::-webkit-scrollbar { display: none; }
-    #userQuery::placeholder { color: rgba(108,78,49,0.32); }
+    #userQuery::placeholder { color: rgba(108,78,49,0.38); font-size: 14px; }
 
-    .lc-input-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 6px 12px 12px;
-        gap: 8px;
-    }
-    .lc-toolbar-left {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .lc-count-badge {
-        font-size: 11px;
-        color: var(--text-muted);
-        background: var(--cream-dark);
-        padding: 3px 10px;
-        border-radius: 8px;
-        font-weight: 500;
-    }
-    .lc-algo-badge {
-        font-size: 11px;
-        color: rgba(61,32,16,0.5);
-        border: 1px solid var(--border);
-        padding: 3px 10px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .lc-algo-badge svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 2; }
-    .btn-send {
-        width: 36px;
-        height: 36px;
+    .sq-send-btn {
+        width: 40px; height: 40px;
         background: var(--dark-brown);
         border: none;
-        border-radius: 11px;
+        border-radius: 50%;
         cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: opacity 0.2s, transform 0.15s;
+    }
+    .sq-send-btn:hover:not(:disabled) { opacity: 0.85; transform: scale(1.06); }
+    .sq-send-btndisabled { opacity: 0.3; cursor: not-allowed; }
+    .sq-send-btn svg {
+        width: 16px; height: 16px;
+        stroke: #FFEAC5; fill: none;
+    }
+
+    .sq-suggestions {
+        width: 100%;
         display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .sq-suggestions-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: rgba(108,78,49,0.55);
+        margin-bottom: 2px;
+    }
+    .sq-chips-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+    }
+    .sq-chip {
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
-        transition: background 0.2s, transform 0.15s;
+        gap: 6px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12.5px;
+        font-weight: 400;
+        color: var(--dark-brown);
+        background: rgba(255,255,255,0.6);
+        border: 1px solid rgba(108,78,49,0.22);
+        border-radius: 24px;
+        padding: 7px 14px;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+        white-space: nowrap;
+    }
+    .sq-chip:hover {
+        background: rgba(255,255,255,0.95);
+        border-color: var(--accent);
+    }
+    .sq-chip svg {
+        width: 13px; height: 13px;
+        stroke: var(--accent);
+        fill: none;
+        stroke-width: 2;
         flex-shrink: 0;
     }
-    .btn-send:hover:not(:disabled) { background: var(--accent); transform: scale(1.05); }
-    .btn-send:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-    .btn-send svg { fill: none; stroke: #FFF; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Error Banner */
     .lc-error {
         display: none;
         background: rgba(226,75,74,0.07);
         border: 1px solid rgba(226,75,74,0.18);
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 11px 14px;
         font-size: 12.5px;
         color: #A32D2D;
@@ -435,146 +344,12 @@
     .lc-error-retry { display: inline-block; margin-top: 5px; font-size: 11.5px; font-weight: 600; color: #A32D2D; background: rgba(226,75,74,0.1); border: 1px solid rgba(226,75,74,0.2); padding: 3px 10px; border-radius: 8px; cursor: pointer; border-style: none; font-family: 'DM Sans', sans-serif; }
     .lc-error-retry:hover { background: rgba(226,75,74,0.15); }
 
-    /* ─── RATE LIMIT MODAL (Guest) ─── */
-    .ratelimit-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(61,32,16,0.45);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        z-index: 300;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-    }
-    .ratelimit-overlay.open {
-        opacity: 1;
-        pointer-events: all;
-    }
-    .ratelimit-card {
-        background: var(--white);
-        border-radius: 24px;
-        padding: 32px 28px 28px;
-        max-width: 380px;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 24px 64px rgba(61,32,16,0.22);
-        transform: translateY(16px) scale(0.97);
-        transition: transform 0.3s ease;
-    }
-    .ratelimit-overlay.open .ratelimit-card {
-        transform: translateY(0) scale(1);
-    }
-    .ratelimit-emoji {
-        font-size: 36px;
-        margin-bottom: 12px;
-        display: block;
-    }
-    .ratelimit-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 19px;
-        color: var(--dark-brown);
-        margin-bottom: 8px;
-        line-height: 1.3;
-    }
-    .ratelimit-desc {
-        font-size: 13px;
-        color: var(--text-muted);
-        line-height: 1.65;
-        margin-bottom: 22px;
-    }
-    .ratelimit-desc strong {
-        color: var(--brown);
-        font-weight: 600;
-    }
-    .ratelimit-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .ratelimit-btn-login {
-        display: block;
-        background: var(--dark-brown);
-        color: var(--cream);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 13.5px;
-        font-weight: 600;
-        padding: 13px 20px;
-        border-radius: 14px;
-        text-decoration: none;
-        transition: background 0.2s, transform 0.15s;
-    }
-    .ratelimit-btn-login:hover {
-        background: var(--accent);
-        transform: translateY(-1px);
-        color: var(--cream);
-    }
-    .ratelimit-btn-register {
-        display: block;
-        background: transparent;
-        color: var(--brown);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 13px;
-        font-weight: 500;
-        padding: 11px 20px;
-        border-radius: 14px;
-        border: 1.5px solid var(--border-strong);
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    .ratelimit-btn-register:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-        background: rgba(193,127,74,0.04);
-    }
-    .ratelimit-dismiss {
-        font-size: 11.5px;
-        color: var(--text-muted);
-        margin-top: 6px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        padding: 4px 0;
-        text-decoration: underline;
-        text-underline-offset: 2px;
-    }
-    .ratelimit-dismiss:hover { color: var(--brown); }
-    .ratelimit-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 10px;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: #A32D2D;
-        background: rgba(226,75,74,0.07);
-        border: 1px solid rgba(226,75,74,0.18);
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-bottom: 14px;
-        font-weight: 700;
-    }
-
-    .lc-hint {
-        font-size: 11px;
-        color: rgba(61,32,16,0.35);
-        text-align: center;
-    }
-
-    /* ═══════════════════════════════════
-       SCREEN B — ANALYSIS PIPELINE
-    ═══════════════════════════════════ */
     #screen-analysis {
         background: linear-gradient(150deg, #3D2010 0%, #5A3020 60%, #3D2010 100%);
         color: #FFEAC5;
         display: flex;
         flex-direction: column;
-        padding-top: 56px;
+        padding-top: 88px;
     }
     .analysis-body {
         flex: 1;
@@ -606,7 +381,6 @@
         font-weight: 400;
     }
 
-    /* Query Echo — show user what system "heard" */
     .analysis-query-echo {
         background: rgba(255,234,197,0.07);
         border: 1px solid rgba(255,234,197,0.14);
@@ -628,7 +402,6 @@
         font-style: italic;
     }
 
-    /* Pipeline Steps */
     .loading-steps {
         display: flex;
         flex-direction: column;
@@ -676,7 +449,6 @@
     .progress-wrap { height: 2px; background: rgba(255,234,197,0.1); border-radius: 1px; overflow: hidden; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, #C17F4A, #FFEAC5); transition: width 0.5s ease; width: 0%; }
 
-    /* ─── Error State (inside analysis screen → back to landing) ─── */
     .error-state { display: none; }
     .error-state.show { display: block; }
     .error-box {
@@ -703,260 +475,409 @@
     }
     .btn-retry:hover { opacity: 0.88; }
 
-    /* Nav for analysis screen */
     #screen-analysis .sq-nav {
-        background: rgba(61,32,16,0.85);
-        border-bottom-color: rgba(255,234,197,0.1);
+        background: rgba(61,32,16,0.9);
+        border: none;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.25);
     }
     #screen-analysis .sq-nav-logo { color: #FFEAC5; }
-    #screen-analysis .sq-nav-link { color: rgba(255,234,197,0.35); }
+    #screen-analysis .sq-nav-link { color: rgba(255,234,197,0.5); }
     #screen-analysis .sq-nav-link.active { color: #FFEAC5; }
     #screen-analysis .sq-nav-link.active::after { background: var(--accent); }
+
+    /* ─── GUIDED WIZARD MODAL ─── */
+    .guided-overlay {
+        position: fixed; inset: 0; background: rgba(61,32,16,0.35);
+        backdrop-filter: blur(6px); z-index: 400; display: flex;
+        align-items: center; justify-content: center; padding: 20px;
+        opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .guided-overlay.open { opacity: 1; pointer-events: all; }
+    .guided-card {
+        background: var(--cream-light); border-radius: 24px; width: 100%; max-width: 480px;
+        box-shadow: 0 24px 64px rgba(61,32,16,0.2); overflow: hidden;
+        transform: translateY(16px) scale(0.97); transition: transform 0.3s ease;
+    }
+    .guided-overlay.open .guided-card { transform: translateY(0) scale(1); }
+    .guided-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .guided-title {
+        font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 18px; color: var(--dark-brown);
+    }
+    .guided-close {
+        background: none; border: none; font-size: 16px; color: var(--brown);
+        cursor: pointer; transition: color 0.2s;
+    }
+    .guided-close:hover { color: var(--dark-brown); }
+    .guided-body { padding: 24px; position: relative; } 
+    .guided-step { display: none; animation: fadeStep 0.3s ease; }
+    .guided-step.active { display: block; }
+    @keyframes fadeStep { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    .step-label { font-size: 10px; font-weight: 700; color: var(--brown); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .step-question { font-size: 15px; color: var(--dark-brown); margin-bottom: 16px; line-height: 1.4; }
+    
+    .guided-options { 
+        display: flex; flex-wrap: wrap; gap: 8px; 
+        max-height: 180px; 
+        overflow-y: auto;  
+        align-content: flex-start;
+        padding-right: 6px; 
+    }
+    .guided-options::-webkit-scrollbar { width: 5px; }
+    .guided-options::-webkit-scrollbar-track { background: rgba(108,78,49,0.08); border-radius: 10px; }
+    .guided-options::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 10px; }
+    .guided-options::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    .guided-opt {
+        background: rgba(255,255,255,0.7); border: 1px solid var(--border);
+        color: var(--dark-brown); font-size: 13px; font-family: 'DM Sans', sans-serif;
+        padding: 10px 16px; border-radius: 24px; cursor: pointer; transition: all 0.2s;
+    }
+    .guided-opt:hover { border-color: var(--accent); background: rgba(255,255,255,0.95); }
+    .guided-opt.selected { background: var(--dark-brown); color: #FFEAC5; border-color: var(--dark-brown); }
+    .guided-footer {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 24px; background: rgba(108,78,49,0.06); border-top: 1px solid var(--border);
+    }
+    .btn-wizard-back { background: none; border: none; font-size: 13px; font-weight: 600; color: var(--brown); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-wizard-next {
+        background: var(--dark-brown); color: #FFEAC5; font-size: 13px; font-weight: 600;
+        font-family: 'DM Sans', sans-serif; padding: 10px 24px; border-radius: 20px;
+        border: none; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-wizard-next:disabled { background: rgba(108,78,49,0.2); color: rgba(61,32,16,0.4); cursor: not-allowed; }
+
+    /* ─── RATE LIMIT MODAL ─── */
+    .ratelimit-overlay {
+        position: fixed; inset: 0; background: rgba(61,32,16,0.35);
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+        z-index: 300; display: flex; align-items: center; justify-content: center;
+        padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .ratelimit-overlay.open { opacity: 1; pointer-events: all; }
+    .ratelimit-card {
+        background: var(--cream-light); border-radius: 24px; padding: 32px 28px 28px;
+        max-width: 380px; width: 100%; text-align: center; box-shadow: 0 24px 64px rgba(61,32,16,0.2);
+        transform: translateY(16px) scale(0.97); transition: transform 0.3s ease;
+    }
+    .ratelimit-overlay.open .ratelimit-card { transform: translateY(0) scale(1); }
+    .ratelimit-emoji { font-size: 36px; margin-bottom: 12px; display: block; }
+    .ratelimit-title { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 19px; color: var(--dark-brown); margin-bottom: 8px; line-height: 1.3; }
+    .ratelimit-desc { font-size: 13px; color: var(--brown); line-height: 1.65; margin-bottom: 22px; }
+    .ratelimit-actions { display: flex; flex-direction: column; gap: 10px; }
+    .ratelimit-btn-login { display: block; background: var(--dark-brown); color: #FFEAC5; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600; padding: 13px 20px; border-radius: 20px; text-decoration: none; transition: opacity 0.2s; }
+    .ratelimit-btn-login:hover { opacity: 0.9; color: #FFEAC5; }
+    .ratelimit-btn-register { display: block; background: transparent; color: var(--dark-brown); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 11px 20px; border-radius: 20px; border: 1.5px solid var(--border-strong); text-decoration: none; transition: all 0.2s; }
+    .ratelimit-btn-register:hover { border-color: var(--accent); background: rgba(193,127,74,0.07); }
+    .ratelimit-dismiss { font-size: 11.5px; color: var(--brown); margin-top: 6px; background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 4px 0; text-decoration: underline; text-underline-offset: 2px; opacity: 0.7; }
+    .ratelimit-dismiss:hover { opacity: 1; }
+    .ratelimit-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #A32D2D; background: rgba(226,75,74,0.07); border: 1px solid rgba(226,75,74,0.18); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; font-weight: 700; }
 </style>
 @endpush
+
 @section('content')
-{{-- ══════════════════ SCREEN A: LANDING / QUERY ══════════════════ --}}
 <div id="screen-landing" class="screen">
     <div class="landing-content">
 
-        {{-- Hero --}}
+        <div class="skincare-badge">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            Pencarian Skincare Pintar
+        </div>
+
         <div class="lc-hero">
-            <div class="lc-eyebrow">
-                <svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                Smart Skincare Search
-            </div>
-            <h1 class="lc-title">Tell us about your skin type,<br>We will find<em> the best</em> products for you</h1>
+            <h1 class="lc-title">
+                Ceritakan kondisi kulitmu,<br>
+                Kami temukan produk <span class="title-italic">terbaik</span> untukmu
+            </h1>
         </div>
 
-        {{-- INPUT AREA --}}
-        <div class="lc-input-area">
-            {{-- Main Input Box --}}
-            <div class="lc-input-box">
-                <textarea
-                    id="userQuery"
-                    placeholder="Contoh: &quot;Kulit saya sensitif dan berjerawat di area pipi, saya lagi cari pelembap yang bebas alkohol...&quot;"
-                    autocomplete="off"
-                    maxlength="500"
-                    rows="3"
-                    oninput="autoResize(this)"
-                    aria-label="Deskripsi kondisi kulit dan kebutuhanmu"></textarea>
-                <div class="lc-input-toolbar">
-                    <div class="lc-toolbar-left">
-                        <button class="lc-info-btn" onclick="openInfoPopup()" title="Instructions" aria-label="Consultation input instructions">i</button>
-                        <span class="lc-count-badge" id="charCount">0 / 500</span>
-                        
+        <div class="ai-bottom-container">
+            <div class="sq-input-wrapper">
+                <div class="sq-input-box">
+                    <button class="sq-info-btn" onclick="openGuidedWizard()" aria-label="Open guided helper" title="Use guided assistant to fill this form" type="button">i</button>
+                    <textarea
+                        id="userQuery"
+                        placeholder="cth. kulit kering berjerawat, cari toner lembut budget 100 ribu..."
+                        autocomplete="off"
+                        maxlength="500"
+                        rows="1"
+                        oninput="autoResize(this); updateCharCount(this);"
+                        aria-label="Input keluhan kulit"></textarea>
+                    <div class="sq-chat-footer">
+                        <button class="sq-send-btn" id="btnSubmit" onclick="startFlow()" aria-label="Cari produk" title="Cari produk" type="button">
+                            <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                        </button>
                     </div>
-                    <button class="btn-send" id="btnSubmit" onclick="startFlow()" aria-label="Start Analysis" title="Analyze & Find Products">
-                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                            <line x1="12" y1="19" x2="12" y2="5"/>
-                            <polyline points="5 12 12 5 19 12"/>
-                        </svg>
-                    </button>
+                </div>
+
+                <div class="lc-error" id="errorBanner" role="alert">
+                    <div class="lc-error-icon">⚠️</div>
+                    <div class="lc-error-content">
+                        <div id="errorMessage">Terjadi kesalahan. Silakan coba lagi.</div>
+                        <button class="lc-error-retry" onclick="resetError()">Coba Lagi</button>
+                    </div>
                 </div>
             </div>
-
-            {{-- Error Display --}}
-            <div class="lc-error" id="errorBanner" role="alert">
-                <div class="lc-error-icon">⚠️</div>
-                <div class="lc-error-content">
-                    <div id="errorMessage">An error occurred. Please try again.</div>
-                    <button class="lc-error-retry" onclick="resetError()">Try Again</button>
-                </div>
-            </div>
-
-            <p class="lc-hint">The system extracts keywords from your sentences — the more descriptive they are, the more accurate the results</p>
         </div>
-
     </div>
-
 </div>
 
-{{-- ══════════════════ SCREEN B: ANALYSIS PIPELINE ══════════════════ --}}
 <div id="screen-analysis" class="screen hidden" aria-live="polite">
     <div class="analysis-body">
         <div class="analysis-inner">
-
-            {{-- Title --}}
             <div class="analysis-header">
-                <h2 class="analysis-title">Sedang mencari produk untukmu...</h2>
-                <p class="analysis-subtitle">Sabar sebentar ya, kami sedang membaca kondisi kulitmu</p>
+                <h2 class="analysis-title">Mencari produk terbaik untuk Anda...</h2>
+                <p class="analysis-subtitle">Mohon tunggu, sistem sedang menganalisis data kulit Anda</p>
             </div>
-
-            {{-- Query Echo: show user what we're processing --}}
             <div class="analysis-query-echo">
-                <div class="aqe-label">Keluhanmu yang sedang kami baca</div>
+                <div class="aqe-label">Teks yang sedang diproses</div>
                 <div class="aqe-text" id="analysisQueryEcho">—</div>
             </div>
-
-            {{-- Pipeline Steps --}}
             <div class="loading-steps">
                 <div class="loading-step" id="step-0">
                     <div class="step-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Memahami ceritamu</div>
-                        <div class="step-sub">Kami membaca dan memahami setiap kata yang kamu tulis</div>
+                        <div class="step-label">Mengurai input teks pengguna</div>
+                        <div class="step-sub">Menjalankan tokenisasi, penghapusan stopword, dan normalisasi teks</div>
                     </div>
-                    <div class="step-pulse" aria-hidden="true"></div>
+                    <div class="step-pulse"></div>
                 </div>
                 <div class="loading-step" id="step-1">
                     <div class="step-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Mengenali kondisi & kebutuhan kulitmu</div>
-                        <div class="step-sub">Kami mencatat jenis kulit, masalah, dan produk yang kamu cari</div>
+                        <div class="step-label">Mengekstraksi entitas metadata kulit</div>
+                        <div class="step-sub">Mengidentifikasi jenis kulit, keluhan aktif, dan kategori produk yang dicari</div>
                     </div>
-                    <div class="step-pulse" aria-hidden="true"></div>
+                    <div class="step-pulse"></div>
                 </div>
                 <div class="loading-step" id="step-2">
                     <div class="step-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Mencocokkan dengan ribuan produk</div>
-                        <div class="step-sub">Kami membandingkan produk mana yang paling sesuai untukmu</div>
+                        <div class="step-label">Menghitung Matriks TF-IDF (Content-Based)</div>
+                        <div class="step-sub">Menghitung skor kemiripan kosinus terhadap seluruh database produk</div>
                     </div>
-                    <div class="step-pulse" aria-hidden="true"></div>
+                    <div class="step-pulse"></div>
                 </div>
                 <div class="loading-step" id="step-3">
                     <div class="step-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </div>
                     <div class="step-info">
-                        <div class="step-label">Menyiapkan rekomendasi terbaikmu</div>
-                        <div class="step-sub">Tinggal selangkah lagi — hasil rekomendasimu sudah hampir siap!</div>
+                        <div class="step-label">Mengoptimalkan Bobot Kriteria (Metode SAW)</div>
+                        <div class="step-sub">Menyusun rekomendasi akhir Top-5 berdasarkan skor preferensi tertinggi</div>
                     </div>
-                    <div class="step-pulse" aria-hidden="true"></div>
+                    <div class="step-pulse"></div>
                 </div>
             </div>
-
             <div class="progress-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                 <div id="analysisBar" class="progress-fill"></div>
             </div>
-
-            {{-- Error State (shows, then user manually goes back) --}}
             <div class="error-state" id="errorState" role="alert">
-                <div class="error-box" id="analysisErrorMessage">Terjadi gangguan. Silakan ulangi pemrosesan.</div>
+                <div class="error-box" id="analysisErrorMessage">Terjadi kesalahan internal pada sistem. Silakan coba lagi.</div>
                 <button class="btn-retry" onclick="resetToLanding()">↩ Kembali &amp; Coba Lagi</button>
             </div>
-
         </div>
     </div>
 </div>
 
-{{-- ══ RATE LIMIT MODAL — Muncul saat kuota 3x konsultasi tamu habis ══ --}}
-<div class="ratelimit-overlay" id="rateLimitOverlay" role="dialog" aria-modal="true" aria-label="Batas konsultasi gratis habis">
+<div class="ratelimit-overlay" id="rateLimitOverlay" role="dialog" aria-modal="true">
     <div class="ratelimit-card">
-        <span class="ratelimit-badge">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Kuota Gratis Habis
-        </span>
+        <span class="ratelimit-badge">Kuota Gratis Habis</span>
         <span class="ratelimit-emoji">🌿</span>
-        <h2 class="ratelimit-title">Konsultasi gratismu sudah dipakai semua</h2>
+        <h2 class="ratelimit-title">Batas analisis harian tercapai</h2>
         <p class="ratelimit-desc">
-            Kamu sudah mencoba <strong>3 kali konsultasi gratis</strong> hari ini — terima kasih sudah mempercayai SkinQuo!<br><br>
-            Daftar atau masuk sekarang untuk menikmati konsultasi <strong>tanpa batas</strong>, simpan riwayat perawatan kulitmu, dan dapatkan rekomendasi yang makin personal setiap harinya.
+            Anda telah menggunakan <strong>3 pencarian gratis</strong> untuk hari ini — terima kasih telah mencoba SkinQuo!<br><br>
+            Silakan masuk atau buat akun gratis untuk mendapatkan akses tanpa batas, menyimpan riwayat konsultasi pribadi, dan analisis yang lebih mendalam.
         </p>
         <div class="ratelimit-actions">
             <a href="/login" class="ratelimit-btn-login">🔑 Masuk ke Akun</a>
-            <a href="/register" class="ratelimit-btn-register">✨ Buat Akun Gratis</a>
+            <a href="/register" class="ratelimit-btn-register">✨ Daftar Akun Gratis</a>
             <button class="ratelimit-dismiss" onclick="closeRateLimitModal()">Nanti saja</button>
         </div>
     </div>
 </div>
 
-{{-- ══ GLOBAL INFO POPUP — sengaja di luar .screen agar position:fixed tidak ter-clip ══ --}}
-<div class="lc-info-overlay" id="infoOverlay" role="dialog" aria-modal="true" aria-label="Petunjuk pengisian konsultasi" onclick="closeInfoOnBackdrop(event)">
-    <div class="lc-info-popup">
-        <div class="lc-info-popup-header">
-            <div class="lc-info-popup-title">What can you tell us?</div>
-            <button class="lc-info-popup-close" onclick="closeInfoPopup()" aria-label="Tutup">✕</button>
+<div class="guided-overlay" id="guidedOverlay" role="dialog" aria-modal="true">
+    <div class="guided-card">
+        <div class="guided-header">
+            <h3 class="guided-title">Asisten Analisis Kulit</h3>
+            <button class="guided-close" onclick="closeGuidedWizard()">✕</button>
         </div>
-        <div class="lc-how-rows">
-            <div class="lc-how-row">
-                <div class="lc-how-icon green">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div>
-                <div class="lc-how-text">
-                    <strong>Kondisi dan keluhan kulit</strong> — "wajahku berminyak dan jerawatan di dahi", "kulit kering dan kusam setelah melahirkan"
-                </div>
-            </div>
-            <div class="lc-how-row">
-                <div class="lc-how-icon amber">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-                </div>
-                <div class="lc-how-text">
-                    <strong>Jenis produk yang dicari</strong> — "cari toner", "butuh moisturizer", "mau coba serum vitamin C"
+        <div class="guided-body">
+            <div class="guided-step active" id="wizard-step-1">
+                <div class="step-label">Langkah 1 dari 3</div>
+                <h4 class="step-question">Bagaimana kondisi umum kulit Anda saat ini?</h4>
+                <div class="guided-options" id="options-type">
+                    @foreach($wizardSkinTypes as $st)
+                        <button class="guided-opt" onclick="selectWizardOption('type', '{{ $st->keyword }}')">{{ $st->keyword }}</button>
+                    @endforeach
                 </div>
             </div>
-            <div class="lc-how-row">
-                <div class="lc-how-icon red">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                </div>
-                <div class="lc-how-text">
-                    <strong>Kandungan yang dihindari</strong> — "tanpa alkohol", "bebas fragrance", "hindari retinol karena sedang hamil"
+            <div class="guided-step" id="wizard-step-2">
+                <div class="step-label">Langkah 2 dari 3</div>
+                <h4 class="step-question">Apa keluhan utama kulit Anda? <span style="color:#C17F4A;font-size:12px;">(Pilih maks. 3)</span></h4>
+                <div class="guided-options multi" id="options-concern">
+                    @foreach($wizardProblems as $prob)
+                        <button class="guided-opt" onclick="toggleWizardOption(this, 'concern', '{{ $prob->keyword }}')">
+                            {{ $prob->keyword }}
+                        </button>
+                    @endforeach
                 </div>
             </div>
+            <div class="guided-step" id="wizard-step-3">
+                <div class="step-label">Langkah 3 dari 3</div>
+                <h4 class="step-question">Jenis produk apa yang Anda cari? <span style="color:#C17F4A;font-size:12px;">(Pilih maks. 3)</span></h4>
+                <div class="guided-options multi" id="options-product">
+                    @foreach($wizardProducts as $prod)
+                        <button class="guided-opt" onclick="toggleWizardOption(this, 'product', '{{ $prod->keyword }}')">
+                            {{ $prod->keyword }}
+                        </button>
+                    @endforeach
+                    <button class="guided-opt" onclick="toggleWizardOption(this, 'product', 'General Search')" style="background: rgba(0,0,0,0.04); border-style: dashed;">
+                        Produk apa saja yang cocok
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="guided-footer">
+            <button class="btn-wizard-back" id="btnWizardBack" onclick="wizardPrev()" style="visibility: hidden;">Kembali</button>
+            <button class="guided-close" id="btnWizardNext" onclick="wizardNext()" disabled>Selanjutnya</button>
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('no-scroll');
-        // Pindahkan popup ke body agar position:fixed tidak ter-clip oleh stacking context .screen
-        const overlay = document.getElementById('infoOverlay');
-        if (overlay && overlay.parentElement !== document.body) {
-            document.body.appendChild(overlay);
-        }
-        // Pindahkan rate limit modal ke body juga
         const rlOverlay = document.getElementById('rateLimitOverlay');
-        if (rlOverlay && rlOverlay.parentElement !== document.body) {
-            document.body.appendChild(rlOverlay);
-        }
+        if (rlOverlay && rlOverlay.parentElement !== document.body) document.body.appendChild(rlOverlay);
+        const wizardOverlay = document.getElementById('guidedOverlay');
+        if (wizardOverlay && wizardOverlay.parentElement !== document.body) document.body.appendChild(wizardOverlay);
     });
 
-    function openRateLimitModal() {
-        document.getElementById('rateLimitOverlay').classList.add('open');
-    }
-    function closeRateLimitModal() {
-        document.getElementById('rateLimitOverlay').classList.remove('open');
-    }
+    function openRateLimitModal() { document.getElementById('rateLimitOverlay').classList.add('open'); }
+    function closeRateLimitModal() { document.getElementById('rateLimitOverlay').classList.remove('open'); }
 
-    function openInfoPopup() {
-        document.getElementById('infoOverlay').classList.add('open');
+    function fillSuggestion(btn) {
+        const ta = document.getElementById('userQuery');
+        if (!ta) return;
+        const text = btn.textContent.trim();
+        ta.value = text;
+        autoResize(ta);
+        const banner = document.getElementById('errorBanner');
+        if (banner) banner.classList.remove('show');
+        ta.focus();
+        btn.style.background = 'rgba(193,127,74,0.15)';
+        setTimeout(() => { btn.style.background = ''; }, 400);
     }
-    function closeInfoPopup() {
-        document.getElementById('infoOverlay').classList.remove('open');
-    }
-    function closeInfoOnBackdrop(e) {
-        if (e.target === document.getElementById('infoOverlay')) closeInfoPopup();
-    }
+    
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeInfoPopup();
+        if (e.key === 'Escape') closeGuidedWizard();
     });
 
-    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+    let currentWizardStep = 1;
+    let wizardSelections = { type: '', concern: [], product: [] };
+    const MAX_SELECTIONS = 3;
+
+    function openGuidedWizard() {
+        document.getElementById('guidedOverlay').classList.add('open');
+        showWizardStep(1);
+    }
+
+    function closeGuidedWizard() {
+        document.getElementById('guidedOverlay').classList.remove('open');
+    }
+
+    function selectWizardOption(category, value) {
+        wizardSelections[category] = value;
+        const buttons = document.querySelectorAll(`#options-${category} .guided-opt`);
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        event.target.classList.add('selected');
+        checkWizardValid();
+    }
+
+    function toggleWizardOption(btn, category, value) {
+        const isSelected = btn.classList.contains('selected');
+        if (!isSelected) {
+            if (wizardSelections[category].length >= MAX_SELECTIONS) {
+                btn.style.transform = 'translateX(4px)';
+                setTimeout(() => btn.style.transform = 'translateX(-4px)', 100);
+                setTimeout(() => btn.style.transform = 'translateX(0)', 200);
+                return;
+            }
+            btn.classList.add('selected');
+            if (!wizardSelections[category].includes(value)) wizardSelections[category].push(value);
+        } else {
+            btn.classList.remove('selected');
+            wizardSelections[category] = wizardSelections[category].filter(item => item !== value);
+        }
+        checkWizardValid();
+    }
+
+    function checkWizardValid() {
+        const btnNext = document.getElementById('btnWizardNext');
+        if (currentWizardStep === 1) btnNext.disabled = wizardSelections.type === '';
+        else if (currentWizardStep === 2) btnNext.disabled = wizardSelections.concern.length === 0;
+        else if (currentWizardStep === 3) btnNext.disabled = wizardSelections.product.length === 0;
+    }
+
+    function showWizardStep(step) {
+        currentWizardStep = step;
+        document.querySelectorAll('.guided-step').forEach((el, index) => {
+            el.classList.toggle('active', index + 1 === step);
+        });
+        document.getElementById('btnWizardBack').style.visibility = step > 1 ? 'visible' : 'hidden';
+        const btnNext = document.getElementById('btnWizardNext');
+        btnNext.textContent = step === 3 ? 'Terapkan ke Kotak Teks' : 'Selanjutnya';
+        checkWizardValid();
+    }
+
+    function wizardNext() {
+        if (currentWizardStep < 3) showWizardStep(currentWizardStep + 1);
+        else generateWizardQuery();
+    }
+
+    function wizardPrev() {
+        if (currentWizardStep > 1) showWizardStep(currentWizardStep - 1);
+    }
+
+    function generateWizardQuery() {
+        let generatedQuery = `Kondisi kulit saya cenderung ${wizardSelections.type.toLowerCase()}`;
+        if (wizardSelections.concern.length > 0) {
+            generatedQuery += `, keluhan utamanya adalah ${wizardSelections.concern.join(', ').toLowerCase()}`;
+        }
+        if (wizardSelections.product.length > 0 && !wizardSelections.product.includes('General Search')) {
+            generatedQuery += `. Saya sedang mencari rekomendasi produk ${wizardSelections.product.join(', ').toLowerCase()}.`;
+        } else {
+            generatedQuery += `. Tolong berikan rekomendasi produk yang paling cocok.`;
+        }
+        const ta = document.getElementById('userQuery');
+        ta.value = generatedQuery;
+        autoResize(ta);
+        ta.focus();
+        resetError();
+        closeGuidedWizard();
+    }
 
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         const el = document.getElementById(id);
         if (el) el.classList.remove('hidden');
-    }
-
-    function useTemplate(text) {
-        const ta = document.getElementById('userQuery');
-        if (ta) {
-            ta.value = text;
-            autoResize(ta);
-            ta.focus();
-        }
-        resetError();
     }
 
     function updateProgress(stepIndex, percent) {
@@ -973,17 +894,6 @@
         }
     }
 
-    function showError(msg) {
-        // Go back to landing and show error banner there
-        showScreen('screen-landing');
-        const banner = document.getElementById('errorBanner');
-        const message = document.getElementById('errorMessage');
-        if (message) message.textContent = msg || 'Gagal memproses keluhan. Silakan coba lagi.';
-        if (banner) banner.classList.add('show');
-        const btn = document.getElementById('btnSubmit');
-        if (btn) btn.disabled = false;
-    }
-
     function resetError() {
         const banner = document.getElementById('errorBanner');
         if (banner) banner.classList.remove('show');
@@ -991,21 +901,30 @@
 
     function autoResize(el) {
         el.style.height = 'auto';
-        el.style.height = Math.min(el.scrollHeight, 200) + 'px';
-        el.style.overflowY = el.scrollHeight > 200 ? 'auto' : 'hidden';
-        const cc = document.getElementById('charCount');
-        if (cc) cc.textContent = el.value.length + ' / 500';
+        const newH = Math.min(el.scrollHeight, 120);
+        el.style.height = newH + 'px';
+        const box = el.closest('.sq-input-box');
+        if (box) box.style.borderRadius = newH > 52 ? '20px' : '50px';
     }
 
-    async function startFlow() {
+    function updateCharCount(el) {
+        const count = el.value.length;
+        const counter = document.getElementById('charCount');
+        if (counter) counter.textContent = count + ' / 500';
+    }
+
+        async function startFlow() {
         const ta = document.getElementById('userQuery');
         const btn = document.getElementById('btnSubmit');
+        // [FIX] Ambil elemen budget
+        const budgetInput = document.getElementById('userBudget'); 
+        
         const query = ta ? ta.value.trim() : '';
+        const budgetVal = (budgetInput && budgetInput.value) ? parseInt(budgetInput.value) : null;
 
         if (query.length < 5) {
             ta.focus();
-            ta.style.outline = '2px solid rgba(226,75,74,0.4)';
-            ta.style.borderRadius = '4px';
+            ta.style.outline = '1.5px solid rgba(193,127,74,0.6)';
             setTimeout(() => { ta.style.outline = ''; }, 1200);
             return;
         }
@@ -1013,7 +932,6 @@
         if (btn) btn.disabled = true;
         resetError();
 
-        // Show query echo in analysis screen
         const echo = document.getElementById('analysisQueryEcho');
         if (echo) echo.textContent = '"' + query + '"';
 
@@ -1028,60 +946,47 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({ query })
+                // [FIX] Pastikan harga_max ikut dikirim!
+                body: JSON.stringify({ 
+                    query: query, 
+                    original_query: query, 
+                    harga_max: budgetVal 
+                })
             });
 
             setTimeout(() => updateProgress(2, 72), thinkTime * 2.2);
 
             let data;
-            try {
-                data = await response.json();
-            } catch (e) {
-                throw new Error('Format respon server tidak dikenali. Silakan coba lagi.');
+            try { data = await response.json(); } catch (e) {
+                throw new Error('Format respons server tidak dikenali. Silakan coba lagi.');
             }
 
-            if (!response.ok) {
-                // Tangani 429: kuota konsultasi tamu habis
-                if (response.status === 429) {
+            if (!response.ok || !data.success) {
+                if (response.status === 429 || data.message?.includes('Batas')) {
                     showScreen('screen-landing');
-                    const btn = document.getElementById('btnSubmit');
                     if (btn) btn.disabled = false;
                     openRateLimitModal();
                     return;
                 }
-                if (response.status === 422 && data.detail) throw new Error(data.detail);
                 throw new Error(data.message || 'Sistem mengalami gangguan. Silakan coba lagi.');
             }
 
-            if (data.status === 'out_of_context' || data.status === 'invalid') {
-                throw new Error(data.message || 'Keluhan yang kamu masukkan di luar konteks skincare. Coba deskripsikan kondisi kulitmu lebih spesifik.');
+            if (!data.consultation_id) {
+                throw new Error('ID konsultasi tidak valid dari server. Silakan coba lagi.');
             }
-
             updateProgress(3, 100);
-            await delay(450);
-            window.location.href = `/consultation/${data.consultation_id}/result`;
+            await new Promise(r => setTimeout(r, 450));
+            window.location.replace(`/consultation/${data.consultation_id}/result`);
 
         } catch (err) {
-            // Show error on analysis screen briefly, then redirect to landing
             const es = document.getElementById('errorState');
             const em = document.getElementById('analysisErrorMessage');
             if (em) em.textContent = err.message;
             if (es) es.classList.add('show');
         }
-    }
-
-    function resetToLanding() {
-        const ta = document.getElementById('userQuery');
-        const btn = document.getElementById('btnSubmit');
-        if (ta) { ta.value = ''; autoResize(ta); }
-        if (btn) btn.disabled = false;
-        document.querySelectorAll('.loading-step').forEach(el => el.classList.remove('active', 'done', 'visible'));
-        const bar = document.getElementById('analysisBar');
-        if (bar) bar.style.width = '0%';
-        document.getElementById('errorState')?.classList.remove('show');
-        showScreen('screen-landing');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
