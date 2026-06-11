@@ -5,7 +5,7 @@
 @push('styles')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,700;1,400&family=DM+Sans:wght=300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
     :root {
@@ -29,7 +29,6 @@
         color: var(--dark-brown);
     }
 
-    /* ─── NAV ─── */
     .sq-nav {
         position: fixed;
         top: 0; left: 0; right: 0;
@@ -62,7 +61,6 @@
     .sq-nav-link:hover { color: var(--dark-brown); }
     .sq-nav-link.active { color: var(--dark-brown); font-weight: 600; }
 
-    /* ─── PAGE LAYOUT ─── */
     .cr-page {
         padding-top: 76px;
         padding-bottom: 4rem;
@@ -74,7 +72,6 @@
         padding: 0 1.5rem;
     }
 
-    /* ─── PAGE HEADER ─── */
     .cr-page-header {
         margin-bottom: 1.5rem;
         display: flex;
@@ -122,7 +119,6 @@
     .cr-ph-new-btn:hover { border-color: var(--accent); color: var(--accent); }
     .cr-ph-new-btn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
 
-    /* ─── QUERY CONTEXT STRIP ─── */
     .cr-query-strip {
         background: var(--white);
         border: 1px solid var(--border);
@@ -166,12 +162,6 @@
         margin-top: 3px;
         display: block;
     }
-    .cr-qs-divider {
-        width: 1px;
-        background: var(--border);
-        align-self: stretch;
-        flex-shrink: 0;
-    }
     .cr-qs-extracted { flex-shrink: 0; min-width: 200px; max-width: 300px; }
     .cr-qs-ext-label {
         font-size: 9.5px;
@@ -188,13 +178,13 @@
         gap: 4px;
         font-size: 11px;
         font-weight: 500;
-        padding: 3px 9px;
+        padding: 4px 10px;
         border-radius: 8px;
         border: 1px solid;
     }
     .cr-tag.cat     { background: rgba(193,127,74,0.1);  color: #6C4E31; border-color: rgba(193,127,74,0.22); }
-    .cr-tag.concern { background: rgba(55,138,221,0.08); color: #185FA5; border-color: rgba(55,138,221,0.18); }
-    .cr-tag.block   { background: rgba(226,75,74,0.07);  color: #A32D2D; border-color: rgba(226,75,74,0.18); }
+    .cr-tag.concern { background: rgba(226,75,74,0.06);  color: #A32D2D; border-color: rgba(226,75,74,0.18); }
+    .cr-tag.block   { background: rgba(55,138,221,0.08); color: #185FA5; border-color: rgba(55,138,221,0.18); }
     .cr-tag.area    { background: rgba(99,153,34,0.08);  color: #3B6D11; border-color: rgba(99,153,34,0.18); }
     .cr-tag svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
 
@@ -204,9 +194,6 @@
         .cr-qs-extracted { min-width: unset; max-width: unset; width: 100%; }
     }
 
-    /* ═══════════════════════════════════
-       MAIN SHOWCASE — UNIFIED CARD
-    ═══════════════════════════════════ */
     .cr-showcase {
         background: var(--white);
         border-radius: 24px;
@@ -216,7 +203,6 @@
         box-shadow: 0 4px 24px rgba(61,32,16,0.05);
     }
 
-    /* Top bar */
     .cr-showcase-bar {
         display: flex;
         align-items: center;
@@ -242,7 +228,6 @@
     }
     .cr-best-label svg { width: 11px; height: 11px; fill: currentColor; }
 
-    /* ─── UNIFIED 2-COLUMN BODY ─── */
     .cr-showcase-body {
         display: grid;
         grid-template-columns: 260px 1fr;
@@ -250,7 +235,6 @@
     }
     @media (max-width: 860px) { .cr-showcase-body { grid-template-columns: 1fr; } }
 
-    /* ─── LEFT: Gallery ─── */
     .cr-gallery {
         padding: 1.5rem;
         border-right: 1px solid var(--border);
@@ -292,7 +276,6 @@
         -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     }
 
-    /* Alt detail popup */
     .cr-alt-detail {
         display: none; background: rgba(250,243,232,0.6);
         border: 1px solid var(--border); border-radius: 12px;
@@ -313,7 +296,6 @@
     .cr-alt-detail-link  { font-size: 10.5px; font-weight: 600; color: var(--accent); text-decoration: none; margin-top: 4px; display: none; }
     .cr-alt-detail-link:hover { text-decoration: underline; }
 
-    /* ─── RIGHT: Unified Product Detail ─── */
     .cr-product-detail {
         padding: 1.75rem 2rem;
         display: flex;
@@ -321,7 +303,6 @@
         gap: 1.25rem;
     }
 
-    /* Header: Brand + Name + Category + CTA row */
     .cr-pd-header {
         display: flex;
         align-items: flex-start;
@@ -354,7 +335,6 @@
     }
     .cr-pd-cta-inline:hover { background: var(--brown); transform: translateY(-1px); }
 
-    /* Reason banner — inline, compact */
     .cr-reason-banner {
         background: var(--dark-brown);
         border-radius: 14px;
@@ -369,7 +349,6 @@
     }
     .cr-reason-text { font-size: 12.5px; color: rgba(255,253,248,0.88); line-height: 1.55; }
 
-    /* Ingredient tags */
     .cr-ingredients-wrap {
         background: rgba(250,243,232,0.4);
         border: 1px solid var(--border);
@@ -380,6 +359,7 @@
         text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
         display: flex; align-items: center; gap: 5px;
     }
+    .cr-ingredients-wrap svg { vertical-align: middle; }
     .cr-ing-tags { display: flex; flex-wrap: wrap; gap: 5px; }
     .cr-ing-tag {
         background: var(--white); border: 1px solid var(--border);
@@ -388,7 +368,6 @@
     }
     .cr-ing-tag.hero { background: var(--dark-brown); color: #FFEAC5; border-color: var(--dark-brown); }
 
-    /* 2-col info row: Strengths + Description side by side */
     .cr-pd-info-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -396,7 +375,6 @@
     }
     @media (max-width: 680px) { .cr-pd-info-row { grid-template-columns: 1fr; } }
 
-    /* Strengths */
     .cr-strengths {
         background: rgba(250,243,232,0.5);
         border: 1px solid var(--border);
@@ -422,7 +400,6 @@
     .cr-strength-dot.skin   { background: rgba(99,153,34,0.1);   color: #3B6D11; }
     .cr-strength-dot.none   { background: rgba(61,32,16,0.06);   color: var(--text-muted); }
 
-    /* Description text block */
     .cr-text-block {
         background: rgba(250,243,232,0.4);
         border: 1px solid var(--border);
@@ -446,7 +423,6 @@
         font-family: 'DM Sans', sans-serif; align-self: flex-start;
     }
 
-    /* Composition strip — collapsed by default */
     .cr-composition-wrap {
         border: 1px solid var(--border);
         border-radius: 12px; overflow: hidden;
@@ -472,7 +448,6 @@
     }
     .cr-composition-body.open { display: block; animation: fadeUp 0.15s ease; }
 
-    /* Precautions */
     .cr-precaution-box {
         display: flex; align-items: flex-start; gap: 10px;
         padding: 11px 13px; border-radius: 12px;
@@ -486,7 +461,6 @@
         text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;
     }
 
-    /* ─── RELATED ARTICLES ─── */
     .cr-articles-section {
         background: var(--white);
         border-radius: 24px;
@@ -551,17 +525,23 @@
 <div class="cr-page">
 <div class="cr-container">
 
-    @php
-        $ingredientResult = is_string($consultation->ingredient_result ?? '')
-            ? json_decode($consultation->ingredient_result, true)
-            : ($consultation->ingredient_result ?? []);
+        @php
+        // [FIX] Support dua skema database sekaligus (Lama & Baru) agar tidak pernah Error Undefined Property
+        $rawIngredient = $consultation->ai_response ?? ($consultation->ingredient_result ?? '{}');
+        
+        $ingredientResult = is_string($rawIngredient)
+            ? json_decode($rawIngredient, true)
+            : ($rawIngredient ?? []);
 
-        $queryText     = $ingredientResult['original_query'] ?? $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
-        $ingredient   = $ingredientResult['extracted_ingredients'] ?? $ingredientResult['ingredient'] ?? [];
-        $products      = $ingredientResult['recommendations'] ?? $ingredientResult['all_products'] ?? [];
-        $skinConcern   = $ingredientResult['extracted_concerns'] ?? [];
-        $faceArea      = $ingredientResult['extracted_face_area'] ?? [];
-        $extractedCats = $ingredientResult['extracted_products'] ?? [];
+        $queryText = $ingredientResult['original_query'] ?? $ingredientResult['cleaned_query'] ?? 'Konsultasi Personal';
+        $products  = $ingredientResult['all_products'] ?? [];
+        
+        $displayExplainability = $ingredientResult['display_explainability'] ?? [];
+        
+        $displayProducts    = $displayExplainability['Jenis Produk'] ?? [];
+        $displayIngredients = $displayExplainability['Kandungan Aktif'] ?? [];
+        $displaySkinTypes   = $displayExplainability['Jenis/Tipe Kulit'] ?? [];
+        $displayProblems    = $displayExplainability['Keluhan Kulit'] ?? [];
 
         $heroProduct       = !empty($products) ? $products[0] : null;
         $alternateProducts = array_slice($products, 1);
@@ -571,13 +551,16 @@
             $heroIngredientNames = array_map(fn($ing) => is_array($ing) ? ($ing['name'] ?? '') : $ing, $heroIngredients);
             $heroIngredientNames = array_filter($heroIngredientNames);
         } else {
-            $heroIngredientNames = [];
+            if (is_string($heroProduct['ingredients'] ?? null) && !empty($heroProduct['ingredients'])) {
+                $heroIngredientNames = array_filter(array_map('trim', explode(',', $heroProduct['ingredients'])));
+            } else {
+                $heroIngredientNames = [];
+            }
         }
 
         $relatedArticles = $ingredientResult['related_articles'] ?? [];
     @endphp
 
-    {{-- PAGE HEADER --}}
     <div class="cr-page-header">
         <div>
             <div class="cr-ph-eyebrow">✓ Analisis Selesai</div>
@@ -585,12 +568,11 @@
             <div class="cr-ph-date">{{ \Carbon\Carbon::parse($consultation->created_at)->format('d M Y · H:i') }} WIB</div>
         </div>
         <a href="{{ route('consultation.index') }}" class="cr-ph-new-btn">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Pencarian Baru
         </a>
     </div>
 
-    {{-- QUERY CONTEXT STRIP --}}
     <div class="cr-query-strip" role="region" aria-label="Ringkasan query dan entitas yang diekstrak">
         <div class="cr-qs-query">
             <div class="cr-qs-label">Kalimat yang kamu masukkan</div>
@@ -600,56 +582,56 @@
             @endif
         </div>
         <div class="cr-qs-divider" aria-hidden="true"></div>
+        
         <div class="cr-qs-extracted">
             <div class="cr-qs-ext-label">Sistem memahami</div>
             <div class="cr-qs-tags">
-                @foreach($extractedCats as $cat)
+                @foreach($displayProducts as $cat)
                     <span class="cr-tag cat">
-                        <svg viewBox="0 0 24 24" style="width:8px;height:8px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-                        {{ ucwords($cat) }}
+                        <svg viewBox="0 0 24 24" style="width:8px;height:8px;fill:none;stroke:currentColor;stroke-width:3;"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+                        {{ $cat }}
                     </span>
                 @endforeach
-                @foreach($skinConcern as $concern)
-                    <span class="cr-tag concern">{{ ucwords($concern) }}</span>
+                @foreach($displaySkinTypes as $st)
+                    <span class="cr-tag area">{{ $st }}</span>
                 @endforeach
-                @foreach($faceArea as $area)
-                    <span class="cr-tag area">{{ ucwords($area) }}</span>
+                @foreach($displayProblems as $prob)
+                    <span class="cr-tag concern">{{ $prob }}</span>
                 @endforeach
-                @foreach($ingredient as $ingredients)
+                @foreach($displayIngredients as $ingItem)
                     <span class="cr-tag block">
-                        <svg viewBox="0 0 24 24" style="width:8px;height:8px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        {{ ucwords($ingredients) }}
+                        <svg viewBox="0 0 24 24" style="width:8px;height:8px;fill:none;stroke:currentColor;stroke-width:3;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        {{ $ingItem }}
                     </span>
                 @endforeach
-                @if(empty($extractedCats) && empty($skinConcern) && empty($ingredient) && empty($faceArea))
+                @if(empty($displayProducts) && empty($displaySkinTypes) && empty($displayProblems) && empty($displayIngredients))
                     <span style="font-size:12px;color:var(--text-muted);">Sedang diproses...</span>
                 @endif
             </div>
         </div>
     </div>
 
-    {{-- MAIN SHOWCASE --}}
     @if($heroProduct)
     @php
         $reasonMeta = $heroProduct['reasoning_meta'] ?? null;
         $reasonText = $reasonMeta['reasoning_text'] ?? '';
-        $sawBreak   = $reasonMeta['saw_breakdown'] ?? [];
+        
+        $sawBreak   = $reasonMeta['saw_breakdown_weighted'] ?? [];
+        $scoreDetails = $reasonMeta['scoring_details'] ?? [];
         $matchCats  = $reasonMeta['matched_categories'] ?? [];
         $matchIngs  = $reasonMeta['matched_ingredients'] ?? [];
 
-        // Build user-friendly "keunggulan" bullets
         $strengths = [];
         if (!empty($matchCats))
-            $strengths[] = ['dot' => 'cat',  'icon' => '📦', 'text' => 'Kategori produk sesuai — ' . implode(', ', array_map('ucwords', $matchCats))];
+            $strengths[] = ['dot' => 'cat',  'icon' => '📦', 'text' => 'Kategori produk sesuai — ' . implode(', ', $matchCats)];
         if (!empty($matchIngs))
-            $strengths[] = ['dot' => 'ing',  'icon' => '🧪', 'text' => 'Mengandung bahan aktif yang kamu cari — ' . implode(', ', array_map('ucwords', $matchIngs))];
-        if (!empty($skinConcern))
-            $strengths[] = ['dot' => 'skin', 'icon' => '✅', 'text' => 'Formulasi efektif untuk ' . implode(', ', array_map('ucwords', $skinConcern))];
+            $strengths[] = ['dot' => 'ing',  'icon' => '🧪', 'text' => 'Mengandung bahan aktif yang dicari — ' . implode(', ', $matchIngs)];
+        if (!empty($displaySkinTypes) || !empty($displayProblems)) {
+            $concernsMerged = array_unique(array_merge($displaySkinTypes, $displayProblems));
+            $strengths[] = ['dot' => 'skin', 'icon' => '✅', 'text' => 'Formulasi efektif untuk ' . implode(', ', $concernsMerged)];
+        }
 
-        $c2Val = $sawBreak['c2_category_match'] ?? 0;
-        $c3Val = $sawBreak['c3_ingredient_match'] ?? 0;
-        $c4Val = $sawBreak['c4_concern_match'] ?? 0;
-        $hasTextMatch = ($sawBreak['c1_textual_similarity'] ?? 0) > 0;
+        $hasTextMatch = ($sawBreak['c1_textual'] ?? $scoreDetails['raw_cbf_cosine'] ?? 0) > 0;
         if ($hasTextMatch && count($strengths) === 0)
             $strengths[] = ['dot' => 'match', 'icon' => '🔍', 'text' => 'Deskripsi produk paling sesuai dengan pencarianmu'];
         if (empty($strengths))
@@ -657,22 +639,18 @@
     @endphp
 
     <div class="cr-showcase" role="region" aria-label="Detail produk rekomendasi utama">
-
-        {{-- Top bar — label ramah, tanpa angka score --}}
         <div class="cr-showcase-bar">
             <div class="cr-showcase-rank">
                 <span class="cr-rank-badge">#1</span>
                 Rekomendasi Utama
             </div>
             <div class="cr-best-label">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 Pilihan Terbaik untuk Kamu
             </div>
         </div>
 
         <div class="cr-showcase-body">
-
-            {{-- LEFT: Gambar + Alternatif --}}
             <div class="cr-gallery">
                 <div class="cr-gallery-main" id="mainProductImage">
                     @if(!empty($heroProduct['image_url']))
@@ -696,6 +674,11 @@
                                 @endif
                             </div>
                             <div class="cr-alt-name">{{ $prod['product_name'] }}</div>
+                            @if(!empty($prod['harga_display']))
+                                <div style="font-size: 10px; font-weight: 700; color: var(--accent); text-align: center; padding-bottom: 6px;">
+                                    {{ $prod['harga_display'] }}
+                                </div>
+                            @endif
                         </div>
                         @endforeach
                     </div>
@@ -705,6 +688,7 @@
                             <div class="cr-alt-detail-brand" id="altDetailBrand"></div>
                             <div class="cr-alt-detail-name"  id="altDetailName"></div>
                             <div class="cr-alt-detail-cat"   id="altDetailCat"></div>
+                            <div id="altDetailPrice" style="font-size: 12.5px; font-weight: 700; color: var(--accent); margin-top: 4px;"></div>
                             <a href="#" class="cr-alt-detail-link" id="altDetailLink" target="_blank" rel="noopener">Lihat Produk ↗</a>
                         </div>
                     </div>
@@ -712,15 +696,18 @@
                 @endif
             </div>
 
-            {{-- RIGHT: Unified Product Detail Panel --}}
             <div class="cr-product-detail">
-
-                {{-- Header: Nama + Brand + CTA inline --}}
                 <div class="cr-pd-header">
                     <div class="cr-pd-header-left">
                         <div class="cr-p-brand">{{ $heroProduct['brand'] ?? 'Premium Brand' }}</div>
                         <h2 class="cr-p-title">{{ $heroProduct['product_name'] }}</h2>
                         <p class="cr-p-cat">{{ $heroProduct['category'] ?? 'Skincare' }}</p>
+                        
+                        @if(!empty($heroProduct['harga_display']))
+                            <div style="font-size: 20px; font-weight: 700; color: var(--accent); margin-top: 8px; font-family: 'DM Sans', sans-serif;">
+                                {{ $heroProduct['harga_display'] }}
+                            </div>
+                        @endif
                     </div>
                     @if(!empty($heroProduct['link_produk']))
                     <a href="{{ $heroProduct['link_produk'] }}" target="_blank" rel="noopener" class="cr-pd-cta-inline">
@@ -729,7 +716,6 @@
                     @endif
                 </div>
 
-                {{-- Alasan AI --}}
                 @if($reasonText)
                 <div class="cr-reason-banner">
                     <div class="cr-reason-icon">💡</div>
@@ -740,11 +726,10 @@
                 </div>
                 @endif
 
-                {{-- Bahan Aktif Kunci --}}
                 @if(!empty($heroIngredientNames))
                 <div class="cr-ingredients-wrap">
                     <div class="cr-ing-label">
-                        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;" aria-hidden="true"><path d="M9 3l3 9 3-9"/><path d="M6 21h12"/><path d="M12 12v9"/></svg>
+                        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:var(--accent);stroke-width:2.5;" aria-hidden="true"><path d="M9 3l3 9 3-9"/><path d="M6 21h12"/><path d="M12 12v9"/></svg>
                         Bahan Aktif Kunci
                     </div>
                     <div class="cr-ing-tags">
@@ -755,9 +740,7 @@
                 </div>
                 @endif
 
-                {{-- Keunggulan + Deskripsi side by side --}}
                 <div class="cr-pd-info-row">
-                    {{-- Keunggulan Produk --}}
                     <div class="cr-strengths">
                         <div class="cr-strengths-title">Keunggulan Produk Ini</div>
                         <div class="cr-strength-list">
@@ -770,7 +753,6 @@
                         </div>
                     </div>
 
-                    {{-- Deskripsi Produk --}}
                     @if(!empty($heroProduct['description']))
                     <div class="cr-text-block">
                         <div class="cr-text-block-label">Deskripsi Produk</div>
@@ -782,12 +764,11 @@
                     @endif
                 </div>
 
-                {{-- Komposisi Lengkap — collapsible --}}
                 @if(!empty($heroProduct['ingredients']))
                 <div class="cr-composition-wrap">
                     <button class="cr-composition-toggle" id="compToggle" onclick="toggleComposition()" aria-expanded="false">
                         <span>📋 Komposisi Lengkap</span>
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <div class="cr-composition-body" id="compBody">
                         {{ $heroProduct['ingredients'] }}
@@ -795,7 +776,6 @@
                 </div>
                 @endif
 
-                {{-- Peringatan / catatan penggunaan --}}
                 @if(!empty($reasonMeta['precaution_notes']))
                 @foreach($reasonMeta['precaution_notes'] as $note)
                     @php
@@ -810,22 +790,16 @@
                     </div>
                 @endforeach
                 @endif
-
-            </div>{{-- end unified product detail --}}
-        </div>{{-- end showcase body --}}
-    </div>{{-- end showcase --}}
+            </div>
+        </div>
+    </div>
     @endif
 
-    {{-- RELATED ARTICLES --}}
     @if(!empty($relatedArticles))
     <div class="cr-articles-section">
         <h3 class="cr-articles-title">Artikel Edukasi yang Relevan</h3>
         <div class="cr-articles-grid">
             @foreach($relatedArticles as $article)
-            {{-- 
-                URL sudah di-generate di controller via url('/artikel/' . $art->slug)
-                Gunakan route internal (tanpa target blank) agar navigasi smooth
-            --}}
             <a href="{{ $article['url'] ?? '#' }}" class="cr-article-card">
                 <div class="cr-article-cover">
                     @if(!empty($article['cover_image']))
@@ -860,7 +834,6 @@
 <script>
     const altProductsData = @json($alternateProducts);
 </script>
-
 @endsection
 
 @push('scripts')
@@ -891,8 +864,8 @@
         if (!prod) return;
 
         const panel = document.getElementById('altDetailPanel');
-
         const imgEl = document.getElementById('altDetailImg');
+        
         if (prod.image_url) {
             imgEl.innerHTML = `<img src="${prod.image_url}" alt="${prod.product_name}" loading="lazy" style="width:100%;height:100%;object-fit:contain;">`;
         } else {
@@ -902,6 +875,12 @@
         document.getElementById('altDetailBrand').textContent = prod.brand ?? '';
         document.getElementById('altDetailName').textContent  = prod.product_name ?? '';
         document.getElementById('altDetailCat').textContent   = prod.category ?? 'Skincare';
+
+        // [NEW] UPDATE DOM INJECT VALUE HARGA PRODUK ALTERNATIF YANG DIKLIK
+        const priceEl = document.getElementById('altDetailPrice');
+        if (priceEl) {
+            priceEl.textContent = prod.harga_display ?? '';
+        }
 
         const linkEl = document.getElementById('altDetailLink');
         if (prod.link_produk) {

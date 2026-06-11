@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 class QueryRequest(BaseModel):
@@ -6,8 +7,14 @@ class QueryRequest(BaseModel):
     query: str = Field(
         ..., 
         min_length=5, 
-        max_length=500, 
+        max_length=600, 
         description="Teks query dari pengguna untuk mencari rekomendasi"
+    )
+    
+    # [NEW] Menambahkan field budget pengguna (Hanya Maksimal agar UI simpel)
+    harga_max: Optional[int] = Field(
+        None, 
+        description="Batas maksimum budget user"
     )
 
     @field_validator('query')
@@ -24,11 +31,10 @@ class QueryRequest(BaseModel):
             raise ValueError("⚠️ Peringatan Keamanan: Terdeteksi query berbahaya (Indikasi Hacking/Injection). Akses ditolak.")
         
         # 2. Cek Spam Karakter Berulang (contoh: "aaaaaa", "wkwkwkwk")
-        # Mendeteksi 5 atau lebih karakter yang sama persis secara berurutan
         if re.search(r'(.)\1{4,}', v):
             raise ValueError("⚠️ Peringatan Spam: Input tidak wajar (terlalu banyak karakter berulang). Harap jelaskan kondisi kulit Anda dengan benar.")
 
-        # 3. Cek Spam Ejaan / Gibberish (Konsonan berderet tanpa vokal, contoh: "sdfghjkl")
+        # 3. Cek Spam Ejaan / Gibberish (Konsonan berderet tanpa vokal)
         if re.search(r'[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{6,}', v):
             raise ValueError("⚠️ Peringatan Spam: Ejaan tidak masuk akal terdeteksi. Harap gunakan bahasa yang dapat dipahami.")
 

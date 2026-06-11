@@ -1,7 +1,7 @@
 import re
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
-from app.services.keyword_manager import keyword_manager  # ✔️ IMPORT INI, HAPUS VALIDATION_KEYWORDS LAMA
+from app.services.keyword_manager import keyword_manager  
 
 # ── Initialize Sastrawi ──────────────────────────────────────────
 stopword_factory = StopWordRemoverFactory()
@@ -12,6 +12,24 @@ stemmer          = stemmer_factory.create_stemmer()
 
 # Cache untuk mempercepat proses stemming kata non-keyword
 STEM_CACHE = {}
+
+# [TAMBAHAN: KAMUS SLANG]
+SLANG_MAP = {
+    "pas atas": "mengatasi",
+    "atas": "mengatasi",
+    "buat": "untuk",
+    "bikin": "membuat",
+    "ilang": "hilang",
+    "ilangin": "menghilangkan",
+    "nyari": "mencari",
+    "pake": "pakai",
+}
+
+def _normalize_slang(text: str) -> str:
+    """Mengubah bahasa santai/slang menjadi kata baku."""
+    for slang, baku in SLANG_MAP.items():
+        text = re.sub(rf'\b{slang}\b', baku, text)
+    return text
 
 # ── Internal helpers ─────────────────────────────────────────────
 
@@ -76,6 +94,9 @@ def preprocess_text(text: str) -> str:
 
     # 4. Normalisasi spasi dobel
     text = re.sub(r'\s+', ' ', text).strip()
+
+    # [PERBAIKAN: NORMALISASI SLANG SEBELUM SASTRAWI]
+    text = _normalize_slang(text)
 
     # 5. Hapus stopword secara aman (word-by-word)
     text = _safe_remove_stopwords(text)

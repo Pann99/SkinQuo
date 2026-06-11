@@ -1,9 +1,7 @@
 from __future__ import annotations
-
 import re
 from functools import lru_cache
 from typing import Optional
-
 from rapidfuzz import fuzz, process
 from sentence_transformers import SentenceTransformer, util
 
