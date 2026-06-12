@@ -1,10 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Login — SkinQuo')
+@section('title', 'Forgot Password — SkinQuo')
 
 @push('styles')
 <style>
-    /* Hide navbar on auth pages */
     .navbar-wrap { display: none !important; }
     footer { display: none !important; }
 
@@ -17,7 +16,6 @@
         overflow: hidden;
     }
 
-    /* ── LEFT PANEL ── */
     .auth-left {
         background: #FFEAC5;
         display: flex;
@@ -62,8 +60,15 @@
         font-size: 1.5rem;
         font-weight: 700;
         color: #603F26;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.5rem;
         line-height: 1.2;
+    }
+
+    .auth-subtitle {
+        font-size: 0.72rem;
+        color: rgba(96, 63, 38, 0.65);
+        margin-bottom: 1rem;
+        line-height: 1.5;
     }
 
     .auth-label {
@@ -145,7 +150,6 @@
     }
     .auth-switch a:hover { text-decoration: underline; }
 
-    /* ── RIGHT PANEL ── */
     .auth-right {
         overflow: hidden;
     }
@@ -157,7 +161,6 @@
         display: block;
     }
 
-    /* ── Alert / Validation errors ── */
     .auth-alert {
         background: rgba(96, 63, 38, 0.08);
         border-left: 3px solid #603F26;
@@ -170,7 +173,6 @@
     .auth-alert ul { padding-left: 1.1rem; margin: 0; }
     .auth-alert li { margin-bottom: 0.15rem; }
 
-    /* ── Responsive ── */
     @media (max-width: 768px) {
         .auth-wrapper { grid-template-columns: 1fr; height: auto; }
         .auth-right { display: none; }
@@ -183,35 +185,27 @@
 @section('content')
 <div class="auth-wrapper">
 
-    {{-- ── LEFT: FORM AREA ── --}}
     <div class="auth-left">
 
-        {{-- Brand --}}
         <a href="{{ route('home') }}" class="auth-brand">
             <img src="{{ asset('images/logo_skinquo_coklat.png') }}" alt="SkinQuo Logo">
             SkinQuo
         </a>
 
-       {{-- Form --}}
-<div class="auth-form-area">
+        <div class="auth-form-area">
 
-    <h1 class="auth-title">Login to SkinQuo</h1>
+            <h1 class="auth-title">Forgot your password?</h1>
+            <p class="auth-subtitle">
+                No worries — enter your email address below and we'll send you a link to reset your password.
+            </p>
 
-    {{-- Session Status --}}
-    @if (session('status'))
-        <div class="auth-alert">{{ session('status') }}</div>
-    @endif
+            @if (session('status'))
+                <div class="auth-alert">{{ session('status') }}</div>
+            @endif
 
-    {{-- Info (redirect dari feedback) --}}
-    @if (session('info'))
-        <div class="auth-alert" style="background:rgba(255,193,7,0.12);border-left-color:#D4841C;color:#7A5030;">
-            ⚠️ {{ session('info') }}
-        </div>
-    @endif
+            <form method="POST" action="{{ route('password.email') }}" id="forgot-form">
+                @csrf
 
-    <form method="POST" action="{{ route('login') }}" id="login-form">
-        @csrf
-                {{-- Email / Mobile --}}
                 <label class="auth-label" for="email">Email address</label>
                 <input
                     id="email"
@@ -229,59 +223,17 @@
                     <span class="auth-error">{{ $message }}</span>
                 @enderror
 
-                {{-- Password --}}
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-    <label class="auth-label" for="password">Password</label>
-    <a href="{{ route('password.request') }}" style="font-size:0.65rem; color:#603F26; text-decoration:none; font-weight:600;">
-        Forgot password?
-    </a>
-</div>
-                <div style="position: relative;">
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        class="auth-input @error('password') is-invalid @enderror"
-                        placeholder="Password"
-                        required
-                        autocomplete="current-password"
-                        style="padding-right: 2.75rem;"
-                    >
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        data-target="password"
-                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s;"
-                        onmouseover="this.style.opacity='1'"
-                        onmouseout="this.style.opacity='0.6'"
-                    >
-                        <svg class="eye-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        <svg class="eye-off-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="display: none;">
-                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                            <line x1="1" y1="1" x2="23" y2="23"></line>
-                        </svg>
-                    </button>
-                </div>
-                @error('password')
-                    <span class="auth-error">{{ $message }}</span>
-                @enderror
-
-                {{-- Submit --}}
-                <button type="submit" class="auth-btn" id="submit-btn">Sign In</button>
+                <button type="submit" class="auth-btn" id="submit-btn">Send Reset Link</button>
 
             </form>
 
             <p class="auth-switch">
-                Don't have an account? <a href="{{ route('register') }}">Create Account</a>
+                Remembered your password? <a href="{{ route('login') }}">Back to Login</a>
             </p>
 
         </div>
     </div>
 
-    {{-- ── RIGHT: IMAGE ── --}}
     <div class="auth-right">
         <img src="{{ asset('images/auth-model.png') }}" alt="SkinQuo Model">
     </div>
@@ -289,35 +241,12 @@
 </div>
 
 <script>
-    // Password visibility toggle functionality
-    document.querySelectorAll('.password-toggle').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('data-target');
-            const input = document.getElementById(targetId);
-            const eyeIcon = this.querySelector('.eye-icon');
-            const eyeOffIcon = this.querySelector('.eye-off-icon');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                eyeIcon.style.display = 'none';
-                eyeOffIcon.style.display = 'block';
-            } else {
-                input.type = 'password';
-                eyeIcon.style.display = 'block';
-                eyeOffIcon.style.display = 'none';
-            }
-        });
-    });
-
-    // Form submission - Disable button and show loading state
-    const loginForm = document.getElementById('login-form');
+    const forgotForm = document.getElementById('forgot-form');
     const submitBtn = document.getElementById('submit-btn');
-    
-    loginForm.addEventListener('submit', function() {
-        const originalText = submitBtn.textContent;
+
+    forgotForm.addEventListener('submit', function() {
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Signing In...';
+        submitBtn.textContent = 'Sending...';
     });
 </script>
 @endsection

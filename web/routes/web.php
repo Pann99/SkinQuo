@@ -15,6 +15,8 @@ use App\Http\Controllers\AdminFeedbackController;
 use App\Http\Controllers\DebugAuthController;
 use App\Http\Controllers\ValidationKeywordController;
 use App\Http\Controllers\Admin\DictionaryUploadController;
+use App\Http\Controllers\PasswordResetLinkController;
+use App\Http\Controllers\NewPasswordController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -86,6 +88,21 @@ Route::get('/register', [AuthController::class, 'showRegister'])
 Route::post('/register', [AuthController::class, 'register'])
     ->middleware('guest');
 
+// Forgot / Reset Password
+Route::middleware('guest')->group(function () {
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+        ->name('password.request');
+
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->name('password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+        ->name('password.reset');
+
+    Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->name('password.store');
+});
+
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
@@ -132,6 +149,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/consultation/feedback', [ConsultationController::class, 'storeFeedback'])
         ->name('consultation.feedback.store');
+
+    
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
