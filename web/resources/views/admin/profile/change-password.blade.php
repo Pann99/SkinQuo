@@ -55,6 +55,36 @@
     </div>
 
     {{-- FORM CARD ADMIN --}}
+    @if ($errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorMap = {
+            'current_password': @json($errors->first('current_password')),
+            'new_password':     @json($errors->first('new_password')),
+            'new_password_confirmation': @json($errors->first('new_password_confirmation')),
+        };
+        const idMap = {
+            'current_password':          'currentPasswordInput',
+            'new_password':              'newPasswordInput',
+            'new_password_confirmation': 'confirmPasswordInput',
+        };
+        Object.entries(errorMap).forEach(([key, msg]) => {
+            if (!msg) return;
+            const inputId = idMap[key];
+            const field = document.getElementById(inputId);
+            if (!field) return;
+            const el = document.createElement('span');
+            el.className = 'cp-inline-error';
+            el.style.cssText = 'color:#C04444; font-size:12px; font-family:"Jost"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
+            el.innerHTML = '<i class="bi bi-exclamation-circle"></i> ' + msg;
+            field.closest('div').parentElement.appendChild(el);
+        });
+        const firstError = document.querySelector('.cp-inline-error');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+</script>
+@endif
+
     <div style="background:#FAF4EB; border-radius:32px; padding:40px 44px; box-shadow:0 16px 48px rgba(61,35,20,0.05); border:1px solid rgba(124,90,60,0.12);">
       <form action="{{ route('admin.profile.update-password') }}" method="POST" onsubmit="return validateForm()">
         @csrf
@@ -74,14 +104,13 @@
             Current Password
           </label>
           <div style="position:relative; width:100%;">
-            <input type="password" name="current_password" id="currentPasswordInput" style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" placeholder="••••••••" required>
+          <input type="password" name="current_password" id="currentPasswordInput" 
+    style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" 
+    placeholder="••••••••">
             <button type="button" onclick="togglePasswordVisibility('currentPasswordInput', this)" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:17px; display:flex; align-items:center; padding:0;">
               <i class="bi bi-eye"></i>
             </button>
           </div>
-          @error('current_password')
-            <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:flex; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
-          @enderror
         </div>
 
         {{-- NEW PASSWORD --}}
@@ -90,7 +119,9 @@
             New Password
           </label>
           <div style="position:relative; width:100%;">
-            <input type="password" name="new_password" id="newPasswordInput" style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" placeholder="••••••••" oninput="checkStrength(this.value); checkMatch();" required>
+            <input type="password" name="new_password" id="newPasswordInput" 
+    style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" 
+    placeholder="••••••••" oninput="checkStrength(this.value); checkMatch();">
             <button type="button" onclick="togglePasswordVisibility('newPasswordInput', this)" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:17px; display:flex; align-items:center; padding:0;">
               <i class="bi bi-eye"></i>
             </button>
@@ -111,9 +142,6 @@
               <span id="checkSymbol" style="font-family:'Jost'; font-size:12px; color:#A89482; display:inline-flex; align-items:center; gap:5px; transition:color 0.2s;"><i class="bi bi-circle"></i> Symbol</span>
             </div>
           </div>
-          @error('new_password')
-            <span style="color:#C04444; font-size:12px; font-family:'Jost'; display:flex; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
-          @enderror
         </div>
 
         {{-- CONFIRM NEW PASSWORD --}}
@@ -122,13 +150,15 @@
             Confirm New Password
           </label>
           <div style="position:relative; width:100%;">
-            <input type="password" name="new_password_confirmation" id="confirmPasswordInput" style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" placeholder="••••••••" oninput="checkMatch()" required>
+           {{-- Hanya ini yang diubah, hapus required dari confirm password saja --}}
+<input type="password" name="new_password_confirmation" id="confirmPasswordInput" 
+    style="background:#FFFFFF; border:none; border-radius:999px; padding:16px 52px 16px 24px; width:100%; outline:none; font-family:'Jost'; font-size:14px; color:#3C2010; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02); box-sizing:border-box;" 
+    placeholder="••••••••" oninput="checkMatch()">
             <button type="button" onclick="togglePasswordVisibility('confirmPasswordInput', this)" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#7A5C43; cursor:pointer; font-size:17px; display:flex; align-items:center; padding:0;">
               <i class="bi bi-eye"></i>
             </button>
           </div>
-          <span id="matchError" style="color:#C04444; font-size:12px; font-family:'Jost'; display:none; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-exclamation-circle-fill"></i> Passwords do not match.</span>
-          <span id="matchSuccess" style="color:#4A9B5A; font-size:12px; font-family:'Jost'; display:none; align-items:center; gap:5px; margin-top:6px;"><i class="bi bi-check-circle-fill"></i> Passwords match.</span>
+      
         </div>
 
         {{-- ACTIONS --}}
@@ -143,121 +173,105 @@
 </div>
 @endsection
 
+
 @push('scripts')
 <script>
 function togglePasswordVisibility(id, btn) {
-  const input = document.getElementById(id);
-  const icon  = btn.querySelector('i');
-  if (input.type === 'password') { input.type = 'text'; icon.className = 'bi bi-eye-slash'; } 
-  else { input.type = 'password'; icon.className = 'bi bi-eye'; }
+    const input = document.getElementById(id);
+    const icon  = btn.querySelector('i');
+    if (input.type === 'password') { input.type = 'text'; icon.className = 'bi bi-eye-slash'; }
+    else { input.type = 'password'; icon.className = 'bi bi-eye'; }
 }
 
 function checkStrength(val) {
-  const has8 = val.length >= 8, hasUpper = /[A-Z]/.test(val), hasSym = /[^a-zA-Z0-9]/.test(val);
-  
-  const setCheck = (id, passed, label) => {
+    const has8 = val.length >= 8, hasUpper = /[A-Z]/.test(val), hasSym = /[^a-zA-Z0-9]/.test(val);
+    const setCheck = (id, passed, label) => {
+        const el = document.getElementById(id);
+        el.innerHTML = (passed ? '<i class="bi bi-check-circle-fill" style="color:var(--brown-dark);"></i>' : '<i class="bi bi-circle"></i>') + ' ' + label;
+        el.style.color = passed ? 'var(--brown-dark)' : '#A89482';
+    };
+    setCheck('check8char', has8, '8+ characters');
+    setCheck('checkUpper', hasUpper, 'Uppercase letter');
+    setCheck('checkSymbol', hasSym, 'Symbol');
+    const score = [has8, hasUpper, hasSym].filter(Boolean).length;
+    const map = {
+        0: { w: 0,   l: '—',        c: 'var(--brown-dark)' },
+        1: { w: 33,  l: 'Weak',     c: '#C04444' },
+        2: { w: 66,  l: 'Moderate', c: '#B07830' },
+        3: { w: 100, l: 'Strong',   c: '#4A9B5A' }
+    };
+    const level = val.length === 0 ? 0 : Math.max(score, 1);
+    const cfg = map[Math.min(level, 3)];
+    document.getElementById('strengthBar').style.width      = cfg.w + '%';
+    document.getElementById('strengthBar').style.background = cfg.c;
+    document.getElementById('strengthLabel').textContent    = cfg.l;
+    document.getElementById('strengthLabel').style.color    = cfg.c;
+}
+
+// Disable paste + hapus inline error saat mengetik — semua field
+['currentPasswordInput', 'newPasswordInput', 'confirmPasswordInput'].forEach(function(id) {
     const el = document.getElementById(id);
-    el.innerHTML = (passed ? '<i class="bi bi-check-circle-fill" style="color:var(--brown-dark);"></i>' : '<i class="bi bi-circle"></i>') + ' ' + label;
-    el.style.color = passed ? 'var(--brown-dark)' : '#A89482';
-  };
-  
-  setCheck('check8char', has8, '8+ characters');
-  setCheck('checkUpper', hasUpper, 'Uppercase letter');
-  setCheck('checkSymbol', hasSym, 'Symbol');
-  
-  const score = [has8, hasUpper, hasSym].filter(Boolean).length;
-  const map = { 
-    0: { w: 0, l: '—', c: 'var(--brown-dark)' }, 
-    1: { w: 33, l: 'Weak', c: '#C04444' }, 
-    2: { w: 66, l: 'Moderate', c: '#B07830' }, 
-    3: { w: 100, l: 'Strong', c: '#4A9B5A' } 
-  };
-  const level = val.length === 0 ? 0 : Math.max(score, 1);
-  const cfg = map[Math.min(level, 3)];
-  
-  document.getElementById('strengthBar').style.width = cfg.w + '%';
-  document.getElementById('strengthBar').style.background = cfg.color;
-  document.getElementById('strengthLabel').textContent = cfg.label;
-  document.getElementById('strengthLabel').style.color = cfg.color;
-}
-
-function checkMatch() {
-  const np = document.getElementById('newPasswordInput').value;
-  const cp = document.getElementById('confirmPasswordInput').value;
-  
-  const err = document.getElementById('matchError');
-  const ok  = document.getElementById('matchSuccess');
-
-  if (cp.length === 0) {
-    err.style.display = 'none';
-    ok.style.display  = 'none';
-  } else if (np !== cp) {
-    err.style.display = 'inline-flex';
-    ok.style.display  = 'none';
-  } else {
-    err.style.display = 'none';
-    ok.style.display  = 'inline-flex';
-  }
-}
-
-document.getElementById('confirmPasswordInput').addEventListener('paste', function(e) {
-    e.preventDefault();
-    
-    const existing = document.getElementById('pasteError');
-    if (!existing) {
-        const msg = document.createElement('span');
-        msg.id = 'pasteError';
-        msg.style.cssText = 'color:#C04444; font-size:12px; font-family:"Jost"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
-        msg.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Paste is not allowed. Please type manually.';
-        this.closest('div').parentElement.appendChild(msg);
-    }
-});
-
-document.getElementById('confirmPasswordInput').addEventListener('input', function() {
-    const existing = document.getElementById('pasteError');
-    if (existing) existing.remove();
-});
-
-// FUNGSI VALIDASI FINAL SAAT TOMBOL SAVE DIKLIK
-function validateForm() {
-  const np = document.getElementById('newPasswordInput').value;
-  const cp = document.getElementById('confirmPasswordInput').value;
-  const errAlert = document.getElementById('jsErrorAlert');
-  const errList  = document.getElementById('jsErrorList');
-  
-  // Cek Kriteria
-  const has8     = np.length >= 8;
-  const hasUpper = /[A-Z]/.test(np);
-  const hasSym   = /[^a-zA-Z0-9]/.test(np);
-
-  let errors = [];
-
-  if (!has8) errors.push("Password minimal harus 8 karakter.");
-  if (!hasUpper) errors.push("Password harus mengandung minimal satu huruf kapital (Uppercase).");
-  if (!hasSym) errors.push("Password harus mengandung minimal satu simbol.");
-  if (np !== cp) errors.push("Konfirmasi password tidak cocok dengan password baru.");
-
-  // Jika ada error, hentikan submit & tampilkan kotak merah
-  if (errors.length > 0) {
-    errList.innerHTML = '';
-    errors.forEach(msg => {
-      let li = document.createElement('li');
-      li.textContent = msg;
-      errList.appendChild(li);
+    el.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const existing = document.getElementById('pasteError-' + id);
+        if (!existing) {
+            const msg = document.createElement('span');
+            msg.id = 'pasteError-' + id;
+            msg.style.cssText = 'color:#C04444; font-size:12px; font-family:"Jost"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
+            msg.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Paste is not allowed. Please type manually.';
+            this.closest('div').parentElement.appendChild(msg);
+        }
     });
-    
-    errAlert.style.display = 'flex';
-    
-    // Scroll layar ke atas supaya user lihat pesan error-nya
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    return false; // Mencegah form tersubmit
-  }
+    el.addEventListener('input', function() {
+        const pasteErr = document.getElementById('pasteError-' + id);
+        if (pasteErr) pasteErr.remove();
+        const inlineErr = this.closest('div').parentElement.querySelector('.cp-inline-error');
+        if (inlineErr) inlineErr.remove();
+    });
+});
 
-  // Jika aman, sembunyikan error dan biarkan form tersubmit
-  errAlert.style.display = 'none';
-  return true;
+function validateForm() {
+    const cur = document.getElementById('currentPasswordInput').value;
+    const np  = document.getElementById('newPasswordInput').value;
+    const cp  = document.getElementById('confirmPasswordInput').value;
+
+    document.querySelectorAll('.cp-inline-error').forEach(el => el.remove());
+
+    const has8      = np.length >= 8;
+    const hasUpper  = /[A-Z]/.test(np);
+    const hasSymbol = /[^a-zA-Z0-9]/.test(np);
+
+    let hasError = false;
+
+    function showInlineError(inputId, message) {
+        const field = document.getElementById(inputId);
+        if (!field) return;
+        const existing = field.closest('div').parentElement.querySelector('.cp-inline-error');
+        if (existing) existing.remove();
+        const msg = document.createElement('span');
+        msg.className = 'cp-inline-error';
+        msg.style.cssText = 'color:#C04444; font-size:12px; font-family:"Jost"; display:inline-flex; align-items:center; gap:5px; margin-top:6px;';
+        msg.innerHTML = '<i class="bi bi-exclamation-circle"></i> ' + message;
+        field.closest('div').parentElement.appendChild(msg);
+        hasError = true;
+    }
+
+    if (!cur)                          showInlineError('currentPasswordInput', 'Current password is required.');
+    if (!has8)                         showInlineError('newPasswordInput',     'Password must be at least 8 characters.');
+    else if (!hasUpper)                showInlineError('newPasswordInput',     'Password must contain at least one uppercase letter.');
+    else if (!hasSymbol)               showInlineError('newPasswordInput',     'Password must contain at least one number or symbol.');
+    else if (cur && np && cur === np)  showInlineError('newPasswordInput',     'New password must be different from your current password.');
+    if (!cp)                           showInlineError('confirmPasswordInput', 'Please confirm your new password.');
+    else if (np && np !== cp)          showInlineError('confirmPasswordInput', 'Confirmation password does not match.');
+
+    if (hasError) {
+        document.getElementById('jsErrorAlert').style.display = 'none';
+        const firstError = document.querySelector('.cp-inline-error');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
+
+    return true;
 }
-
 </script>
 @endpush

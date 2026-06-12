@@ -3,7 +3,7 @@
 @section('content')
 
 {{-- ===== SUCCESS TOAST ===== --}}
-@if(session('status'))
+@if(session('password_updated'))
 <div id="toastSuccess"
      style="position:fixed; top:28px; right:28px; z-index:9999;
             background:#3C2010; color:#EDD9B8;
@@ -13,7 +13,7 @@
             display:flex; align-items:center; gap:10px;
             animation: slideIn 0.4s ease;">
   <i class="bi bi-check-circle-fill" style="font-size:16px; color:#A8D5A2;"></i>
-  {{ session('status') }}
+  Password updated successfully!
 </div>
 
 <style>
@@ -93,19 +93,49 @@
              style="background:#FFFFFF; border:2px solid #D4C5B9; border-radius:999px; padding:11px 18px; width:100%; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; box-sizing:border-box; height:46px; box-shadow:0 2px 8px rgba(60,32,16,0.04);">
     </div>
 
-    {{-- PASSWORD --}}
-    <div style="margin-bottom:0;">
-      <label style="font-family:'Jost'; font-size:10px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:6px; font-weight:600;">Password</label>
-      <div style="display:flex; gap:10px; align-items:center; width:100%;">
-        <input type="password" value="············" readonly
-               style="background:#FFFFFF; border:2px solid #D4C5B9; border-radius:999px; padding:11px 18px; flex:1; outline:none; font-family:'Jost'; font-size:15px; color:#3C2010; letter-spacing:0.15em; box-sizing:border-box; height:46px; box-shadow:0 2px 8px rgba(60,32,16,0.04);">
-        <a href="{{ route('admin.profile.change-password') }}"
-           style="background:transparent; border:2px solid #7A5030; color:#7A5030; border-radius:999px; padding:8px 16px; font-family:'Jost'; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; text-decoration:none; white-space:nowrap; transition:all 0.2s; height:46px; display:flex; align-items:center; cursor:pointer;"
-           onmouseover="this.style.background='#7A5030'; this.style.color='#EDD9B8';" onmouseout="this.style.background='transparent'; this.style.color='#7A5030';">
-          Ubah Password
-        </a>
-      </div>
+
+{{-- PASSWORD --}}
+<div style="margin-bottom:0;">
+  <label style="font-family:'Jost'; font-size:10px; text-transform:uppercase; letter-spacing:0.12em; color:#7A5030; display:block; margin-bottom:6px; font-weight:600;">Password</label>
+  <div style="display:flex; gap:10px; align-items:center; width:100%;">
+
+    {{-- Input wrapper dengan badge "Updated" di dalam --}}
+    <div style="position:relative; flex:1;">
+      <input type="password" value="············" readonly
+             style="background:#FFFFFF; 
+                    border:2px solid {{ session('password_updated') ? '#A8D5A2' : '#D4C5B9' }}; 
+                    border-radius:999px; padding:11px 18px; width:100%; outline:none; 
+                    font-family:'Jost'; font-size:15px; color:#3C2010; letter-spacing:0.15em; 
+                    box-sizing:border-box; height:46px; 
+                    box-shadow:0 2px 8px rgba(60,32,16,0.04); 
+                    padding-right: {{ session('password_updated') ? '110px' : '18px' }};">
+      @if(session('password_updated'))
+        <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%);
+                     background:#EEF7EE; border:1px solid #A8D5A2; border-radius:999px;
+                     padding:3px 10px; font-family:'Jost'; font-size:10px; color:#2D6B36;
+                     font-weight:700; letter-spacing:0.06em;
+                     display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+          <i class="bi bi-check-circle-fill"></i> Updated
+        </span>
+      @endif
     </div>
+
+    <a href="{{ route('admin.profile.change-password') }}"
+       style="background:transparent; border:2px solid #7A5030; color:#7A5030; border-radius:999px; padding:8px 16px; font-family:'Jost'; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; text-decoration:none; white-space:nowrap; transition:all 0.2s; height:46px; display:flex; align-items:center; cursor:pointer;"
+       onmouseover="this.style.background='#7A5030'; this.style.color='#EDD9B8';"
+       onmouseout="this.style.background='transparent'; this.style.color='#7A5030';">
+      Ubah Password
+    </a>
+  </div>
+
+  {{-- Subtext konfirmasi di bawah field --}}
+  @if(session('password_updated'))
+    <p style="font-family:'Jost'; font-size:11px; color:#4A9B5A; margin:6px 0 0 18px;
+              display:flex; align-items:center; gap:5px;">
+      <i class="bi bi-shield-check"></i> Password changed successfully.
+    </p>
+  @endif
+</div>
 
   </div>
   {{-- ===== END CARD ===== --}}

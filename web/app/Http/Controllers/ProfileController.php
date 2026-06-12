@@ -140,27 +140,28 @@ class ProfileController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'password_confirmation' => ['required', 'string', 'min:8'],
         ], [
-            'current_password.required' => 'Password saat ini tidak boleh kosong.',
-            'current_password.min' => 'Password saat ini minimal 8 karakter.',
-            'password.required' => 'Password baru tidak boleh kosong.',
-            'password.min' => 'Password baru minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak sesuai dengan password baru.',
-            'password_confirmation.required' => 'Konfirmasi password tidak boleh kosong.',
-            'password_confirmation.min' => 'Konfirmasi password minimal 8 karakter.',
+            // Ganti semua custom messages di updatePassword():
+        'current_password.required' => 'Current password is required.',
+        'current_password.min' => 'Current password must be at least 8 characters.',
+        'password.required' => 'New password is required.',
+        'password.min' => 'New password must be at least 8 characters.',
+        'password.confirmed' => 'Password confirmation does not match.',
+        'password_confirmation.required' => 'Please confirm your new password.',
+        'password_confirmation.min' => 'Password confirmation must be at least 8 characters.',
         ]);
 
         try {
             // Verifikasi current password cocok
             if (!Hash::check($validated['current_password'], $user->password)) {
                 return back()->withErrors([
-                    'current_password' => 'Password saat ini tidak sesuai.',
+                    'current_password' => 'Current password is incorrect.',
                 ])->withInput($request->except('current_password', 'password', 'password_confirmation'));
             }
 
             // Cegah password baru sama dengan current password
             if (Hash::check($validated['password'], $user->password)) {
                 return back()->withErrors([
-                    'password' => 'Password baru tidak boleh sama dengan password saat ini.',
+                    'password' => 'New password cannot be the same as the current password.',
                 ])->withInput($request->except('current_password', 'password', 'password_confirmation'));
             }
 
