@@ -20,15 +20,7 @@ def _extract_keywords_from_dicts(dict_list: list[dict]) -> list[str]:
         return []
     return [item["keyword"] for item in dict_list if item["confidence"] >= 0.65]
 
-def _remove_substrings(string_list: list) -> list:
-    if not string_list:
-        return []
-    sorted_list = sorted(set(string_list), key=len, reverse=True)
-    filtered = []
-    for s in sorted_list:
-        if not any(s in other and s != other for other in filtered):
-            filtered.append(s)
-    return filtered
+# [DIPERBAIKI] Fungsi _remove_substrings yang membahayakan keyword mirip sudah dihapus.
 
 class QueryPipelineService:
 
@@ -60,7 +52,6 @@ class QueryPipelineService:
             if correction["is_fixable"]:
                 fixed_raw_query = correction["fixed_query"]
                 final_cleaned_text = preprocess_text(fixed_raw_query)
-                # Note: validasi ke-2 ini akan memunculkan log tambahan jika typo diperbaiki
                 query_check = validate_query(final_cleaned_text, fixed_raw_query)
                 current_status = "fixable"
                 fix_result = correction["fix_result"]
@@ -75,20 +66,17 @@ class QueryPipelineService:
 
         matched = query_check.get("matched", {})
         
+        # Ekstrak data murni menjadi List String
         raw_product    = _extract_keywords_from_dicts(matched.get("product", {}).get("exact", []))
         raw_ingredient = _extract_keywords_from_dicts(matched.get("ingredient", {}).get("exact", []))
         raw_skin_type  = _extract_keywords_from_dicts(matched.get("skin_type", {}).get("exact", []))
         raw_problem    = _extract_keywords_from_dicts(matched.get("problem", {}).get("exact", []))
 
-        product_exact    = _remove_substrings(raw_product)
-        ingredient_exact = _remove_substrings(raw_ingredient)
-        skin_type_exact  = _remove_substrings(raw_skin_type)
-        problem_exact    = _remove_substrings(raw_problem)
-
-        display_products    = sorted(list(set(keyword_manager.CANONICAL_MAP.get(p, p.title()) for p in product_exact)))
-        display_ingredients = sorted(list(set(keyword_manager.CANONICAL_MAP.get(i, i.title()) for i in ingredient_exact)))
-        display_skin_types  = sorted(list(set(keyword_manager.CANONICAL_MAP.get(s, s.title()) for s in skin_type_exact)))
-        display_problems    = sorted(list(set(keyword_manager.CANONICAL_MAP.get(p, p.title()) for p in problem_exact)))
+        # [DIPERBAIKI] Deduplikasi Cerdas menggunakan Set langsung terhadap Canonical Map
+        display_products    = sorted(list(set(keyword_manager.CANONICAL_MAP.get(p, p.title()) for p in raw_product)))
+        display_ingredients = sorted(list(set(keyword_manager.CANONICAL_MAP.get(i, i.title()) for i in raw_ingredient)))
+        display_skin_types  = sorted(list(set(keyword_manager.CANONICAL_MAP.get(s, s.title()) for s in raw_skin_type)))
+        display_problems    = sorted(list(set(keyword_manager.CANONICAL_MAP.get(p, p.title()) for p in raw_problem)))
 
         # LAYER 4: QUERY EXPANSION
         expanded_ingredients = []
@@ -98,7 +86,8 @@ class QueryPipelineService:
             if concern in EXPANSION_RULES:
                 expanded_ingredients.extend(EXPANSION_RULES[concern])
                 
-        final_extracted_ingredients = list(set(ingredient_exact + expanded_ingredients))
+        # Injeksi ingredient ekspansi ke dalam raw data agar dikirim ke Recommender
+        final_extracted_ingredients = list(set(raw_ingredient + expanded_ingredients))
 
         # --- LOGGER SUMMARY ---
         print("\n" + "="*60)
@@ -117,10 +106,11 @@ class QueryPipelineService:
             "status":                current_status,
             "matched_points":        matched,
             
-            "extracted_products":    product_exact,
+            # Data Mentah (String) untuk Algoritma Recommender 
+            "extracted_products":    raw_product,
             "extracted_ingredients": final_extracted_ingredients, 
-            "extracted_skin_types":  skin_type_exact,
-            "extracted_problems":    problem_exact,
+            "extracted_skin_types":  raw_skin_type,
+            "extracted_problems":    raw_problem,
             
             "display_explainability": {
                 "Jenis Produk":       display_products,
