@@ -64,7 +64,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1.25rem;
-        align-items: stretch;
+        align-items: start;
     }
 
     @media (max-width: 820px) {
@@ -77,6 +77,8 @@
         padding: 1.75rem 1.85rem 2.25rem;
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
+        min-height: 0;
     }
 
     .pf-card-history {
@@ -86,6 +88,11 @@
         display: flex;
         flex-direction: column;
         min-height: 0;
+        overflow: hidden;
+    }
+
+    @media (max-width: 820px) {
+        .pf-card-history { max-height: none !important; }
     }
 
     .pf-card-title {
@@ -623,7 +630,7 @@
 @section('content')
 <div class="pf-page">
 <div class="pf-inner">
-
+    
     {{-- HERO --}}
     <div class="pf-hero">
         @if($user->sex && $user->sex->icon_image_url)
@@ -637,7 +644,7 @@
     <div class="pf-layout">
 
         {{-- LEFT: Personal Info --}}
-        <div class="pf-card">
+        <div class="pf-card" id="pfPersonalCard">
             <div class="pf-card-title"><span>Personal Information</span></div>
 
             @if(session('status'))
@@ -676,7 +683,7 @@
         </div>
 
        {{-- RIGHT: History Consultation (scrollable) --}}
-        <div class="pf-card-history">
+        <div class="pf-card-history" id="pfHistoryCard">
             <div class="pf-card-title"><span>History Consultation</span></div>
 
             @if(($consultations ?? collect())->isEmpty())
@@ -1028,6 +1035,31 @@ document.addEventListener('keydown', function(e){
         closeDetailModal();
     }
 });
+
+// ===== Sync History Consultation card height with Personal Info card =====
+(function () {
+    var personalCard = document.getElementById('pfPersonalCard');
+    var historyCard = document.getElementById('pfHistoryCard');
+
+    if (!personalCard || !historyCard) return;
+
+    function syncHeight() {
+        if (window.innerWidth <= 820) {
+            historyCard.style.maxHeight = '';
+            return;
+        }
+        var h = personalCard.offsetHeight;
+        historyCard.style.maxHeight = h + 'px';
+    }
+
+    syncHeight();
+    window.addEventListener('resize', syncHeight);
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(syncHeight);
+    }
+    window.addEventListener('load', syncHeight);
+})();
 </script>
 
 @endsection
