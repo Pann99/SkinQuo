@@ -168,13 +168,13 @@
         background: var(--cream);
         text-decoration: none;
         display: block;
-        transition: transform 0.32s ease, box-shadow 0.32s ease;
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1);
         scroll-snap-align: start;
         scroll-snap-stop: always;
     }
     .art-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 20px 44px rgba(96, 63, 38, 0.24);
+        box-shadow: 0 16px 40px rgba(96, 63, 38, 0.18);
     }
     .art-thumb {
         height: 144px;
@@ -241,11 +241,11 @@
         text-decoration: none;
         display: flex;
         flex-direction: column;
-        transition: transform 0.32s ease, box-shadow 0.32s ease;
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1);
     }
     .prod-card:hover {
-        transform: translateY(-8px) scale(1.01);
-        box-shadow: 0 22px 52px rgba(96, 63, 38, 0.26);
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(96, 63, 38, 0.18);
     }
     .prod-thumb {
         height: 220px;
@@ -292,11 +292,11 @@
         border-radius: 20px;
         padding: 1.75rem;
         position: relative;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1);
     }
     .testi-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 18px 48px rgba(96, 63, 38, 0.14);
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(96, 63, 38, 0.18);
     }
     .testi-card.featured {
         background: var(--dark-brown);
@@ -493,7 +493,7 @@
 {{-- ══════════════════════════════════════════════════════
      SECTION ARTIKEL / EDUKASI
 ══════════════════════════════════════════════════════ --}}
-<section class="articles-section">
+<section class="articles-section reveal-on-scroll">
     <div class="section-inner" x-data="{ scroll: 0 }">
 
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem;">
@@ -624,7 +624,7 @@
 {{-- ══════════════════════════════════════════════════════
      BEST SELLER PRODUCTS
 ══════════════════════════════════════════════════════ --}}
-<section class="bestseller-section">
+<section class="bestseller-section reveal-on-scroll">
     <div style="max-width:1100px;margin:0 auto;">
 
         <div style="text-align:center;margin-bottom:3.5rem;">
@@ -706,7 +706,7 @@
 {{-- ══════════════════════════════════════════════════════
      COMMUNITY VOICES
 ══════════════════════════════════════════════════════ --}}
-<section class="reflections-section" id="community-voices">
+<section class="reflections-section reveal-on-scroll" id="community-voices">
     <div style="max-width:1100px;margin:0 auto;">
 
         <div style="text-align:center;margin-bottom:3.5rem;">
@@ -775,7 +775,7 @@
 {{-- ══════════════════════════════════════════════════════
      LEAVE YOUR FEEDBACK
 ══════════════════════════════════════════════════════ --}}
-<section class="share-section" id="feedback-form">
+<section class="share-section reveal-on-scroll" id="feedback-form">
     <div class="share-inner">
 
         <div style="text-align:center;margin-bottom:2.5rem;">

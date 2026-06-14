@@ -1049,6 +1049,8 @@
 
     <div class="cr-page-header">
         <div>
+            <br>
+            <br>
             <div class="cr-ph-eyebrow">✓ Analisis Selesai</div>
             <h1 class="cr-ph-title">Hasil Rekomendasi Skincare</h1>
             <div class="cr-ph-date">{{ \Carbon\Carbon::parse($consultation->created_at)->format('d M Y · H:i') }} WIB</div>

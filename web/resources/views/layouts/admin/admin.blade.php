@@ -57,10 +57,8 @@
 
 .admin-footer{
     flex-shrink: 0;
-    width: 100%;
     max-width: none;
     margin: 0;
-    margin-top: 50px;
 }
 
   </style>
@@ -71,56 +69,60 @@
 
   {{-- ===== SIDEBAR ===== --}}
   @if(!request()->routeIs('admin.profile.change-password'))
-  <aside class="admin-sidebar">
+  <aside class="admin-sidebar" id="adminSidebar">
 
     {{-- Brand --}}
-    <div style="margin-bottom: 36px; padding: 0 8px;">
-      <div style="font-family:'Playfair Display'; font-weight:700; font-size:24px;
-                  color:var(--brown-dark); line-height:1.1;">
-        Admin Portal
-      </div>
+    <div class="sidebar-brand">
+      <img src="{{ asset('images/logo_skinquo_cream.png') }}" alt="SkinQuo" class="sidebar-brand-logo">
+      <span class="sidebar-brand-text">Admin Portal</span>
     </div>
 
     {{-- Navigation --}}
-    <nav style="display:flex; flex-direction:column; gap:4px;">
+    <nav class="sidebar-nav">
 
       <a href="{{ route('admin.dashboard') }}"
-         class="nav-item-admin @if(request()->routeIs('admin.dashboard')) active @endif">
-        <i class="bi bi-grid" style="font-size:16px;"></i>
+         class="nav-item-admin @if(request()->routeIs('admin.dashboard')) active @endif"
+         data-label="Dashboard">
+        <i class="bi bi-grid"></i>
         <span>Dashboard</span>
       </a>
 
       <a href="{{ route('admin.inventory') }}"
-         class="nav-item-admin @if(request()->routeIs('admin.inventory') || request()->routeIs('admin.products.*')) active @endif">
-        <i class="bi bi-stars" style="font-size:16px;"></i>
+         class="nav-item-admin @if(request()->routeIs('admin.inventory') || request()->routeIs('admin.products.*')) active @endif"
+         data-label="Inventory">
+        <i class="bi bi-stars"></i>
         <span>Inventory</span>
       </a>
 
       <a href="{{ route('admin.skin-guide.index') }}"
-         class="nav-item-admin @if(request()->routeIs('admin.skin-guide.*')) active @endif">
-        <i class="bi bi-book" style="font-size:16px;"></i>
+         class="nav-item-admin @if(request()->routeIs('admin.skin-guide.*')) active @endif"
+         data-label="Skin Guide">
+        <i class="bi bi-book"></i>
         <span>Skin Guide</span>
       </a>
 
       <a href="{{ route('admin.feedback') }}"
-         class="nav-item-admin @if(request()->routeIs('admin.feedback')) active @endif">
-        <i class="bi bi-graph-up" style="font-size:16px;"></i>
+         class="nav-item-admin @if(request()->routeIs('admin.feedback')) active @endif"
+         data-label="Feedback">
+        <i class="bi bi-graph-up"></i>
         <span>Feedback</span>
       </a>
 
       <a href="{{ route('admin.profile') }}"
-         class="nav-item-admin @if(request()->routeIs('admin.profile') || request()->routeIs('admin.profile.change-password')) active @endif">
-        <i class="bi bi-person" style="font-size:16px;"></i>
+         class="nav-item-admin @if(request()->routeIs('admin.profile') || request()->routeIs('admin.profile.change-password')) active @endif"
+         data-label="Profile">
+        <i class="bi bi-person"></i>
         <span>Profile</span>
       </a>
 
     </nav>
 
     {{-- Log Out — pushed to bottom --}}
-    <div style="margin-top:auto;">
+    <div class="sidebar-footer-nav">
       <a href="{{ route('logout') }}" class="nav-item-admin"
+         data-label="Log Out"
          onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-        <i class="bi bi-box-arrow-right" style="font-size:16px;"></i>
+        <i class="bi bi-box-arrow-right"></i>
         <span>Log Out</span>
       </a>
       <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">

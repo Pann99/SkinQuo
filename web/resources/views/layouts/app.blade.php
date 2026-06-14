@@ -309,6 +309,79 @@
         ═══════════════════════════════ */
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; scroll-behavior: smooth; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* ═══════════════════════════════
+           SHARED CARD HOVER (LIFT EFFECT)
+           Konsisten untuk semua card: artikel,
+           katalog, produk, testimoni, dll.
+        ═══════════════════════════════ */
+        .lift-card {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .lift-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(96, 63, 38, 0.18);
+        }
+
+        /* ═══════════════════════════════
+           SCROLL TO TOP (FLOATING BUTTON)
+        ═══════════════════════════════ */
+        .scroll-to-top {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--dark-brown);
+            color: var(--cream);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9998;
+            box-shadow: 0 8px 24px rgba(96, 63, 38, 0.35);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(16px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, background 0.2s ease;
+        }
+        .scroll-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .scroll-to-top:hover {
+            background: var(--brown);
+            transform: translateY(-3px);
+        }
+        .scroll-to-top svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ═══════════════════════════════
+           SCROLL REVEAL ANIMATION
+        ═══════════════════════════════ */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal-on-scroll.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal-on-scroll {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+        }
     </style>
 
     @stack('styles')
@@ -486,6 +559,14 @@
         </footer>
         {{-- ━━━ END FOOTER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --}}
         
+        {{-- ━━━ SCROLL TO TOP BUTTON ━━━━━━━━━━━━━━━━━━━━━━━━━━━ --}}
+        <button id="scrollToTopBtn" class="scroll-to-top" aria-label="Scroll to top" type="button">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+            </svg>
+        </button>
+        {{-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --}}
+
     </div> 
     {{-- Penutup div #app-content --}}
 
@@ -519,6 +600,52 @@
         }
 
         document.addEventListener('DOMContentLoaded', revealPage);
+    </script>
+
+    {{-- SCROLL TO TOP + SCROLL REVEAL SCRIPT --}}
+    <script>
+        // ── Scroll To Top ──
+        (function () {
+            var btn = document.getElementById('scrollToTopBtn');
+            if (!btn) return;
+
+            function toggleBtn() {
+                if (window.scrollY > 300) {
+                    btn.classList.add('show');
+                } else {
+                    btn.classList.remove('show');
+                }
+            }
+
+            window.addEventListener('scroll', toggleBtn, { passive: true });
+            toggleBtn();
+
+            btn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+
+        // ── Scroll Reveal Animation ──
+        (function () {
+            var targets = document.querySelectorAll('.reveal-on-scroll');
+            if (!targets.length) return;
+
+            if (!('IntersectionObserver' in window)) {
+                targets.forEach(function (el) { el.classList.add('revealed'); });
+                return;
+            }
+
+            var observer = new IntersectionObserver(function (entries, obs) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+            targets.forEach(function (el) { observer.observe(el); });
+        })();
     </script>
 
     @stack('scripts')

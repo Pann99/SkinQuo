@@ -316,7 +316,7 @@
         overflow: hidden;
         text-decoration: none;
         border: 1.5px solid rgba(108, 78, 49, 0.08);
-        transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), box-shadow 0.28s cubic-bezier(0.4,0,0.2,1);
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1);
         display: flex;
         flex-direction: column;
         position: relative;
@@ -324,7 +324,7 @@
     }
     .cat-product-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 18px 44px rgba(96, 63, 38, 0.16);
+        box-shadow: 0 16px 40px rgba(96, 63, 38, 0.18);
     }
 
     .cat-bestseller-badge {

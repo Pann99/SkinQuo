@@ -50,6 +50,12 @@ body {
 
 /* ===== LAYOUT STRUCTURE ===== */
 
+:root {
+  --sidebar-width: 230px;
+  --sidebar-width-collapsed: 84px;
+  --sidebar-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .admin-wrapper {
   display: flex;
   width: 100%;
@@ -58,39 +64,51 @@ body {
   box-sizing: border-box;
 }
 
-/* Sidebar - Full Height Fixed */
+/* Sidebar - Full Height Fixed, collapsed by default, expands on hover */
 .admin-sidebar {
-  width: 230px;
+  width: var(--sidebar-width-collapsed);
   height: 100vh;
   background: var(--bg-sidebar);
   display: flex;
   flex-direction: column;
-  padding: 36px 22px;
+  padding: 36px 14px;
   flex-shrink: 0;
   position: fixed;
   left: 0;
   top: 0;
   z-index: 100;
   box-sizing: border-box;
+  transition: width var(--sidebar-transition), padding var(--sidebar-transition);
+  overflow-x: hidden;
+}
+
+.admin-sidebar:hover {
+  width: var(--sidebar-width);
+  padding: 36px 22px;
 }
 
 /* Main Content Area */
 .admin-main {
   flex: 1;
   min-width: 0;
-  margin-left: 230px;
-  width: calc(100% - 230px);
+  margin-left: var(--sidebar-width-collapsed);
+  width: calc(100% - var(--sidebar-width-collapsed));
   background: linear-gradient(180deg, var(--bg-main) 0%, #F6D9B7 100%);
   padding: 0;
   box-sizing: border-box;
   overflow-y: auto;
+  transition: margin-left var(--sidebar-transition), width var(--sidebar-transition);
 }
 
-/* Footer */
+.admin-sidebar:hover ~ .admin-content-area .admin-main {
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+}
+
+/* Footer (nested inside .admin-main, sizes relative to its parent) */
 .admin-footer {
   position: static;
-  margin-left: 230px;
-  width: calc(100% - 230px);
+  width: 100%;
   height: 60px;
   background: var(--bg-footer);
   display: flex;
@@ -102,13 +120,76 @@ body {
   box-shadow: 0 -4px 16px rgba(61, 35, 20, 0.12);
 }
 
+/* ===== SIDEBAR BRAND ===== */
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding: 0;
+  height: 56px;
+  overflow: hidden;
+}
+
+.sidebar-brand-logo {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar-brand-text {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--brown-dark);
+  line-height: 1.1;
+  white-space: nowrap;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+/* Expanded (sidebar hover): show text, hide logo */
+.admin-sidebar:hover .sidebar-brand {
+  justify-content: flex-start;
+}
+
+.admin-sidebar:hover .sidebar-brand-logo {
+  display: none;
+}
+
+.admin-sidebar:hover .sidebar-brand-text {
+  opacity: 1;
+  width: auto;
+}
+
 /* ===== SIDEBAR NAVIGATION ===== */
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-footer-nav {
+  margin-top: auto;
+}
+
+/* ===== SIDEBAR NAV ITEMS ===== */
 
 .nav-item-admin {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  justify-content: center;
+  gap: 0;
+  padding: 12px;
   border-radius: 999px;
   color: var(--brown-dark);
   font-family: 'Jost', sans-serif;
@@ -116,8 +197,28 @@ body {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, padding var(--sidebar-transition), gap var(--sidebar-transition), justify-content var(--sidebar-transition);
   font-weight: 600;
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-item-admin i {
+  font-size: 16px;
+  width: 20px;
+  flex-shrink: 0;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.nav-item-admin span {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.15s ease;
 }
 
 .nav-item-admin:hover {
@@ -125,9 +226,58 @@ body {
   color: var(--brown-dark);
 }
 
+.nav-item-admin:hover i {
+  transform: scale(1.08);
+}
+
 .nav-item-admin.active {
   background: var(--brown-dark);
   color: var(--white);
+}
+
+/* ===== EXPANDED NAV ITEMS (on sidebar hover) ===== */
+
+.admin-sidebar:hover .nav-item-admin {
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+}
+
+.admin-sidebar:hover .nav-item-admin span {
+  opacity: 1;
+  width: auto;
+  overflow: visible;
+}
+
+/* Tooltip when collapsed (sidebar not hovered) */
+.nav-item-admin::after {
+  content: attr(data-label);
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  background: var(--brown-dark);
+  color: var(--white);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 8px 20px rgba(61, 35, 20, 0.2);
+  z-index: 200;
+}
+
+.nav-item-admin:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.admin-sidebar:hover .nav-item-admin::after {
+  display: none;
 }
 
 /* ===== GLOBAL INPUTS ===== */
