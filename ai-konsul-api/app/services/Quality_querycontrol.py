@@ -38,7 +38,6 @@ def _is_fuzzy_candidate(query_lower: str, keyword: str) -> bool:
     candidates    = _get_ngrams(query_lower, kw_word_count)
     for candidate in candidates:
         # [DIPERBAIKI] Ubah menjadi fuzz.ratio murni agar pencocokan lebih ketat 
-        # (Mencegah "Normal Skin" menarik "Dry Skin" karena sama-sama ada kata "Skin")
         scorer = fuzz.ratio 
         if scorer(keyword, candidate) >= threshold:
             return True
