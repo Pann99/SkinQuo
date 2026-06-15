@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Product;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // WAJIB DITAMBAHKAN UNTUK CEK LOGIN
 
 class HomeController extends Controller
 {
@@ -14,6 +15,24 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // =========================================================
+        // CEK LOGIN ADMIN: 
+        // Jika sudah login dan role-nya Admin, langsung lempar ke Dashboard Admin
+        // =========================================================
+        if (Auth::check()) {
+            $user = Auth::user();
+            
+            // Mengecek apakah user adalah admin (role_id 1 atau role_name 'admin')
+            // Menyesuaikan dengan logika di AuthController kamu
+            if ($user->role_id == 1 || ($user->role && $user->role->role_name === 'admin')) {
+                return redirect()->route('admin.dashboard');
+            }
+        }
+
+        // =========================================================
+        // JIKA BUKAN ADMIN / BELUM LOGIN, TAMPILKAN HOMEPAGE BIASA
+        // =========================================================
+        
         // Ambil 8 artikel terbaru yang dipublikasikan
         $articles = Article::where('is_published', true)
                             ->latest('created_at')
@@ -25,7 +44,7 @@ class HomeController extends Controller
         $communityVoices = Feedback::with('user')
             ->whereNotNull('text')
             ->where('rating', '>=', 4)
-             ->where('is_reviewed', true)
+            ->where('is_reviewed', true)
             ->latest('id')
             ->take(3)
             ->get();
