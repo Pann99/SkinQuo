@@ -357,6 +357,13 @@
             background: var(--brown);
             transform: translateY(-3px);
         }
+        .scroll-to-top.on-dark {
+            background: var(--cream);
+            color: var(--dark-brown);
+        }
+        .scroll-to-top.on-dark:hover {
+            background: var(--peach);
+        }
         .scroll-to-top svg {
             width: 20px;
             height: 20px;
@@ -615,6 +622,20 @@
                 } else {
                     btn.classList.remove('show');
                 }
+
+                // Cek apakah tombol sedang berada di atas section/footer berwarna gelap
+                var darkSections = document.querySelectorAll('.articles-section, footer');
+                var btnCenterY = window.innerHeight - 24 - 23; // bottom:24px + height/2
+                var onDark = false;
+
+                darkSections.forEach(function (section) {
+                    var rect = section.getBoundingClientRect();
+                    if (rect.top <= btnCenterY && rect.bottom >= btnCenterY) {
+                        onDark = true;
+                    }
+                });
+
+                btn.classList.toggle('on-dark', onDark);
             }
 
             window.addEventListener('scroll', toggleBtn, { passive: true });

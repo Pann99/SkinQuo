@@ -60,7 +60,7 @@
     .pd-main-image {
         width: 100%;
         aspect-ratio: 1;
-        background: linear-gradient(145deg, #f0e2cc, #e0c8a8);
+        background: #fff;
         border-radius: 20px;
         display: flex;
         align-items: center;
@@ -70,6 +70,7 @@
         border: 2px solid rgba(108, 78, 49, 0.1);
         margin-bottom: 1rem;
         position: relative;
+        box-shadow: 0 12px 32px rgba(96, 63, 38, 0.18);
     }
     .pd-main-image img {
         width: 100%;

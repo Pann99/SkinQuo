@@ -9,7 +9,7 @@
 
 <style>
     :root {
-        --cream: #F5EDE0;
+        --cream: #FFEAC5;
         --cream-light: #FAF3E8;
         --cream-bg: #EDE0CE;
         --brown: #6C4E31;

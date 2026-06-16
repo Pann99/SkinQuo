@@ -12,7 +12,7 @@
 
 <style>
     :root {
-        --cream: #FAF3E8;
+        --cream: #FFEAC5;
         --cream-dark: #F2E8D5;
         --brown: #6C4E31;
         --dark-brown: #3D2010;
@@ -1257,7 +1257,7 @@
 
                     <div class="cr-text-block" id="pdDescBlock" style="{{ empty($heroProduct['description']) ? 'display:none;' : '' }}">
                         <div class="cr-text-block-label">Deskripsi Produk</div>
-                        <p class="cr-expandable" id="descText">{{ $heroProduct['description'] ?? '' }}</p>
+                        <p class="cr-expandable" id="descText">{{ ucfirst($heroProduct['description'] ?? '') }}</p>
                         <button class="cr-expand-btn" id="descExpandBtn" onclick="toggleExpand('descText', this)" style="{{ (empty($heroProduct['description']) || strlen($heroProduct['description']) <= 200) ? 'display:none;' : '' }}">Lihat selengkapnya ▾</button>
                     </div>
                 </div>
@@ -1268,7 +1268,7 @@
                         <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <div class="cr-composition-body" id="compBody">
-                        {{ $heroProduct['ingredients'] ?? '' }}
+                        {{ ucfirst($heroProduct['ingredients'] ?? '') }}
                     </div>
                 </div>
 
@@ -1642,6 +1642,11 @@
         btn.setAttribute('aria-expanded', String(!isOpen));
     }
 
+    function capitalizeFirst(text) {
+        if (!text) return text;
+        return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
     function buildStrengths(prod) {
         const meta = prod.reasoning_meta || {};
         const matchCats = meta.matched_categories || [];
@@ -1765,7 +1770,7 @@
         const descText  = document.getElementById('descText');
         const descBtn   = document.getElementById('descExpandBtn');
         if (prod.description) {
-            descText.textContent = prod.description;
+            descText.textContent = capitalizeFirst(prod.description);
             descText.classList.remove('expanded');
             descBlock.style.display = 'flex';
             if (prod.description.length > 200) {
@@ -1782,7 +1787,7 @@
         const compBody = document.getElementById('compBody');
         const compToggle = document.getElementById('compToggle');
         if (prod.ingredients) {
-            compBody.textContent = prod.ingredients;
+            compBody.textContent = capitalizeFirst(prod.ingredients);
             compWrap.style.display = '';
             compBody.classList.remove('open');
             compToggle.classList.remove('open');

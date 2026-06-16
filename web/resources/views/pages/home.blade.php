@@ -241,6 +241,7 @@
         text-decoration: none;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 8px 24px rgba(96, 63, 38, 0.15);
         transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1);
     }
     .prod-card:hover {
@@ -259,7 +260,6 @@
     .prod-thumb img {
         height: 100%;
         object-fit: contain;
-        filter: drop-shadow(0 4px 12px rgba(96,63,38,0.12));
     }
 
     .title-divider {
@@ -493,7 +493,7 @@
 {{-- ══════════════════════════════════════════════════════
      SECTION ARTIKEL / EDUKASI
 ══════════════════════════════════════════════════════ --}}
-<section class="articles-section reveal-on-scroll">
+<section class="articles-section">
     <div class="section-inner" x-data="{ scroll: 0 }">
 
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem;">

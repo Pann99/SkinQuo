@@ -13,8 +13,8 @@
 }
 /* ── sisa isi admin.css yang lama tetap di bawah ini ── */
 :root {
-  --bg-main:    #FAE8CE;
-  --bg-sidebar: #EDD9B8;
+  --bg-main:    #FFEAC5;
+  --bg-sidebar: #FFDBB5;
   --bg-card:    #EDBE96;
   --bg-footer:  #3C2010;
   --brown-dark: #3C2010;
@@ -280,7 +280,7 @@ html, body {
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
-  background: linear-gradient(180deg, var(--bg-main) 0%, #F6D9B7 100%);
+  background: linear-gradient(180deg, var(--bg-main) 0%, #FFD9A0 100%);
 }
 
 .admin-main {

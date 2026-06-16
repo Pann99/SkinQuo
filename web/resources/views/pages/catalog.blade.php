@@ -344,7 +344,7 @@
 
     .cat-product-thumb {
         height: 220px;
-        background: linear-gradient(135deg, #f0e0cc, #e0c8a8);
+        background: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -366,13 +366,14 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+        background: #FFDBB5;
     }
 
     .cat-product-cat {
         display: inline-block;
         background: transparent;
         color: #6C4E31;
-        border: 1.2px solid #E8D4C4;
+        border: 1.2px solid #6C4E31;
         border-radius: 20px;
         padding: 0.45rem 0.9rem;
         font-size: 0.64rem;

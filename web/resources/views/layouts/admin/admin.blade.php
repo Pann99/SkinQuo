@@ -12,7 +12,7 @@
     /* === SIDEBAR SYSTEM — prefix sq- agar tidak bentrok admin.css === */
     :root {
       --sq-w: 240px; --sq-wmin: 64px;
-      --sq-bg: #F5C9A0; --sq-surface: #EFBC90;
+      --sq-bg: #FFDBB5; --sq-surface: #FFCFA0;
       --sq-active: #6B3A28; --sq-act-text: #F9EFE4;
       --sq-text: #7A5040; --sq-muted: #9E7055;
       --sq-border: #E8B48A; --sq-accent: #6B3A28;
