@@ -6,7 +6,6 @@ from app.services.keyword_manager import keyword_manager
 # ── Initialize Sastrawi ──────────────────────────────────────────
 stopword_factory = StopWordRemoverFactory()
 stopword_remover  = stopword_factory.create_stop_word_remover()
-
 stemmer_factory = StemmerFactory()
 stemmer          = stemmer_factory.create_stemmer()
 
