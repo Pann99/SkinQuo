@@ -1,0 +1,35 @@
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8000/');
+  await page.getByRole('link', { name: 'Login' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).click();
+  await page.getByRole('link', { name: 'Create Account' }).click();
+  await page.getByRole('textbox', { name: 'First name' }).click();
+  await page.getByRole('textbox', { name: 'First name' }).fill('l');
+  await page.getByRole('textbox', { name: 'First name' }).click();
+  await page.getByRole('textbox', { name: 'First name' }).fill('lyra');
+  await page.getByRole('textbox', { name: 'Surname' }).click();
+  await page.getByRole('textbox', { name: 'Surname' }).fill('faiqahh');
+  await page.locator('#date_birth').fill('2004-07-31');
+  await page.getByLabel('Gender').selectOption('female');
+  await page.getByRole('textbox', { name: 'Email address' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('lyrafaiqb@gmail.com');
+  await page.getByRole('textbox', { name: 'Password', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Password', exact: true }).fill('#');
+  await page.getByRole('textbox', { name: 'Password', exact: true }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Password', exact: true }).fill('#T');
+  await page.getByRole('textbox', { name: 'Password', exact: true }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Password', exact: true }).fill('#Tiaranac27');
+  await page.getByRole('button').first().click();
+  await page.getByRole('textbox', { name: 'Confirm Password' }).click();
+  await page.getByRole('textbox', { name: 'Confirm Password' }).fill('#');
+  await page.getByRole('textbox', { name: 'Confirm Password' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Confirm Password' }).fill('#T');
+  await page.getByRole('textbox', { name: 'Confirm Password' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Confirm Password' }).fill('#Tiaranac27');
+  await page.getByRole('textbox', { name: 'Confirm Password' }).click();
+  await page.getByRole('button').nth(1).click();
+  await page.getByRole('button', { name: 'Create Account' }).click();
+  await page.goto('http://127.0.0.1:8000/');
+});
