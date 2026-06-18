@@ -99,7 +99,9 @@ class ConsultationController extends Controller
         ];
 
         if ($topProduct) {
-            $matchedIngredients = $topProduct['reasoning_meta']['matched_ingredients'] ?? [];
+            $kandunganDiminta = $topProduct['reasoning_meta']['kandungan_diminta'] ?? [];
+            $kandunganDisarankan = $topProduct['reasoning_meta']['kandungan_disarankan'] ?? [];
+            $matchedIngredients = array_merge($kandunganDiminta, $kandunganDisarankan);
             
             $ingMapping = [
                 'Hyaluronic Acid'   => 'Hydration', 
@@ -176,7 +178,7 @@ class ConsultationController extends Controller
                 $cacheKey = 'guest_consultation_limit:' . $request->ip();
                 $requestCount = cache()->get($cacheKey, 0);
 
-                if ($requestCount >= 3) {
+                if ($requestCount >= 10) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Batas konsultasi gratis telah habis. Silakan Login!'
@@ -194,8 +196,8 @@ class ConsultationController extends Controller
 
             if ($response->failed()) {
                 $statusCode = $response->status();
-                $errorMsg = $statusCode === 422 ? 'Query ditolak oleh AI: ' . $response->body() : 'Gagal mendapatkan respons AI.';
-                Log::error("AI Service Error [$statusCode]: " . $response->body());
+                $errorMsg = $statusCode === 422 ? 'Query ditolak oleh SkinQuo: ' . $response->body() : 'Gagal mendapatkan respons.';
+                Log::error("System Service Error [$statusCode]: " . $response->body());
                 return response()->json(['success' => false, 'message' => $errorMsg], $statusCode >= 500 ? 500 : 422);
             }
 
@@ -210,11 +212,25 @@ class ConsultationController extends Controller
                 ], 422);
             }
 
+            $extractedBudget = $aiData['user_budget'] ?? ($validated['harga_max'] ?? null);
             $recommendations = $aiData['recommendations'] ?? [];
+
+            if (empty($recommendations)) {
+                $pesanPeringatan = $extractedBudget 
+                    ? "Waduh, belum ada produk yang sesuai dengan budget Rp " . number_format($extractedBudget, 0, ',', '.') . " untuk spesifikasi tersebut. Coba naikkan sedikit budget-nya atau ganti kata kuncinya, ya!"
+                    : "Maaf, kami belum menemukan produk yang spesifikasinya cocok dengan permintaanmu. Coba kurangi kata kunci agar lebih umum.";
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $pesanPeringatan
+                ], 422);
+            }
+
             $cleanedQuery    = $aiData['cleaned_query'] ?? '';
             $displayExplainability = $aiData['display_explainability'] ?? [];
 
-            $displayIngredients = $displayExplainability['Kandungan Aktif'] ?? [];
+            // [SINKRONISASI AUDIT] Membaca key hasil penyesuaian arsitektur baru
+            $displayIngredientsExplicit = $displayExplainability['Kandungan yang Diminta Pengguna'] ?? [];
             $displaySkinTypes   = $displayExplainability['Jenis/Tipe Kulit'] ?? [];
             $displayProblems    = $displayExplainability['Keluhan Kulit'] ?? [];
 
@@ -235,13 +251,15 @@ class ConsultationController extends Controller
             $consultationId = null;
 
             if (!$isGuest) {
+                // [FIXED] Mengisi kolom skin_concern (String) dan extracted_concerns (JSON) agar tidak NULL lagi
                 $consultationId = DB::table('consultations')->insertGetId([
                     'user_id'               => $userId,
+                    'skin_concern'          => empty($concerns) ? 'Tidak spesifik' : implode(', ', $concerns),
                     'raw_query'             => $originalQuery,
                     'cleaned_query'         => $cleanedQuery,
                     'extracted_concerns'    => json_encode($concerns),
-                    'extracted_ingredients' => json_encode($displayIngredients),
-                    'user_budget'           => $validated['harga_max'] ?? null,
+                    'extracted_ingredients' => json_encode($displayIngredientsExplicit),
+                    'user_budget'           => $extractedBudget, 
                     'ai_response'           => json_encode($ingredientResultPayload),
                     'created_at'            => now()
                 ]);
@@ -253,7 +271,7 @@ class ConsultationController extends Controller
                         'product_id'       => $item['product_id'] ?? 0,
                         'rank_position'    => $item['rank'] ?? 1,
                         'similarity_score' => $item['similarity_score'] ?? 0,
-                        'reasoning_code'   => $item['reasoning_meta']['reason_code'] ?? 'SAW_DYNAMIC',
+                        'reasoning_code'   => $item['reasoning_meta']['reason_code'] ?? 'SAW_RATIO_SCORING',
                         'created_at'       => now()
                     ];
                 }
@@ -295,7 +313,7 @@ class ConsultationController extends Controller
                 ->get();
 
             $formattedHistory = $history->map(function ($item) {
-                $item->skin_concern = json_decode($item->extracted_concerns ?? $item->skin_concern ?? '[]');
+                $item->skin_concern = json_decode($item->extracted_concerns ?? '[]');
                 $item->ingredient_result = json_decode($item->ai_response ?? $item->ingredient_result ?? '{}');
 
                 $item->product_results = DB::table('consultation_results')
@@ -315,7 +333,7 @@ class ConsultationController extends Controller
 
     public function result($id)
     {
-        if (is_string($id) && str_starts_with($id, 'guest_')) {
+        if (is_string($id) && Str::startsWith($id, 'guest_')) {
             if (!session()->has($id)) abort(404, 'Sesi tamu kedaluwarsa.');
             $sessionData = session()->get($id);
             
@@ -345,7 +363,8 @@ class ConsultationController extends Controller
             $query = trim($validated['query']);
             $allKeywords = DB::table('validation_keywords')->pluck('keyword')->map(fn($k) => mb_strtolower(trim($k)))->toArray();
             $queryLower   = mb_strtolower($query);
-            $foundKeyword = collect($allKeywords)->first(fn($kw) => str_contains($queryLower, $kw));
+            
+            $foundKeyword = collect($allKeywords)->first(fn($kw) => Str::contains($queryLower, $kw));
 
             if (!$foundKeyword) {
                 return response()->json([

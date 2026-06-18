@@ -8,17 +8,18 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,700;1,400&family=DM+Sans:wght=300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
     :root {
-        --cream: #FAF3E8;
-        --cream-dark: #F2E8D5;
+        --cream: #FFEAC5;
+        --cream-dark: #F2DFC8;
+        --peach: #FFDBB5;
         --brown: #6C4E31;
-        --dark-brown: #3D2010;
+        --dark-brown: #603F26;
         --accent: #C17F4A;
         --accent-light: #E8C89A;
-        --text-muted: rgba(61,32,16,0.45);
+        --text-muted: rgba(96,63,38,0.45);
         --border: rgba(108,78,49,0.12);
         --border-strong: rgba(108,78,49,0.22);
         --white: #FFFFFF;
@@ -28,7 +29,7 @@
 
     body {
         background: var(--cream);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         color: var(--dark-brown);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -127,7 +128,7 @@
         color: var(--dark-brown);
         font-size: 12.5px;
         font-weight: 500;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         padding: 8px 16px;
         border-radius: 20px;
         cursor: pointer;
@@ -176,7 +177,7 @@
         background: none;
         border: none;
         cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         font-weight: 600;
         padding: 4px 0;
         margin-top: 3px;
@@ -411,7 +412,7 @@
         display: inline-flex; align-items: center; gap: 6px;
         background: var(--dark-brown); color: #FFEAC5;
         font-size: 12.5px; font-weight: 600;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         padding: 9px 18px; border-radius: 20px;
         text-decoration: none; transition: all 0.2s;
         white-space: nowrap; margin-top: 4px;
@@ -448,10 +449,18 @@
         color: var(--accent); margin-bottom: 4px;
     }
     .cr-reason-text {
-        font-size: 12.5px; color: rgba(255,253,248,0.88); line-height: 1.55;
-        display: -webkit-box; -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical; overflow: hidden;
+        font-size: 12.5px; color: rgba(255,253,248,0.88); line-height: 1.6;
     }
+    .cr-reason-expand-btn {
+        display: none;
+        font-size: 11px; font-weight: 600;
+        color: var(--accent-light);
+        background: none; border: none; cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+        padding: 4px 0 0; margin-top: 6px;
+        text-decoration: underline; text-underline-offset: 2px; opacity: 0.85;
+    }
+    .cr-reason-expand-btn:hover { opacity: 1; }
 
     .cr-ingredients-wrap {
         background: rgba(250,243,232,0.4);
@@ -530,7 +539,7 @@
     .cr-expand-btn {
         font-size: 11.5px; color: var(--accent); background: none; border: none;
         cursor: pointer; font-weight: 600; margin-top: 6px;
-        font-family: 'DM Sans', sans-serif; align-self: flex-start;
+        font-family: 'Poppins', sans-serif; align-self: flex-start;
         -webkit-appearance: none;
         appearance: none;
         padding: 4px 0;
@@ -551,7 +560,7 @@
         width: 100%; background: rgba(250,243,232,0.4);
         border: none; cursor: pointer; padding: 10px 14px;
         display: flex; align-items: center; justify-content: space-between;
-        font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
+        font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
         letter-spacing: 1.2px; text-transform: uppercase;
         color: var(--accent); transition: background 0.2s;
         -webkit-appearance: none;
@@ -886,7 +895,7 @@
             border-radius: 12px;
         }
         .cr-reason-label { font-size: 8px; }
-        .cr-reason-text { font-size: 12px; -webkit-line-clamp: 3; }
+        .cr-reason-text { font-size: 12px; }
 
         .cr-ingredients-wrap { 
             min-height: 90px;
@@ -1206,11 +1215,11 @@
 
                         <div class="cr-price-row" id="pdPriceRow" style="margin-top: 8px;">
                             @if(!empty($heroProduct['harga_display']))
-                                <div id="pdPrice" style="font-size: 20px; font-weight: 700; color: var(--accent); font-family: 'DM Sans', sans-serif;">
+                                <div id="pdPrice" style="font-size: 20px; font-weight: 700; color: var(--accent); font-family: 'Poppins', sans-serif;">
                                     {{ $heroProduct['harga_display'] }}
                                 </div>
                             @else
-                                <div id="pdPrice" style="font-size: 20px; font-weight: 700; color: var(--accent); font-family: 'DM Sans', sans-serif; display:none;"></div>
+                                <div id="pdPrice" style="font-size: 20px; font-weight: 700; color: var(--accent); font-family: 'Poppins', sans-serif; display:none;"></div>
                             @endif
                             <button type="button" id="pdInfoBtn" class="cr-info-btn" onclick="openInfoModal()" aria-label="Info Penggunaan" title="Info Penggunaan" style="{{ empty($reasonMeta['precaution_notes']) ? 'display:none;' : '' }}">i</button>
                         </div>
@@ -1223,9 +1232,10 @@
                 <div class="cr-reason-ing-row">
                     <div class="cr-reason-banner" id="pdReasonBanner" style="{{ empty($reasonText) ? 'display:none;' : '' }}">
                         <div class="cr-reason-icon">💡</div>
-                        <div>
+                        <div style="flex:1; min-width:0;">
                             <div class="cr-reason-label">Mengapa direkomendasikan</div>
                             <div class="cr-reason-text" id="pdReasonText">{{ $reasonText }}</div>
+                            <button class="cr-reason-expand-btn" id="pdReasonExpandBtn" onclick="toggleReasonExpand()" style="{{ strlen($reasonText) > 160 ? 'display:block;' : 'display:none;' }}">Lihat selengkapnya ▾</button>
                         </div>
                     </div>
 
@@ -1462,7 +1472,7 @@
                 bottom: 0,
                 itemWidth: 10,
                 itemHeight: 10,
-                textStyle: { fontSize: 9.5, fontFamily: 'DM Sans', color: '#6C4E31' }
+                textStyle: { fontSize: 9.5, fontFamily: 'Poppins', color: '#6C4E31' }
             },
             radar: {
                 indicator: radarIndicators,
@@ -1473,7 +1483,7 @@
                 axisName: {
                     color: '#6C4E31',
                     fontSize: 9,
-                    fontFamily: 'DM Sans',
+                    fontFamily: 'Poppins',
                     fontWeight: 600,
                     padding: [0, 0]
                 },
@@ -1632,6 +1642,24 @@
         btn.textContent = isExpanded ? 'Lihat selengkapnya ▾' : 'Sembunyikan ▴';
     }
 
+    function toggleReasonExpand() {
+        const btn  = document.getElementById('pdReasonExpandBtn');
+        const text = document.getElementById('pdReasonText');
+        if (!btn || !text) return;
+        const isExpanded = text.dataset.expanded === '1';
+        if (!isExpanded) {
+            text.style.overflow = 'visible';
+            text.style.webkitLineClamp = 'unset';
+            text.dataset.expanded = '1';
+            btn.textContent = 'Sembunyikan ▴';
+        } else {
+            text.style.overflow = '';
+            text.style.webkitLineClamp = '';
+            text.dataset.expanded = '0';
+            btn.textContent = 'Lihat selengkapnya ▾';
+        }
+    }
+
     function toggleComposition() {
         const btn  = document.getElementById('compToggle');
         const body = document.getElementById('compBody');
@@ -1708,9 +1736,20 @@
         // 3. Update Text Alasan & Label DNA Profile
         const meta = prod.reasoning_meta || {};
         const reasonBanner = document.getElementById('pdReasonBanner');
+        const reasonExpandBtn = document.getElementById('pdReasonExpandBtn');
         if (meta.reasoning_text) {
-            document.getElementById('pdReasonText').textContent = meta.reasoning_text;
+            const reasonTextEl = document.getElementById('pdReasonText');
+            reasonTextEl.textContent = meta.reasoning_text;
+            // Reset expanded state
+            reasonTextEl.dataset.expanded = '0';
+            reasonTextEl.style.overflow = '';
+            reasonTextEl.style.webkitLineClamp = '';
             reasonBanner.style.display = 'flex';
+            // Tampilkan/sembunyikan tombol expand berdasarkan panjang teks
+            if (reasonExpandBtn) {
+                reasonExpandBtn.style.display = meta.reasoning_text.length > 160 ? 'block' : 'none';
+                reasonExpandBtn.textContent = 'Lihat selengkapnya ▾';
+            }
         } else {
             reasonBanner.style.display = 'none';
         }

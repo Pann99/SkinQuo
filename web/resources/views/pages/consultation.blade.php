@@ -5,19 +5,20 @@
 @push('styles')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
     :root {
-        --cream: #F5EDE0;
-        --cream-light: #FAF3E8;
-        --cream-bg: #EDE0CE;
+        --cream: #FFEAC5;
+        --cream-light: #FFF5E8;
+        --cream-bg: #F2DFC8;
+        --peach: #FFDBB5;
         --brown: #6C4E31;
-        --dark-brown: #3D2010;
+        --dark-brown: #603F26;
         --accent: #C17F4A;
         --accent-light: #E8C89A;
         --text-primary: #2A1A0E;
-        --text-muted: rgba(61,32,16,0.45);
+        --text-muted: rgba(96,63,38,0.45);
         --border: rgba(108,78,49,0.18);
         --border-strong: rgba(108,78,49,0.3);
         --white: #FFFFFF;
@@ -28,7 +29,7 @@
 
     html, body {
         background: var(--cream);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         color: var(--text-primary);
         height: 100%;
         overflow: hidden;
@@ -230,7 +231,7 @@
         font-size: 12px;
         font-weight: 700;
         color: var(--brown);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         transition: background 0.2s, border-color 0.2s;
         line-height: 1;
     }
@@ -244,7 +245,7 @@
         flex: 1;
         border: none;
         outline: none;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         font-size: 14px;
         color: var(--text-primary);
         background: transparent;
@@ -302,7 +303,7 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         font-size: 12.5px;
         font-weight: 400;
         color: var(--dark-brown);
@@ -341,7 +342,7 @@
     .lc-error.show { display: flex; }
     .lc-error-icon { font-size: 14px; flex-shrink: 0; }
     .lc-error-content { flex: 1; }
-    .lc-error-retry { display: inline-block; margin-top: 5px; font-size: 11.5px; font-weight: 600; color: #A32D2D; background: rgba(226,75,74,0.1); border: 1px solid rgba(226,75,74,0.2); padding: 3px 10px; border-radius: 8px; cursor: pointer; border-style: none; font-family: 'DM Sans', sans-serif; }
+    .lc-error-retry { display: inline-block; margin-top: 5px; font-size: 11.5px; font-weight: 600; color: #A32D2D; background: rgba(226,75,74,0.1); border: 1px solid rgba(226,75,74,0.2); padding: 3px 10px; border-radius: 8px; cursor: pointer; border-style: none; font-family: 'Poppins', sans-serif; }
     .lc-error-retry:hover { background: rgba(226,75,74,0.15); }
 
     #screen-analysis {
@@ -470,7 +471,7 @@
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Poppins', sans-serif;
         transition: opacity 0.2s;
     }
     .btn-retry:hover { opacity: 0.88; }
@@ -504,7 +505,7 @@
         padding: 20px 24px; border-bottom: 1px solid var(--border);
     }
     .guided-title {
-        font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 18px; color: var(--dark-brown);
+        font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 18px; color: var(--dark-brown);
     }
     .guided-close {
         background: none; border: none; font-size: 16px; color: var(--brown);
@@ -532,7 +533,7 @@
 
     .guided-opt {
         background: rgba(255,255,255,0.7); border: 1px solid var(--border);
-        color: var(--dark-brown); font-size: 13px; font-family: 'DM Sans', sans-serif;
+        color: var(--dark-brown); font-size: 13px; font-family: 'Poppins', sans-serif;
         padding: 10px 16px; border-radius: 24px; cursor: pointer; transition: all 0.2s;
     }
     .guided-opt:hover { border-color: var(--accent); background: rgba(255,255,255,0.95); }
@@ -541,10 +542,10 @@
         display: flex; align-items: center; justify-content: space-between;
         padding: 16px 24px; background: rgba(108,78,49,0.06); border-top: 1px solid var(--border);
     }
-    .btn-wizard-back { background: none; border: none; font-size: 13px; font-weight: 600; color: var(--brown); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-wizard-back { background: none; border: none; font-size: 13px; font-weight: 600; color: var(--brown); cursor: pointer; font-family: 'Poppins', sans-serif; }
     .btn-wizard-next {
         background: var(--dark-brown); color: #FFEAC5; font-size: 13px; font-weight: 600;
-        font-family: 'DM Sans', sans-serif; padding: 10px 24px; border-radius: 20px;
+        font-family: 'Poppins', sans-serif; padding: 10px 24px; border-radius: 20px;
         border: none; cursor: pointer; transition: opacity 0.2s;
     }
     .btn-wizard-next:disabled { background: rgba(108,78,49,0.2); color: rgba(61,32,16,0.4); cursor: not-allowed; }
@@ -564,14 +565,14 @@
     }
     .ratelimit-overlay.open .ratelimit-card { transform: translateY(0) scale(1); }
     .ratelimit-emoji { font-size: 36px; margin-bottom: 12px; display: block; }
-    .ratelimit-title { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 19px; color: var(--dark-brown); margin-bottom: 8px; line-height: 1.3; }
+    .ratelimit-title { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 19px; color: var(--dark-brown); margin-bottom: 8px; line-height: 1.3; }
     .ratelimit-desc { font-size: 13px; color: var(--brown); line-height: 1.65; margin-bottom: 22px; }
     .ratelimit-actions { display: flex; flex-direction: column; gap: 10px; }
-    .ratelimit-btn-login { display: block; background: var(--dark-brown); color: #FFEAC5; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600; padding: 13px 20px; border-radius: 20px; text-decoration: none; transition: opacity 0.2s; }
+    .ratelimit-btn-login { display: block; background: var(--dark-brown); color: #FFEAC5; font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 600; padding: 13px 20px; border-radius: 20px; text-decoration: none; transition: opacity 0.2s; }
     .ratelimit-btn-login:hover { opacity: 0.9; color: #FFEAC5; }
-    .ratelimit-btn-register { display: block; background: transparent; color: var(--dark-brown); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 11px 20px; border-radius: 20px; border: 1.5px solid var(--border-strong); text-decoration: none; transition: all 0.2s; }
+    .ratelimit-btn-register { display: block; background: transparent; color: var(--dark-brown); font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500; padding: 11px 20px; border-radius: 20px; border: 1.5px solid var(--border-strong); text-decoration: none; transition: all 0.2s; }
     .ratelimit-btn-register:hover { border-color: var(--accent); background: rgba(193,127,74,0.07); }
-    .ratelimit-dismiss { font-size: 11.5px; color: var(--brown); margin-top: 6px; background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 4px 0; text-decoration: underline; text-underline-offset: 2px; opacity: 0.7; }
+    .ratelimit-dismiss { font-size: 11.5px; color: var(--brown); margin-top: 6px; background: none; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; padding: 4px 0; text-decoration: underline; text-underline-offset: 2px; opacity: 0.7; }
     .ratelimit-dismiss:hover { opacity: 1; }
     .ratelimit-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #A32D2D; background: rgba(226,75,74,0.07); border: 1px solid rgba(226,75,74,0.18); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; font-weight: 700; }
 </style>
@@ -590,8 +591,8 @@
 
         <div class="lc-hero">
             <h1 class="lc-title">
-                Ceritakan kondisi kulitmu,<br>
-                Kami temukan produk <span class="title-italic">terbaik</span> untukmu
+                Tell us about your skin,<br>
+                We'll find the <span class="title-italic">best</span> products for you'
             </h1>
         </div>
 
@@ -878,6 +879,26 @@
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         const el = document.getElementById(id);
         if (el) el.classList.remove('hidden');
+    }
+
+    function resetToLanding() {
+        // Sembunyikan error state terlebih dahulu
+        const es = document.getElementById('errorState');
+        if (es) es.classList.remove('show');
+
+        // Aktifkan kembali tombol submit
+        const btn = document.getElementById('btnSubmit');
+        if (btn) btn.disabled = false;
+
+        // Kembali ke halaman utama dengan transisi mulus
+        showScreen('screen-landing');
+
+        // Reset error banner di landing juga
+        resetError();
+
+        // Fokus kembali ke textarea
+        const ta = document.getElementById('userQuery');
+        if (ta) setTimeout(() => ta.focus(), 350);
     }
 
     function updateProgress(stepIndex, percent) {
