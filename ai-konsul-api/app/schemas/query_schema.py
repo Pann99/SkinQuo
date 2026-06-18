@@ -7,7 +7,7 @@ class QueryRequest(BaseModel):
     query: str = Field(
         ..., 
         min_length=5, 
-        max_length=600, 
+        max_length=500, 
         description="Teks query dari pengguna untuk mencari rekomendasi"
     )
     
