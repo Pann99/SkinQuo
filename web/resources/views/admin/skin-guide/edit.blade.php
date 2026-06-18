@@ -877,7 +877,6 @@
 </style>
 @endpush
 
-
 @section('content')
 <div class="skin-guide-edit-page">
 
@@ -912,10 +911,10 @@
     </div>
   </div>
 
-
   <form action="{{ route('admin.skin-guide.update', ['skin_guide' => $article->id]) }}"
       method="POST"
-      id="sgeForm">
+      id="sgeForm"
+      enctype="multipart/form-data">
     @csrf
     @method('PUT')
 
@@ -992,19 +991,37 @@
           {{-- Featured Image --}}
           <div class="sge-field">
             <label class="sge-label">Featured Image</label>
+            
             @if($article->image_url)
-              <div class="sge-img-current">
+              <div class="sge-img-current" id="current_image_wrap">
                 <img src="{{ $article->image_url }}" alt="{{ $article->title }}" onerror="this.parentElement.style.display='none'">
                 <div class="sge-img-label">Gambar saat ini</div>
               </div>
             @endif
+
+            <div class="img-upload-area" onclick="document.getElementById('image_file').click()">
+              <div style="font-size: 28px; color: #7A5C43; margin-bottom: 8px;">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              </div>
+              <span id="upload-text" style="font-size: 12px; color: #7A5C43;">
+                <strong style="color: #7A5030;">Klik untuk upload gambar lokal</strong><br>
+                Maks. 2MB (JPG, PNG, WEBP)
+              </span>
+              <input type="file" id="image_file" name="image_file" accept="image/*" hidden onchange="handleFileSelect(this)">
+            </div>
+            @error('image_file') <p class="sge-error">{{ $message }}</p> @enderror
+
+            <div style="text-align: center; margin: 12px 0; font-size: 10px; color: #A67C52; letter-spacing: 0.1em;">— ATAU MASUKKAN URL —</div>
+
             <input class="sge-input" type="url" id="image_url" name="image_url"
                    placeholder="https://images.unsplash.com/..."
                    value="{{ old('image_url', $article->image_url) }}"
-                   oninput="previewImage(this.value)">
-            <p class="sge-hint">Kosongkan untuk tidak mengubah gambar.</p>
+                   oninput="previewImageUrl(this.value)">
+            <p class="sge-hint">Upload gambar lokal atau paste URL dari internet.</p>
+            
             <div id="image_preview_wrap">
               <img id="image_preview" src="" alt="Preview">
+              <div class="sge-img-label" style="background:#E8F5E9; color:#2E7D32;">Preview Gambar Baru</div>
             </div>
             @error('image_url') <p class="sge-error">{{ $message }}</p> @enderror
           </div>
@@ -1124,15 +1141,61 @@ titleInput.addEventListener('input', function() {
 });
 slugInput.addEventListener('input', function() { this._edited = true; });
 
-// Image preview
-function previewImage(url) {
+// ====== IMAGE UPLOAD & PREVIEW LOGIC ====== //
+
+// 1. Logic untuk Preview Gambar dari Lokal
+function handleFileSelect(input) {
+    if (!input.files.length) return;
+
+    // Ubah teks box upload menjadi nama file
+    document.getElementById('upload-text').innerHTML =
+        '<strong style="color: #2E7D32;">✓ ' + input.files[0].name + '</strong>';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('image_preview').src = e.target.result;
+        document.getElementById('image_preview_wrap').style.display = 'block';
+
+        // Sembunyikan gambar lama jika ada upload baru
+        const currentWrap = document.getElementById('current_image_wrap');
+        if(currentWrap) currentWrap.style.display = 'none';
+
+        // Kosongkan URL agar form memprioritaskan upload lokal
+        document.getElementById('image_url').value = '';
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+// 2. Logic untuk Preview Gambar dari URL
+function previewImageUrl(url) {
   const w = document.getElementById('image_preview_wrap');
   const i = document.getElementById('image_preview');
-  if (url && url.startsWith('http')) { i.src = url; w.style.display='block'; }
-  else { w.style.display='none'; }
+  const fileInput = document.getElementById('image_file');
+
+  if (url && url.startsWith('http')) { 
+      i.src = url; 
+      w.style.display = 'block'; 
+      
+      // Sembunyikan gambar lama
+      const currentWrap = document.getElementById('current_image_wrap');
+      if(currentWrap) currentWrap.style.display = 'none';
+
+      // Reset input file (lokal) jika user berpindah mengisi URL
+      fileInput.value = '';
+      document.getElementById('upload-text').innerHTML = '<strong style="color: #7A5030;">Klik untuk upload gambar lokal</strong><br>Maks. 2MB (JPG, PNG, WEBP)';
+  } else { 
+      w.style.display = 'none'; 
+      
+      // Munculkan kembali gambar lama (jika URL dihapus dan file input kosong)
+      const currentWrap = document.getElementById('current_image_wrap');
+      if(currentWrap && !fileInput.files.length) currentWrap.style.display = 'block';
+  }
 }
+
+// Inisiasi awal saat halaman dimuat (jika value error/old state URL masih ada)
 const imgVal = document.getElementById('image_url').value;
-if (imgVal) previewImage(imgVal);
+if (imgVal) previewImageUrl(imgVal);
+
 
 // Markdown insert
 function insertMd(before, after) {
@@ -1145,7 +1208,7 @@ function insertMd(before, after) {
   ta.focus();
 }
 
-// Preview
+// Preview Konten (Markdown)
 function togglePreview() {
   const box = document.getElementById('previewBox');
   if (box.style.display === 'none') {

@@ -126,18 +126,31 @@ if ($request->hasFile('image_file')) {
      * Update article with tags
      */
     public function update(Request $request, $id)
-{
-    $article = Article::findOrFail($id);
+    {
+        $article = Article::findOrFail($id);
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:articles,slug,' . $article->id,
             'content' => 'required|string',
             'image_url' => 'nullable|url',
+            // Tambahkan validasi untuk file gambar lokal
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', 
             'category' => 'required|string|max:255',
             'is_published' => 'required|boolean',
             'tags' => 'nullable|array',
             'tags.*' => 'integer|exists:tags,id',
         ]);
+
+        // Cek jika ada upload gambar dari lokal
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('skin-guide', 'public');
+            // Konversi file lokal menjadi URL yang bisa diakses (tersimpan di DB)
+            $validated['image_url'] = asset('storage/' . $path);
+        }
+
+        // Hapus array image_file agar tidak terjadi error saat update ke database
+        unset($validated['image_file']);
 
         // Update slug jika berubah
         if ($validated['slug'] !== $article->slug) {
