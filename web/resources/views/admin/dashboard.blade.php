@@ -21,7 +21,7 @@
             <p class="stat-card-label">Total Products</p>
             <div class="stat-card-bottom">
                 <strong class="stat-card-value">{{ $totalProducts ?? 0 }}</strong>
-                <img src="{{ asset('images/product.png') }}" alt="Products" class="stat-card-icon">
+                <span class="stat-card-icon-bi"><i class="bi bi-box-seam"></i></span>
             </div>
         </article>
 
@@ -29,7 +29,7 @@
             <p class="stat-card-label">Skin Guide Articles</p>
             <div class="stat-card-bottom">
                 <strong class="stat-card-value">{{ $totalArticles ?? 0 }}</strong>
-                <img src="{{ asset('images/skinguide.png') }}" alt="Skin Guide" class="stat-card-icon">
+                <span class="stat-card-icon-bi"><i class="bi bi-journal-richtext"></i></span>
             </div>
         </article>
 
@@ -37,7 +37,7 @@
             <p class="stat-card-label">Pending Feedback</p>
             <div class="stat-card-bottom">
                 <strong class="stat-card-value">{{ $pendingFeedback ?? 0 }}</strong>
-                <img src="{{ asset('images/feedback.png') }}" alt="Feedback" class="stat-card-icon">
+                <span class="stat-card-icon-bi"><i class="bi bi-chat-square-text"></i></span>
             </div>
         </article>
 
@@ -45,7 +45,7 @@
             <p class="stat-card-label">Total Users</p>
             <div class="stat-card-bottom">
                 <strong class="stat-card-value">{{ $totalUsers ?? 0 }}</strong>
-                <img src="{{ asset('images/users.png') }}" alt="Users" class="stat-card-icon">
+                <span class="stat-card-icon-bi"><i class="bi bi-people"></i></span>
             </div>
         </article>
     </div>
@@ -186,6 +186,22 @@
   object-fit: contain;
   flex-shrink: 0;
   opacity: 0.9;
+}
+
+.stat-card-icon-bi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(60, 32, 16, 0.07);
+  color: var(--brown-dark);
+  flex-shrink: 0;
+}
+.stat-card-icon-bi i {
+  font-size: 20px;
+  opacity: 0.85;
 }
 
 .stat-card-label {
