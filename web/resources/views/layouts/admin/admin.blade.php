@@ -12,13 +12,24 @@
     /* === SIDEBAR SYSTEM — prefix sq- agar tidak bentrok admin.css === */
     :root {
       --sq-w: 240px; --sq-wmin: 64px;
+<<<<<<< HEAD
+      --sq-bg: #F2DFC8;        /* krem hangat — background sidebar utama */
+      --sq-surface: #EAD3B5;   /* hover state nav item — sedikit lebih gelap */
+      --sq-active: #3B2010;    /* item aktif — coklat tua gelap */
+      --sq-act-text: #F5E8D8;  /* teks di atas item aktif */
+      --sq-text: #5C3D28;      /* teks label nav */
+      --sq-muted: #8B6B55;     /* teks/icon non-aktif */
+      --sq-border: #DECCB2;    /* divider dan border sidebar */
+      --sq-accent: #3B2010;
+=======
       --sq-bg: #FFDBB5; --sq-surface: #FFCFA0;
       --sq-active: #6B3A28; --sq-act-text: #F9EFE4;
       --sq-text: #7A5040; --sq-muted: #9E7055;
       --sq-border: #E8B48A; --sq-accent: #6B3A28;
+>>>>>>> 08bdb1ee30c315a27c3440f25ae3896a1ee774b6
       --sq-tr: 250ms cubic-bezier(.4,0,.2,1);
     }
-    
+      
     /* 1. Paksa scroll vertikal dan cegah kunci tinggi layar */
     html, body { 
       margin: 0; 
@@ -193,7 +204,7 @@
       <img src="{{ asset('images/logo_skinquo_cream.png') }}" alt="SkinQuo" class="sq-logo">
       <span class="sq-brand">Admin Portal</span>
       <button class="sq-toggle" id="sqToggle" aria-label="Toggle sidebar">
-        <i class="bi bi-chevron-left" style="font-size:12px"></i>
+        <i class="bi bi-chevron-left" style="font-size:14px"></i>
       </button>
     </div>
 

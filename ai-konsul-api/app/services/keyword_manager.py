@@ -18,9 +18,6 @@ class KeywordManager:
     def load_keywords_from_db(self):
         print("[API] Menarik data keyword dan catatan medis dari Supabase...")
         
-        # =========================================================================
-        # [NEW] SISTEM AUTO-RETRY UNTUK MENCEGAH "SERVER DISCONNECTED" SAAT STARTUP
-        # =========================================================================
         max_retries = 3
         response = None
         
@@ -30,7 +27,7 @@ class KeywordManager:
                     print(f"[API] Mencoba ulang menarik data keyword... (Percobaan {attempt + 1}/{max_retries})")
                 
                 response = supabase.table("validation_keywords").select("category, keyword, precaution_note").execute()
-                break  # Jika berhasil, keluar dari loop
+                break 
                 
             except httpx.RemoteProtocolError as e:
                 print(f"❌ [DATABASE ERROR] Koneksi terputus saat menarik keyword: {str(e)}")
@@ -47,7 +44,6 @@ class KeywordManager:
                     time.sleep(3)
                 else:
                     raise e
-        # =========================================================================
 
         if not response or not hasattr(response, 'data') or not response.data:
             print("[API] Peringatan: Tabel validation_keywords kosong atau gagal ditarik!")
@@ -58,20 +54,27 @@ class KeywordManager:
         new_precaution_map = {}
         new_canonical_map = {}
 
-        # ─── IN-MEMORY CANONICAL LOOKUP (DISEDERHANAKAN) ───
-        # Karena AI Semantic (MiniLM) sudah mengambil alih pencocokan makna kata
-        # Dictionary ini sekarang HANYA bertugas memastikan format teks rapi saat dicetak ke UI.
+        # ─── IN-MEMORY CANONICAL LOOKUP (MENCEGAH REDUNDANSI "KERING, KULIT KERING") ───
         CANONICAL_LOOKUP = {
             # Jenis / Tipe Kulit
             "kulit berminyak": "Kulit Berminyak",
+            "berminyak": "Kulit Berminyak",       # <-- [FIX] Menyatukan sifat tunggal
             "kulit kering": "Kulit Kering",
+            "kering": "Kulit Kering",             # <-- [FIX] Menyatukan sifat tunggal
             "kulit sensitif": "Kulit Sensitif",
+            "sensitif": "Kulit Sensitif",         # <-- [FIX] Menyatukan sifat tunggal
             "kulit kombinasi": "Kulit Kombinasi",
+            "kombinasi": "Kulit Kombinasi",
             "kulit normal": "Kulit Normal",
+            "normal": "Kulit Normal",
             
             # Keluhan / Masalah Kulit
             "jerawat": "Jerawat",
+            "bruntusan": "Jerawat",
+            "breakout": "Jerawat",
+            "jerawatan": "Jerawat",
             "kulit kusam": "Kulit Kusam",
+            "kusam": "Kulit Kusam",               # <-- [FIX]
             "flek hitam": "Flek Hitam",
             "komedo": "Komedo",
             "pori-pori besar": "Pori-Pori Besar",
@@ -85,16 +88,8 @@ class KeywordManager:
             # Kategori Jenis Produk
             "sabun cuci wajah": "Sabun Cuci Wajah",
             "sabun": "Sabun Cuci Wajah",
-            "toner": "Toner",
-            "serum": "Serum",
             "pelembab": "Pelembab (Moisturizer)",
-            "sunscreen": "Sunscreen",
-            "masker wajah": "Masker Wajah",
-            "masker": "Masker Wajah",
-            "eksfoliator": "Eksfoliator",
-            "eksfoliasi": "Eksfoliator",
-            "krim mata": "Krim Mata (Eye Cream)",
-            "micellar water": "Micellar Water"
+            "krim mata": "Krim Mata (Eye Cream)"
         }
 
         for row in response.data:
@@ -109,7 +104,6 @@ class KeywordManager:
             if note:
                 new_precaution_map[kw] = note
             
-            # Lakukan pencocokan otomatis ke teks formal baku
             if kw in CANONICAL_LOOKUP:
                 new_canonical_map[kw] = CANONICAL_LOOKUP[kw]
             else:
@@ -121,6 +115,6 @@ class KeywordManager:
         self.PRECAUTION_MAP = new_precaution_map
         self.CANONICAL_MAP = new_canonical_map
         
-        print(f"[API] Berhasil memuat {len(new_protected)} keyword murni dan {len(new_precaution_map)} catatan medis dari Supabase.")
+        print(f"[API] Berhasil memuat {len(new_protected)} keyword murni dan {len(new_precaution_map)} catatan medis.")
 
 keyword_manager = KeywordManager()

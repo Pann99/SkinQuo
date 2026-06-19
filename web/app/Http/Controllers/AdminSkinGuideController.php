@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class AdminSkinGuideController extends Controller
 {
@@ -53,7 +54,7 @@ class AdminSkinGuideController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-             'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:articles,slug',
             'content' => 'required|string',
             'image_url' => 'nullable|url',
@@ -75,22 +76,22 @@ class AdminSkinGuideController extends Controller
 
         $validated['slug'] = $slug;
 
+        if (!$request->filled('image_url') && !$request->hasFile('image_file')) {
+            return back()
+                ->withErrors([
+                    'image_url' => 'Upload gambar atau masukkan URL gambar.'
+                ])
+                ->withInput();
+        }
 
-       if (!$request->filled('image_url') && !$request->hasFile('image_file')) {
-    return back()
-        ->withErrors([
-            'image_url' => 'Upload gambar atau masukkan URL gambar.'
-        ])
-        ->withInput();
-}
+        // PERBAIKAN STORE: Upload gambar langsung ke Supabase Storage (s3)
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('skin-guide', 's3');
+            $validated['image_url'] = Storage::disk('s3')->url($path);
+        }
 
-if ($request->hasFile('image_file')) {
-
-    $path = $request->file('image_file')
-        ->store('skin-guide', 'public');
-
-    $validated['image_url'] = asset('storage/' . $path);
-}
+        // Hapus image_file agar tidak masuk ke query insert database
+        unset($validated['image_file']);
 
         // Simpan artikel
         $article = Article::create($validated);
@@ -109,35 +110,46 @@ if ($request->hasFile('image_file')) {
     /**
      * Show edit form
      */
-   public function edit($id)
-{
-    $article = Article::with('tags')->findOrFail($id);
+    public function edit($id)
+    {
+        $article = Article::with('tags')->findOrFail($id);
 
-    $tags = Tag::all();
-    $selectedTagIds = $article->tags->pluck('id')->toArray();
+        $tags = Tag::all();
+        $selectedTagIds = $article->tags->pluck('id')->toArray();
 
-    return view(
-        'admin.skin-guide.edit',
-        compact('article', 'tags', 'selectedTagIds')
-    );
-}
+        return view(
+            'admin.skin-guide.edit',
+            compact('article', 'tags', 'selectedTagIds')
+        );
+    }
 
     /**
      * Update article with tags
      */
     public function update(Request $request, $id)
-{
-    $article = Article::findOrFail($id);
+    {
+        $article = Article::findOrFail($id);
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:articles,slug,' . $article->id,
             'content' => 'required|string',
             'image_url' => 'nullable|url',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', 
             'category' => 'required|string|max:255',
             'is_published' => 'required|boolean',
             'tags' => 'nullable|array',
             'tags.*' => 'integer|exists:tags,id',
         ]);
+
+        // PERBAIKAN UPDATE: Upload gambar langsung ke Supabase Storage (s3)
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('skin-guide', 's3');
+            $validated['image_url'] = Storage::disk('s3')->url($path);
+        }
+
+        // Hapus array image_file agar tidak terjadi error saat update ke database
+        unset($validated['image_file']);
 
         // Update slug jika berubah
         if ($validated['slug'] !== $article->slug) {
@@ -167,15 +179,15 @@ if ($request->hasFile('image_file')) {
     /**
      * Delete article and related tags
      */
-public function destroy($id)
-{
-    $article = Article::findOrFail($id);
+    public function destroy($id)
+    {
+        $article = Article::findOrFail($id);
 
-    $article->tags()->detach();
-    $article->delete();
+        $article->tags()->detach();
+        $article->delete();
 
-    return redirect()
-        ->route('admin.skin-guide.index')
-        ->with('success', 'Skin Guide berhasil dihapus!');
-}
+        return redirect()
+            ->route('admin.skin-guide.index')
+            ->with('success', 'Skin Guide berhasil dihapus!');
+    }
 }

@@ -8,9 +8,6 @@ from app.core.supabase_client import supabase
 
 router = APIRouter()
 
-# =====================================================
-# INIT SERVICES DI TINGKAT GLOBAL
-# =====================================================
 print("[API] Loading database from Supabase...")
 df_clean = run_pipeline_supabase() 
 
@@ -36,22 +33,24 @@ def recommend_products(request: QueryRequest):
                 "recommendations": []
             }
 
-        cleaned_query = query_result["cleaned_text"]
+        cleaned_query = query_result.get("cleaned_text", "")
         
-        # [DIPERBAIKI] Mengambil Data String Murni dari Pipeline, bukan Dictionary dari matched_points
         extracted_products = query_result.get("extracted_products", [])
         extracted_ingredients = query_result.get("extracted_ingredients", [])
+        suggested_ingredients = query_result.get("suggested_ingredients", []) 
         extracted_skin_types = query_result.get("extracted_skin_types", [])
         extracted_problems = query_result.get("extracted_problems", [])
+        
+        final_budget = query_result.get("user_budget") or request.harga_max
 
-        # Recommender SAW + Enriched TF-IDF
         recommendations = recommender.recommend(
             cleaned_query=cleaned_query,
             extracted_products=extracted_products,
             extracted_ingredients=extracted_ingredients,  
+            suggested_ingredients=suggested_ingredients,  
             extracted_skin_types=extracted_skin_types,    
             extracted_problems=extracted_problems,  
-            harga_max=request.harga_max,  
+            harga_max=final_budget,  
             top_n=5
         )
 
@@ -63,6 +62,8 @@ def recommend_products(request: QueryRequest):
             "extracted_skin_types":   extracted_skin_types,
             "extracted_problems":     extracted_problems, 
             "extracted_ingredients":  extracted_ingredients,
+            "suggested_ingredients":  suggested_ingredients,
+            "user_budget":            final_budget, 
             "display_explainability": query_result.get("display_explainability", {}),
             "recommendations":        recommendations,
             "query_fixing":           query_result.get("query_fixing"),

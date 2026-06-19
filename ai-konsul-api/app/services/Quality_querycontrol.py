@@ -13,7 +13,6 @@ LABEL_MAP: dict[str, str] = {
     "skin_type":  "[Area/Type] Jenis kulit",
 }
 
-# [DIPERBAIKI] Tambah kata 'skin', 'jenis', 'tipe', 'type' untuk mencegah spam deteksi
 GENERIC_NOISE_KEYWORDS: frozenset[str] = frozenset({
     "kulit", "wajah", "muka", "produk", "skincare", "bahan", "rekomendasi", "pake", "saya", "buat", "ingin", "cari", "skin", "jenis", "tipe", "type"
 })
@@ -22,7 +21,7 @@ DETECT_THRESHOLD_SINGLE: int = 78
 DETECT_THRESHOLD_PHRASE: int = 85   
 FUZZY_SKIP_KEYWORDS: frozenset[str] = frozenset({"kulit", "skin", "jenis", "tipe", "type"})
 
-SEMANTIC_THRESHOLD: float = 0.65  
+SEMANTIC_THRESHOLD: float = 0.82  
 
 def _get_ngrams(text: str, n: int) -> list[str]:
     words = text.split()
@@ -31,16 +30,23 @@ def _get_ngrams(text: str, n: int) -> list[str]:
     return [" ".join(words[i : i + n]) for i in range(len(words) - n + 1)]
 
 def _is_fuzzy_candidate(query_lower: str, keyword: str) -> bool:
+    if len(keyword) <= 3:
+        return False
+
     if keyword in FUZZY_SKIP_KEYWORDS or keyword in GENERIC_NOISE_KEYWORDS:
         return False
+        
     kw_word_count = len(keyword.split())
     threshold     = DETECT_THRESHOLD_SINGLE if kw_word_count == 1 else DETECT_THRESHOLD_PHRASE
     candidates    = _get_ngrams(query_lower, kw_word_count)
+    
     for candidate in candidates:
-        # [DIPERBAIKI] Ubah menjadi fuzz.ratio murni agar pencocokan lebih ketat 
-        scorer = fuzz.ratio 
+        # [FIX] Ganti WRatio menjadi token_sort_ratio agar "eye serum" tidak numpang lolos lewat kata "serum"
+        scorer = fuzz.token_sort_ratio
+
         if scorer(keyword, candidate) >= threshold:
             return True
+            
     return False
 
 def _match_category_with_confidence(
@@ -59,20 +65,17 @@ def _match_category_with_confidence(
         if kw_lower in GENERIC_NOISE_KEYWORDS:
             continue
 
-        # 1. EXACT MATCH (Confidence = 1.0)
         if re.search(r'\b' + re.escape(kw_lower) + r'\b', text_lower):
             exact_found.append({"keyword": kw_lower, "confidence": 1.0, "method": "exact"})
-            print(f"  [NLP-SCORE] ✔️ EXACT | Kat: {category_name:<12} | Kata: '{kw_lower:<15}' | Score: 1.000")
+            print(f"  [NLP-SCORE] ✔️ EXACT    | Kat: {category_name:<12} | Kata: '{kw_lower:<15}' | Score: 1.000")
             continue
 
-        # 2. FUZZY MATCH / TYPO (Confidence = 0.85)
         if _is_fuzzy_candidate(text_lower, kw_lower):
             fixable_found.append(kw_lower)
             exact_found.append({"keyword": kw_lower, "confidence": 0.85, "method": "fuzzy"})
-            print(f"  [NLP-SCORE] 〰️ FUZZY | Kat: {category_name:<12} | Kata: '{kw_lower:<15}' | Score: 0.850")
+            print(f"  [NLP-SCORE] 〰️ FUZZY    | Kat: {category_name:<12} | Kata: '{kw_lower:<15}' | Score: 0.850")
             continue
 
-        # 3. SEMANTIC MATCH (Confidence = Cosine Score)
         kw_emb = _keyword_embedding(kw_lower)
         score = util.cos_sim(query_embedding, kw_emb).item()
 
@@ -120,15 +123,24 @@ def validate_query(text: str, original_query: str = "") -> dict:
     has_any_match = bool(matched)
 
     if not has_any_match:
-        status = "out_of_context"
-    elif has_fixable:
-        status = "fixable"
-    else:
-        status = "valid"
+        return {"status": "out_of_context", "missing": missing, "matched": matched}
 
-    return {
-        "status":           status,
-        "matched":          matched,
-        "missing":          missing,
-        "fixable_keywords": fixable_keywords,
-    }
+    has_concern = "skin_type" in matched or "problem" in matched
+    has_product = "product" in matched
+
+    if not has_concern:
+        nama_produk_diminta = "Produk"
+        if has_product and matched.get("product", {}).get("exact"):
+            nama_produk_diminta = matched["product"]["exact"][0]["keyword"].title()
+
+        return {
+            "status": "invalid",
+            "missing": missing,
+            "matched": matched,
+            "message": f"Kamu mencari {nama_produk_diminta}, tapi untuk jenis kulit atau keluhan apa? (Contoh: '{nama_produk_diminta} untuk jerawat')"
+        }
+
+    if has_fixable:
+        return {"status": "fixable", "missing": missing, "matched": matched, "fixable_keywords": fixable_keywords}
+
+    return {"status": "valid", "missing": missing, "matched": matched}

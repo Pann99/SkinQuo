@@ -6,7 +6,6 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; 
 
-
 class AdminProductController extends Controller
 {
     /**
@@ -31,16 +30,16 @@ class AdminProductController extends Controller
             ->orderBy('product_id', 'desc')
             ->paginate(15);
 
-       // ── Last updated per dictionary category ──
-    $lastUpdated = [];
-    foreach (['product', 'ingredient', 'skin_type', 'problem'] as $category) {
-        $lastUpdated[$category] = DB::table('validation_keywords')
-            ->where('category', $category)
-            ->max('created_at');
-    }
+        // ── Last updated per dictionary category ──
+        $lastUpdated = [];
+        foreach (['product', 'ingredient', 'skin_type', 'problem'] as $category) {
+            $lastUpdated[$category] = DB::table('validation_keywords')
+                ->where('category', $category)
+                ->max('created_at');
+        }
 
-    return view('admin.inventory.index', compact('products', 'lastUpdated'));
-}
+        return view('admin.inventory.index', compact('products', 'lastUpdated'));
+    }
 
     /**
      * Show create form
@@ -55,20 +54,27 @@ class AdminProductController extends Controller
      */
     public function store(Request $request)
     {
-        
+        // Custom error messages
+        $messages = [
+            'harga_min.lte' => 'Harga minimum tidak boleh lebih besar dari harga maksimum.',
+            'harga_max.gte' => 'Harga maksimum tidak boleh lebih kecil dari harga minimum.',
+            'harga_min.numeric' => 'Masukkan angka murni tanpa titik (contoh: 53500).',
+            'harga_max.numeric' => 'Masukkan angka murni tanpa titik (contoh: 53500).',
+        ];
+
         $validated = $request->validate([
             'product_id' => 'nullable|integer|unique:products,product_id',
             'nama_produk' => 'required|string|max:255',
             'nama_brand' => 'required|string|max:255',
             'kategori_produk' => 'required|string|max:255',
-            'harga_min' => 'required|numeric',
-            'harga_max' => 'required|numeric',
+            'harga_min' => 'required|numeric|min:0|lte:harga_max',
+            'harga_max' => 'required|numeric|min:0|gte:harga_min',
             'deskripsi' => 'nullable|string',
             'cara_pakai' => 'nullable|string',
             'kandungan' => 'nullable|string',
             'image' => 'nullable|string|url',
             'link_produk' => 'nullable|string|url',
-        ]);
+        ], $messages);
 
         try {
             $product = Product::create($validated);
@@ -105,18 +111,26 @@ class AdminProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        // Custom error messages disamakan dengan fungsi store
+        $messages = [
+            'harga_min.lte' => 'Harga minimum tidak boleh lebih besar dari harga maksimum.',
+            'harga_max.gte' => 'Harga maksimum tidak boleh lebih kecil dari harga minimum.',
+            'harga_min.numeric' => 'Masukkan angka murni tanpa titik (contoh: 53500).',
+            'harga_max.numeric' => 'Masukkan angka murni tanpa titik (contoh: 53500).',
+        ];
+
         $validated = $request->validate([
-            'nama_produk' => 'sometimes|string|max:255',
-            'nama_brand' => 'sometimes|string|max:255',
-            'kategori_produk' => 'sometimes|string|max:255',
-            'harga_min' => 'sometimes|numeric',
-            'harga_max' => 'sometimes|numeric',
+            'nama_produk' => 'required|string|max:255',
+            'nama_brand' => 'required|string|max:255',
+            'kategori_produk' => 'required|string|max:255',
+            'harga_min' => 'required|numeric|min:0|lte:harga_max',
+            'harga_max' => 'required|numeric|min:0|gte:harga_min',
             'deskripsi' => 'nullable|string',
             'cara_pakai' => 'nullable|string',
             'kandungan' => 'nullable|string',
             'image' => 'nullable|string|url',
             'link_produk' => 'nullable|string|url',
-        ]);
+        ], $messages);
 
         try {
             $product->update($validated);
