@@ -168,7 +168,12 @@ class ConsultationController extends Controller
                 'query'          => ['required', 'string', 'min:5', 'max:500'],
                 'original_query' => ['nullable', 'string', 'max:500'],
                 'harga_max'      => ['nullable', 'numeric', 'min:0'],
-            ]);
+            ],
+    [
+        'query.required' => 'Please fill in your skin concern before searching for products.',
+        'query.min'      => 'Please enter at least 5 characters.',
+    ]
+);
 
             $originalQuery = $validated['original_query'] ?? $validated['query'];
             $isGuest = !Auth::check();

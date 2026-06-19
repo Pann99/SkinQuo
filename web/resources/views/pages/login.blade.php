@@ -224,6 +224,9 @@
                     autocomplete="username"
                     autofocus
                     maxlength="255"
+    onpaste="return false"
+    oncopy="return false"
+    oncut="return false"
                 >
                 @error('email')
                     <span class="auth-error">{{ $message }}</span>
@@ -245,7 +248,10 @@
                         placeholder="Password"
                         required
                         autocomplete="current-password"
-                        style="padding-right: 2.75rem;"
+                         style="padding-right: 2.75rem;"
+    onpaste="return false"
+    oncopy="return false"
+    oncut="return false"
                     >
                     <button
                         type="button"
@@ -319,5 +325,13 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Signing In...';
     });
+
+    document.getElementById('email').addEventListener('paste', e => {
+    e.preventDefault();
+});
+
+document.getElementById('password').addEventListener('paste', e => {
+    e.preventDefault();
+});
 </script>
 @endsection
