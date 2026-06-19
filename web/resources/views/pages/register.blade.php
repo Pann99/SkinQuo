@@ -402,7 +402,7 @@
 
                 {{-- Password --}}
                 <label class="auth-label" for="password">Password</label>
-                <div style="position: relative;">
+                <div style="position: relative; margin-bottom: 0.5rem;">
                     <input
                         id="password"
                         type="password"
@@ -413,13 +413,13 @@
                         autocomplete="new-password"
                         minlength="8"
                         maxlength="255"
-                        style="padding-right: 2.75rem;"
+                        style="padding-right: 2.75rem; margin-bottom: 0;"
                     >
                     <button
                         type="button"
                         class="password-toggle"
                         data-target="password"
-                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s;"
+                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; padding: 0;"
                         onmouseover="this.style.opacity='1'"
                         onmouseout="this.style.opacity='0.6'"
                     >
@@ -439,7 +439,7 @@
 
                 {{-- Password Confirmation --}}
                 <label class="auth-label" for="password_confirmation">Confirm Password</label>
-                <div style="position: relative;">
+                <div style="position: relative; margin-bottom: 0.5rem;">
                     <input
                         id="password_confirmation"
                         type="password"
@@ -450,13 +450,13 @@
                         autocomplete="new-password"
                         minlength="8"
                         maxlength="255"
-                        style="padding-right: 2.75rem;"
+                        style="padding-right: 2.75rem; margin-bottom: 0;"
                     >
                     <button
                         type="button"
                         class="password-toggle"
                         data-target="password_confirmation"
-                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s;"
+                        style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #603F26; opacity: 0.6; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; padding: 0;"
                         onmouseover="this.style.opacity='1'"
                         onmouseout="this.style.opacity='0.6'"
                     >
